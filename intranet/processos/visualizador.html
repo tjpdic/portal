@@ -94,20 +94,20 @@
             height: 30px; 
         }
         
+        /* CORREÇÃO DEFINITIVA DO CONFLITO DE PÁGINAS EM BRANCO */
         .gerando-pdf .folha-a4 { 
             margin: 0 !important; 
             box-shadow: none !important; 
             border: none !important; 
             border-radius: 0 !important; 
-            height: 297mm !important; 
-            max-height: 297mm !important;
-            overflow: hidden !important; 
-            page-break-after: always; 
-            page-break-inside: avoid; 
+            min-height: auto !important; /* Remove a altura mínima forçada */
+            height: auto !important; /* Deixa o conteúdo ditar a altura */
+            page-break-after: always !important; /* Apenas o page-break cria a página nova */
+            page-break-inside: avoid !important; 
         }
         
         .gerando-pdf .folha-a4:last-of-type { 
-            page-break-after: avoid !important; 
+            page-break-after: auto !important; /* A última não pula página */
         }
 
         .floating-bar {
@@ -259,7 +259,7 @@
                         format: 'a4', 
                         orientation: 'portrait' 
                     },
-                    pagebreak: { mode: ['css', 'legacy'] } 
+                    pagebreak: { mode: 'css' } // Força o JS a obedecer APENAS o CSS
                 };
                 
                 html2pdf().set(opt).from(element).save().then(() => {
