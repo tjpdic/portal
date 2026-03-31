@@ -176,8 +176,8 @@
             const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
             const db = getFirestore(app);
 
-            // CARREGAR AULAS REGISTRADAS
-            onSnapshot(query(collection(db, 'tjp_aulas'), orderBy('timestamp', 'desc')), (snap) => {
+            // SINCRONIZADO: Apontando para a coleção original 'aulas'
+            onSnapshot(query(collection(db, 'aulas'), orderBy('timestamp', 'desc')), (snap) => {
                 let htmlAulas = "";
                 snap.forEach(d => { 
                     try {
@@ -190,11 +190,17 @@
                             tags = "<span style='font-size:12px; color:var(--text-muted);'>Nenhum listado</span>";
                         }
 
+                        // Proteção caso os campos originais tivessem nomes diferentes (ex: data vs dataAula)
+                        const exibeData = a.dataAula || a.data || "Data N/A";
+                        const exibeHora = a.horaAula || a.hora || "";
+                        const exibeTema = a.tema || a.assunto || "Tema não especificado";
+                        const exibeMonitor = a.monitor || a.responsavel || "Desconhecido";
+
                         htmlAulas += `
                             <tr>
-                                <td><strong>${a.dataAula}</strong><br><small>${a.horaAula}</small></td>
-                                <td>${a.tema}</td>
-                                <td>${a.monitor}</td>
+                                <td><strong>${exibeData}</strong><br><small>${exibeHora}</small></td>
+                                <td>${exibeTema}</td>
+                                <td>${exibeMonitor}</td>
                                 <td><div style="display:flex; flex-wrap:wrap;">${tags}</div></td>
                                 <td>
                                     <button class="btn-icon delete" onclick="window.deletarAula('${d.id}')" title="Remover Registro"><i class="fa-solid fa-trash"></i></button>
@@ -206,12 +212,12 @@
                 document.getElementById('tabelaAulas').innerHTML = htmlAulas || `<tr><td colspan="5" style="text-align:center;">Nenhum registro de aula encontrado.</td></tr>`;
             });
 
-            // ABRIR MODAL E CARREGAR CHECKBOXES
             window.abrirModalAula = async function() {
                 try {
                     document.getElementById('aulaTema').value = "";
                     document.getElementById('aulaObs').value = "";
                     
+                    // Nota: Se aprendizes eram salvos em tjp_usuarios, ajustaremos depois se necessário
                     const snapAp = await getDocs(collection(db, 'aprendizes'));
                     let checks = "";
                     
@@ -235,7 +241,6 @@
                 }
             };
 
-            // SALVAR AULA
             window.salvarAula = async function() {
                 try {
                     const tema = document.getElementById('aulaTema').value.trim();
@@ -256,7 +261,8 @@
                     const dataFmt = now.toLocaleDateString('pt-BR');
                     const horaFmt = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-                    await addDoc(collection(db, 'tjp_aulas'), {
+                    // SINCRONIZADO: Salvando na coleção 'aulas'
+                    await addDoc(collection(db, 'aulas'), {
                         tema: tema,
                         monitor: user.nick,
                         aprendizesPresentes: presentes,
@@ -279,11 +285,10 @@
                 }
             };
 
-            // DELETAR AULA
             window.deletarAula = async function(idDoc) {
                 if(confirm(`Tem certeza que deseja apagar este registro de frequência?`)) {
                     try {
-                        await deleteDoc(doc(db, 'tjp_aulas', idDoc));
+                        await deleteDoc(doc(db, 'aulas', idDoc));
                         window.showToast("Registro apagado com sucesso.");
                     } catch(e) {
                         alert("Erro ao excluir: " + e.message);
