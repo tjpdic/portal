@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso Restrito - Intranet TJP</title>
+    <link rel="icon" href="assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .toggle-auth { margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+        .toggle-auth a { color: var(--primary); font-weight: 700; cursor: pointer; text-decoration: none; }
+        .toggle-auth a:hover { color: var(--accent); text-decoration: underline; }
+        #registerSection { display: none; }
+        #loaderAPI { display: none; margin-top: 15px; font-size: 13px; color: var(--primary); font-weight: 600; }
+        .error-msg { color: #ef4444; font-size: 12px; margin-top: 10px; font-weight: 600; display: none; }
+    </style>
+
+    <script>
+        // Roteamento Automático Universal Inteligente (Lê o Nível de Acesso)
+        const sessao = localStorage.getItem("juspanel_session");
+        if (sessao) {
+            const user = JSON.parse(sessao);
+            if (user.nivel_acesso === 'Aprendiz' || user.cargo === 'Aprendiz') {
+                window.location.href = "/intranet/aprendiz";
+            } else {
+                window.location.href = "/intranet/processos";
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div id="toast" class="toast">
+        <i class="fa-solid fa-circle-check"></i> <span id="toastMessage">Sucesso!</span>
+    </div>
+
+    <div class="top-bar">
+        <div class="container top-bar-content">
+            <div class="top-links" id="dynamicTopLinks">
+                <a href="#">Ouvidoria TJP</a>
+            </div>
+            <div class="top-actions">
+                <span>Intranet Unificada Tribunal de Justiça</span>
+            </div>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="container header-content">
+            <div class="brand">
+                <div class="logo"><img src="assets/img/logo-tjp.png" alt="Logo TJP" style="height: 55px; width: auto;"></div>
+                <div>
+                    <h1>Tribunal de Justiça Policial</h1>
+                    <small>Sistema de Processamento e Administração&reg;</small>
+                </div>
+            </div>
+            <nav class="main-nav">
+                <ul id="dynamicMenu">
+                    <li><a href="index.html"><i class="fa-solid fa-house"></i> Retornar ao Portal</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <main class="login-section">
+            
+            <div class="login-card" id="loginSection">
+                <img src="assets/img/logo-tjp.png" alt="Emblema TJP" style="height: 60px; width: auto; margin-bottom: 15px;">
+                <h2>Intranet TJP</h2>
+                <p>Acesso restrito ao corpo de Oficiais, Monitores e Aprendizes.</p>
+                
+                <form id="formLogin">
+                    <div class="form-group">
+                        <label for="loginNick"><i class="fa-solid fa-user-shield"></i> Nick Habbo</label>
+                        <input type="text" id="loginNick" placeholder="Digite seu usuário..." required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginSenha"><i class="fa-solid fa-lock"></i> Senha de Acesso</label>
+                        <input type="password" id="loginSenha" placeholder="••••••••" required>
+                    </div>
+                    <p id="loginError" class="error-msg">Usuário ou senha incorretos.</p>
+                    <button type="submit" class="btn-submit" id="btnLoginBtn" style="margin-top: 10px;"><i class="fa-solid fa-fingerprint"></i> Autenticar Credenciais</button>
+                </form>
+
+                <div class="toggle-auth">
+                    Membro da bancada recém-chegado? <a onclick="toggleAuth('register')">Cadastre-se aqui</a>
+                </div>
+            </div>
+
+            <div class="login-card" id="registerSection">
+                <img src="assets/img/logo-tjp.png" alt="Emblema TJP" style="height: 60px; width: auto; margin-bottom: 15px;">
+                <h2>Cadastro Institucional</h2>
+                <p>Seu perfil deve estar público e no grupo oficial do TJP no Habbo.</p>
+                <p style="font-size: 11px; color: #ef4444; margin-bottom: 15px;"><strong>Aviso:</strong> Aprendizes não se cadastram aqui. A matrícula é feita pelo Monitor.</p>
+                
+                <form id="formRegister">
+                    <div class="form-group">
+                        <label for="regNick"><i class="fa-solid fa-user"></i> Nick Habbo Exato</label>
+                        <input type="text" id="regNick" placeholder="Digite seu usuário..." required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="regSenha"><i class="fa-solid fa-key"></i> Crie uma Senha</label>
+                        <input type="password" id="regSenha" placeholder="Crie uma senha forte" required minlength="6">
+                    </div>
+                    
+                    <div id="loaderAPI"><i class="fa-solid fa-circle-notch fa-spin"></i> Verificando credenciais...</div>
+                    <p id="regError" class="error-msg">Você não pertence ao grupo do TJP ou seu perfil está oculto.</p>
+                    
+                    <button type="submit" class="btn-submit" id="btnRegisterBtn" style="margin-top: 10px; background: var(--primary);"><i class="fa-solid fa-id-card"></i> Solicitar Cadastro</button>
+                </form>
+
+                <div class="toggle-auth">
+                    Já possui acesso? <a onclick="toggleAuth('login')">Fazer Login</a>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs",
+            authDomain: "monitores-sisap.firebaseapp.com",
+            projectId: "monitores-sisap",
+            storageBucket: "monitores-sisap.firebasestorage.app",
+            messagingSenderId: "489679893157",
+            appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const HABBO_GROUP_BADGE = "b18044s02114s42014s43114s40014320ccd1d639cd4181fc0ee8c8666d7fc";
+        const PROXY_URL = "https://proxydicgroups.alvesedu-br.workers.dev/?url=";
+
+        window.showToast = (msg, isError = false) => {
+            const t = document.getElementById("toast"); 
+            document.getElementById("toastMessage").innerText = msg;
+            t.style.borderLeftColor = isError ? "#ef4444" : "var(--accent)";
+            t.querySelector("i").className = isError ? "fa-solid fa-circle-xmark" : "fa-solid fa-circle-check";
+            t.querySelector("i").style.color = isError ? "#ef4444" : "var(--accent)";
+            t.classList.add("show"); 
+            setTimeout(() => t.classList.remove("show"), 4000);
+        };
+
+        window.toggleAuth = (type) => {
+            document.getElementById("loginError").style.display = "none";
+            document.getElementById("regError").style.display = "none";
+            if(type === 'register') {
+                document.getElementById("loginSection").style.display = "none";
+                document.getElementById("registerSection").style.display = "block";
+            } else {
+                document.getElementById("registerSection").style.display = "none";
+                document.getElementById("loginSection").style.display = "block";
+            }
+        };
+
+        async function hashPassword(senha) {
+            const msgBuffer = new TextEncoder().encode(senha);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function fetchHabboAPI(targetUrl) {
+            const finalUrl = PROXY_URL + encodeURIComponent(targetUrl);
+            const res = await fetch(finalUrl);
+            if (!res.ok) {
+                if (res.status === 404) return null; 
+                throw new Error("Falha na comunicação com o proxy.");
+            }
+            return await res.json();
+        }
+
+        // ==========================================
+        // SISTEMA DE CADASTRO COM PONTE "TJP_MEMBROS"
+        // ==========================================
+        document.getElementById("formRegister").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById("btnRegisterBtn");
+            const loader = document.getElementById("loaderAPI");
+            const errorMsg = document.getElementById("regError");
+            const nick = document.getElementById("regNick").value.trim();
+            const senha = document.getElementById("regSenha").value;
+            const docId = nick.toLowerCase();
+
+            errorMsg.style.display = "none"; btn.disabled = true; btn.style.opacity = "0.5"; loader.style.display = "block";
+
+            try {
+                // 1. O usuário já existe no banco de logins?
+                const userExist = await getDoc(doc(db, "tjp_usuarios", docId));
+                if (userExist.exists()) throw new Error("Este usuário já possui cadastro na Intranet.");
+
+                // 2. Validação Habbo Hotel
+                const userData = await fetchHabboAPI(`https://www.habbo.com.br/api/public/users?name=${nick}`);
+                if (!userData || !userData.uniqueId) throw new Error("Usuário não encontrado no Habbo Hotel.");
+
+                const profileData = await fetchHabboAPI(`https://www.habbo.com.br/api/public/users/${userData.uniqueId}/profile`);
+                if (!profileData || profileData.error === "profile-hidden" || !profileData.groups) throw new Error("Seu perfil no Habbo está privado.");
+
+                const inGroup = profileData.groups.some(g => g.badgeCode === HABBO_GROUP_BADGE);
+                if (!inGroup) throw new Error("Acesso negado. Você não pertence ao grupo do TJP.");
+
+                const senhaHash = await hashPassword(senha);
+
+                // 3. A PONTE MÁGICA: O cara já foi adicionado pelo Presidente na lista oficial?
+                const membroExistente = await getDoc(doc(db, "tjp_membros", docId));
+                
+                let cargoFinal, nivelFinal, statusFinal;
+
+                if (membroExistente.exists()) {
+                    // O membro já estava pre-setado pela Diretoria, herda tudo!
+                    const dadosMembro = membroExistente.data();
+                    cargoFinal = dadosMembro.cargo;
+                    nivelFinal = dadosMembro.nivel_acesso;
+                    statusFinal = dadosMembro.status || "Ativo";
+                } else {
+                    // O membro não estava na lista. Checa se o banco tá vazio (Presidente Fundador) ou joga pro padrão.
+                    const usersSnap = await getDocs(collection(db, "tjp_usuarios"));
+                    if (usersSnap.empty) {
+                        cargoFinal = "Presidente";
+                        nivelFinal = "Presidente";
+                        statusFinal = "Ativo";
+                        await setDoc(doc(db, "tjp_cargos", "Presidente"), { nome: "Presidente", nivel: "Presidente" });
+                    } else {
+                        cargoFinal = "Aguardando Vínculo";
+                        nivelFinal = "Comum";
+                        statusFinal = "Inativo";
+                    }
+                    
+                    // Como não existia na lista oficial, cria lá também.
+                    await setDoc(doc(db, "tjp_membros", docId), { nick: userData.name, cargo: cargoFinal, nivel_acesso: nivelFinal, status: statusFinal });
+                }
+
+                // 4. Cria a conta de acesso na Intranet com os cargos puxados
+                await setDoc(doc(db, "tjp_usuarios", docId), { 
+                    nick: userData.name, 
+                    senha: senhaHash, 
+                    cargo: cargoFinal, 
+                    nivel_acesso: nivelFinal, 
+                    dataCadastro: new Date().toISOString() 
+                });
+
+                window.showToast("Cadastro aprovado com sucesso!");
+                setTimeout(() => { toggleAuth('login'); }, 2000);
+
+            } catch (err) {
+                errorMsg.innerText = err.message || "Erro de comunicação."; errorMsg.style.display = "block";
+            } finally { loader.style.display = "none"; btn.disabled = false; btn.style.opacity = "1"; }
+        });
+
+        // ==========================================
+        // SISTEMA DE LOGIN UNIVERSAL
+        // ==========================================
+        document.getElementById("formLogin").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById("btnLoginBtn");
+            const errorMsg = document.getElementById("loginError");
+            const nick = document.getElementById("loginNick").value.trim().toLowerCase();
+            const senha = document.getElementById("loginSenha").value;
+
+            errorMsg.style.display = "none"; btn.innerText = "Autenticando...";
+
+            try {
+                const userDoc = await getDoc(doc(db, "tjp_usuarios", nick));
+                if (!userDoc.exists()) throw new Error("Usuário não encontrado na Intranet.");
+
+                const userData = userDoc.data();
+                const senhaHash = await hashPassword(senha);
+                if (userData.senha !== senhaHash) throw new Error("Senha incorreta.");
+
+                let nivelFinal = userData.nivel_acesso;
+                if (!nivelFinal) {
+                    if (userData.cargo === "Aprendiz") nivelFinal = "Aprendiz";
+                    else if (userData.cargo === "Presidente" || userData.cargo === "Admin") nivelFinal = "Presidente";
+                    else nivelFinal = "Comum";
+                }
+
+                localStorage.setItem("juspanel_session", JSON.stringify({ 
+                    nick: userData.nick, 
+                    cargo: userData.cargo,
+                    nivel_acesso: nivelFinal 
+                }));
+
+                window.showToast("Acesso Liberado!");
+                
+                setTimeout(() => { 
+                    if(nivelFinal === 'Aprendiz' || userData.cargo === 'Aprendiz') {
+                        window.location.href = "/intranet/aprendiz";
+                    } else {
+                        window.location.href = "/intranet/processos";
+                    }
+                }, 1500);
+
+            } catch (err) {
+                errorMsg.innerText = err.message || "Falha na autenticação."; errorMsg.style.display = "block";
+                btn.innerHTML = `<i class="fa-solid fa-fingerprint"></i> Autenticar Credenciais`;
+            }
+        });
+
+        // Links Dinâmicos do Topo
+        onSnapshot(doc(db, "tjp_config", "toplinks"), (snap) => {
+            const container = document.getElementById("dynamicTopLinks");
+            container.innerHTML = `<a href="#">Ouvidoria TJP</a>`; 
+            
+            let links = [];
+            if(snap.exists() && snap.data().lista && snap.data().lista.length > 0) links = snap.data().lista;
+            else links = [{ titulo: "System DIC", icone: "assets/img/emblema-dic.png", url: "https://dic.systemhb.net/" }, { titulo: "", icone: "fa-brands fa-facebook-f", url: "https://www.facebook.com/tjp.dic" }];
+
+            links.forEach(lk => {
+                const icn = lk.icone.includes('http') || lk.icone.includes('assets') ? `<img src="${lk.icone}" style="height: 16px;">` : `<i class="${lk.icone}"></i>`;
+                const cls = lk.titulo ? "system-btn-top" : "icon-only-top"; 
+                const titleHtml = lk.titulo ? ` ${lk.titulo}` : "";
+                container.innerHTML += `<a href="${lk.url}" target="_blank" class="${cls}" title="${lk.titulo || 'Link'}">${icn}${titleHtml}</a>`;
+            });
+        });
+    </script>
+</body>
+</html>

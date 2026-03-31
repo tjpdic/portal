@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Processos - SisProc TJP</title>
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        .sisproc-nav { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid var(--stroke); flex-wrap: wrap; }
+        .btn-tab { background: transparent; border: none; color: var(--text-muted); font-size: 13px; font-weight: 600; padding: 12px 20px; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; border-radius: 6px 6px 0 0; text-decoration: none;}
+        .btn-tab.active { color: var(--primary); border-bottom-color: var(--accent); background: #eff6f0; }
+        .btn-tab:hover:not(.active) { color: var(--primary); background: #f8fafc; }
+        .escondido { display: none !important; }
+
+        /* Estilização para o Viewer de Autos em Nova Guia */
+        .folha-a4 { background: white; width: 210mm; min-height: 297mm; padding: 25mm 20mm 20mm 25mm; margin: 0 auto 30px auto; box-shadow: 0 5px 15px rgba(0,0,0,0.5); position: relative; box-sizing: border-box; color: black; font-family: 'Times New Roman', Times, serif; font-size: 16px; line-height: 1.5; text-align: justify; }
+        .cabecalho-doc { text-align: center; font-weight: bold; margin-bottom: 40px; font-size: 14px; text-transform: uppercase; line-height: 1.3;}
+        .titulo-peca { text-align: center; font-size: 18px; font-weight: bold; margin: 30px 0; text-decoration: underline; }
+        .texto-peca { white-space: normal; margin-bottom: 50px;} 
+        .texto-peca img { max-width: 100%; height: auto; display: block; margin: 10px auto;}
+        .margem-autenticacao { position: absolute; right: 10px; top: 0; height: 100%; width: 40px; border-left: 1px dashed #ccc; }
+        .texto-autenticacao { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); position: absolute; top: 50%; left: 10px; transform: translateY(-50%) rotate(180deg); font-size: 10px; color: #7f8c8d; font-family: Arial, sans-serif; white-space: nowrap; }
+        .qr-code-doc { position: absolute; bottom: 30px; left: 5px; width: 30px; height: 30px; }
+    </style>
+</head>
+<body class="admin-body">
+
+    <div id="toast" class="toast"><i class="fa-solid fa-circle-check"></i> <span id="toastMessage">Sucesso!</span></div>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <img src="/assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <h2 style="margin:0;">Intranet TJP</h2>
+                        <a href="/admin" id="btnAdminDash" class="escondido" title="Acessar Administração do Sistema" style="color: var(--primary); font-size: 14px; transition: 0.3s;"><i class="fa-solid fa-gauge-high"></i></a>
+                    </div>
+                    <span>Gestão Judiciária</span>
+                </div>
+            </div>
+
+            <nav class="admin-nav">
+                <span class="nav-label">Meus Sistemas</span>
+                <a href="/intranet/processos" class="active"><i class="fa-solid fa-scale-balanced"></i> Sistema Processual</a>
+                <a href="/intranet/monitores"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Buscar em Meus Processos..." oninput="window.filtrarProcessos(this.value)">
+                </div>
+                
+                <div class="header-user">
+                    <div class="user-info">
+                        <strong id="userNickDisplay">Carregando...</strong>
+                        <span id="userCargoDisplay">Aguarde...</span>
+                    </div>
+                    <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
+                    <a href="/" class="btn-site" title="Voltar ao Portal Público"><i class="fa-solid fa-arrow-left"></i></a>
+                    <a href="#" onclick="window.logoutUser()" class="btn-logout" title="Sair do Sistema"><i class="fa-solid fa-power-off"></i></a>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="content-header">
+                    <div>
+                        <h1>Sistema de Processo Eletrônico (SisProc)</h1>
+                        <p>Gestão, autuação e andamento processual do Tribunal de Justiça Policial.</p>
+                    </div>
+                </div>
+
+                <div class="sisproc-nav" id="navSisproc">
+                    <a href="/intranet/processos" class="btn-tab active">Meus Processos</a>
+                    
+                    <a href="/intranet/processos/cartorio" class="btn-tab escondido" id="abaCartorio">Cartório Distribuidor</a>
+                    <a href="/intranet/processos/acervo" class="btn-tab escondido" id="abaAcervo">Acervo Geral</a>
+                    
+                    <a href="/intranet/processos/denuncia" class="btn-tab escondido" id="abaDenuncia">Nova Denúncia</a>
+                    <a href="/intranet/processos/apelacao" class="btn-tab escondido" id="abaApelacao">Nova Apelação</a>
+                    <a href="/intranet/processos/peticionar" class="btn-tab escondido" id="abaPeticionar">Peticionar nos Autos</a>
+                    <a href="/intranet/processos/pronunciamentos" class="btn-tab escondido" id="abaPronunciamento">Pronunciamentos</a>
+                </div>
+
+                <div class="panel-section">
+                    <div class="panel-body p-0">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Nº / Data</th>
+                                    <th>Réu</th>
+                                    <th>Status</th>
+                                    <th>Envolvidos</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaMeusProcessos">
+                                <tr><td colspan="5" style="text-align:center;">Carregando seus processos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // Rotas absolutas no JS
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
+        window.filtrarProcessos = function(termo) { termo = termo.toLowerCase(); document.querySelectorAll('tbody tr').forEach(row => { if(row.innerText.toLowerCase().includes(termo)) row.style.display = ""; else row.style.display = "none"; }); };
+        
+        window.abrirAutos = function(idProcesso) {
+            const token = Math.random().toString(36).substring(2, 10);
+            window.open(`/intranet/processos/visualizador?id=${idProcesso}&token=${token}`, '_blank');
+        };
+
+        try {
+            // SESSÃO
+            const sessionData = localStorage.getItem("juspanel_session");
+            if (!sessionData) throw new Error("Usuário não autenticado");
+            const user = JSON.parse(sessionData);
+            if(!user.nivel_acesso) user.nivel_acesso = user.cargo || "Comum";
+            if(user.nivel_acesso === "Aprendiz" || user.cargo === "Aprendiz") window.location.href = "/intranet/aprendiz";
+
+            document.getElementById("userNickDisplay").innerText = user.nick;
+            document.getElementById("userCargoDisplay").innerText = user.cargo;
+            document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
+
+            // PERMISSÕES DA UI
+            if (user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+                document.getElementById('btnAdminDash').classList.remove('escondido');
+                document.getElementById('abaCartorio').classList.remove('escondido');
+                document.getElementById('abaAcervo').classList.remove('escondido');
+            }
+            if (user.nivel_acesso === "Promotor" || user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+                document.getElementById('abaDenuncia').classList.remove('escondido');
+                document.getElementById('abaPeticionar').classList.remove('escondido');
+            }
+            if (user.nivel_acesso === "Defensor" || user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+                document.getElementById('abaApelacao').classList.remove('escondido');
+                document.getElementById('abaPeticionar').classList.remove('escondido');
+            }
+            if (user.nivel_acesso === "Juiz" || user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+                document.getElementById('abaPronunciamento').classList.remove('escondido');
+            }
+
+            // FIREBASE INICIALIZAÇÃO
+            const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
+            const db = getFirestore(app);
+
+            // CARREGAR DADOS - SOMENTE "MEUS PROCESSOS"
+            onSnapshot(query(collection(db, "tjp_processos"), orderBy("dataCriacao", "desc")), (snap) => {
+                let htmlMeus = "";
+                snap.forEach(d => { 
+                    try {
+                        const p = d.data(); p.id = d.id;
+                        const dataFmt = p.dataCriacao ? new Date(p.dataCriacao).toLocaleDateString('pt-BR') : "Data Indefinida";
+                        const statusTexto = p.status || "Indefinido";
+                        const tipoTexto = p.tipo || "Indefinido";
+
+                        const btnAutos = `<button class="btn-outline btn-pequeno" onclick="window.abrirAutos('${p.id}')"><i class="fa-solid fa-eye"></i> Visualizar Autos</button>`;
+                        
+                        let corBadge = "var(--text-main)", bgBadge = "#f1f5f9";
+                        if(statusTexto.includes("Aguardando")) { corBadge = "#f59e0b"; bgBadge = "#fef3c7"; }
+                        else if(statusTexto === "Em Andamento") { corBadge = "#0284c7"; bgBadge = "#e0f2fe"; }
+                        else if(statusTexto.includes("Julgado")) { corBadge = "#16a34a"; bgBadge = "#dcfce7"; }
+
+                        const statusBadge = `<span class="badge" style="background:${bgBadge}; color:${corBadge}; border:1px solid ${corBadge}; font-weight:700;">${statusTexto}</span>`;
+                        const envolvidosStr = `<small><b>J:</b> ${p.juiz||'-'} | <b>P:</b> ${p.promotor||'-'} | <b>D:</b> ${p.defensor||'-'}</small>`;
+
+                        const souEnvolvido = (p.juiz === user.nick || p.promotor === user.nick || p.defensor === user.nick);
+                        if(souEnvolvido || user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+                            htmlMeus += `<tr><td><strong style="color:var(--primary);">${p.id}</strong><br><small>${tipoTexto}</small></td><td>${p.reu || "-"}</td><td>${statusBadge}</td><td>${envolvidosStr}</td><td>${btnAutos}</td></tr>`;
+                        }
+                    } catch(errDoc) { console.error("Erro no doc: ", d.id); }
+                });
+
+                document.getElementById('tabelaMeusProcessos').innerHTML = htmlMeus || `<tr><td colspan="5" style="text-align:center;">Nenhum processo listado sob sua jurisdição.</td></tr>`;
+            });
+
+        } catch (errorGeral) {
+            console.error("Falha na Inicialização: ", errorGeral);
+            if(errorGeral.message === "Usuário não autenticado") window.location.href = "/login";
+        }
+    </script>
+</body>
+</html>

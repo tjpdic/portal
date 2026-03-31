@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pronunciamentos - SisProc TJP</title>
+    <link rel="icon" href="../../assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <style>
+        .sisproc-nav { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid var(--stroke); flex-wrap: wrap; }
+        .btn-tab { background: transparent; border: none; color: var(--text-muted); font-size: 13px; font-weight: 600; padding: 12px 20px; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; border-radius: 6px 6px 0 0; text-decoration: none;}
+        .btn-tab.active { color: var(--primary); border-bottom-color: var(--accent); background: #eff6f0; }
+        .btn-tab:hover:not(.active) { color: var(--primary); background: #f8fafc; }
+        .escondido { display: none !important; }
+    </style>
+</head>
+<body class="admin-body">
+
+    <div id="toast" class="toast"><i class="fa-solid fa-circle-check"></i> <span id="toastMessage">Sucesso!</span></div>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <img src="../../assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <h2 style="margin:0;">Intranet TJP</h2>
+                        <a href="../../admin" id="btnAdminDash" class="escondido" title="Acessar Administração do Sistema" style="color: var(--primary); font-size: 14px; transition: 0.3s;"><i class="fa-solid fa-gauge-high"></i></a>
+                    </div>
+                    <span>Gestão Judiciária</span>
+                </div>
+            </div>
+
+            <nav class="admin-nav">
+                <span class="nav-label">Meus Sistemas</span>
+                <a href="./" class="active"><i class="fa-solid fa-scale-balanced"></i> Sistema Processual</a>
+                <a href="../monitores"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Pesquisa desativada nesta tela..." disabled style="opacity: 0.5;">
+                </div>
+                
+                <div class="header-user">
+                    <div class="user-info">
+                        <strong id="userNickDisplay">Carregando...</strong>
+                        <span id="userCargoDisplay">Aguarde...</span>
+                    </div>
+                    <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
+                    <a href="../../" class="btn-site" title="Voltar ao Portal Público"><i class="fa-solid fa-arrow-left"></i></a>
+                    <a href="#" onclick="window.logoutUser()" class="btn-logout" title="Sair do Sistema"><i class="fa-solid fa-power-off"></i></a>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="content-header">
+                    <div>
+                        <h1>Sistema de Processo Eletrônico (SisProc)</h1>
+                        <p>Gestão, autuação e andamento processual do Tribunal de Justiça Policial.</p>
+                    </div>
+                </div>
+
+                <div class="sisproc-nav" id="navSisproc">
+                    <a href="./" class="btn-tab">Meus Processos</a>
+                    <a href="cartorio" class="btn-tab escondido" id="abaCartorio">Cartório Distribuidor</a>
+                    <a href="acervo" class="btn-tab escondido" id="abaAcervo">Acervo Geral</a>
+                    <a href="denuncia" class="btn-tab escondido" id="abaDenuncia">Nova Denúncia</a>
+                    <a href="apelacao" class="btn-tab escondido" id="abaApelacao">Nova Apelação</a>
+                    <a href="peticionar" class="btn-tab escondido" id="abaPeticionar">Peticionar nos Autos</a>
+                    <a href="pronunciamentos" class="btn-tab active" id="abaPronunciamento">Pronunciamentos</a>
+                </div>
+
+                <div class="panel-section">
+                    <div class="panel-header">
+                        <h3>Pronunciamentos Oficiais (Despachos e Sentenças)</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>Selecione o Processo Designado (Sob sua relatoria)</label>
+                            <select id="pronProcessoSelect"><option value="">Carregando processos...</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de Pronunciamento / Veredito</label>
+                            <div style="display: flex; gap: 10px;">
+                                <select id="pronCarregarModelo" style="flex: 1;" onchange="window.inserirModelo(this.value, window.quillPronunciamento, true)">
+                                    <option value="">Carregar Modelo...</option>
+                                </select>
+                                <input type="text" id="pronTituloCustom" placeholder="Ou digite o nome do pronunciamento..." style="flex: 1; margin: 0;">
+                                <select id="pronStatusMudar" style="flex: 1; margin: 0;">
+                                    <option value="Manter">Manter Status Atual</option>
+                                    <option value="Em Andamento">Em Andamento</option>
+                                    <option value="Julgado">Julgado</option>
+                                    <option value="Trânsito em Julgado">Trânsito em Julgado</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Conteúdo do Pronunciamento</label>
+                            <div id="editor-pronunciamento" style="height: 350px;"></div>
+                        </div>
+                        <button class="btn-submit" onclick="window.anexarPeça(window.quillPronunciamento, 'pronProcessoSelect', 'pronTituloCustom', 'pronStatusMudar')" style="margin-top: 15px;">
+                            <i class="fa-solid fa-gavel"></i> Inserir Pronunciamento nos Autos
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, updateDoc, doc, onSnapshot, query, orderBy, arrayUnion } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // Funções Globais
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "../../login"; };
+        window.showToast = (msg) => { const t = document.getElementById("toast"); document.getElementById("toastMessage").innerText = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 4000); };
+        window.modelosCache = {};
+
+        try {
+            // SESSÃO E SEGURANÇA
+            const sessionData = localStorage.getItem("juspanel_session");
+            if (!sessionData) throw new Error("Usuário não autenticado");
+            const user = JSON.parse(sessionData);
+            if(!user.nivel_acesso) user.nivel_acesso = user.cargo || "Comum";
+            
+            // Trava exclusiva do Magistrado (Juízes, Admin, Presidência, CSJ)
+            if (user.nivel_acesso !== "Juiz" && user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
+                window.location.href = "./"; 
+            }
+
+            document.getElementById("userNickDisplay").innerText = user.nick;
+            document.getElementById("userCargoDisplay").innerText = user.cargo;
+            document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
+
+            // PERMISSÕES DA UI
+            if (user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+                document.getElementById('btnAdminDash').classList.remove('escondido');
+                document.getElementById('abaCartorio').classList.remove('escondido');
+                document.getElementById('abaAcervo').classList.remove('escondido');
+            }
+            if (user.nivel_acesso === "Promotor" || user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+                document.getElementById('abaDenuncia').classList.remove('escondido');
+                document.getElementById('abaPeticionar').classList.remove('escondido');
+            }
+            if (user.nivel_acesso === "Defensor" || user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+                document.getElementById('abaApelacao').classList.remove('escondido');
+                document.getElementById('abaPeticionar').classList.remove('escondido');
+            }
+            if (user.nivel_acesso === "Juiz" || user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+                document.getElementById('abaPronunciamento').classList.remove('escondido');
+            }
+
+            // FIREBASE
+            const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
+            const db = getFirestore(app);
+
+            // INICIALIZAÇÃO DO QUILL EDITOR
+            const toolbarOptions = [ ['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], [{ 'align': [] }], ['clean'] ];
+            window.quillPronunciamento = new Quill('#editor-pronunciamento', { theme: 'snow', modules: { toolbar: toolbarOptions }});
+
+            // CARREGAR MODELOS DE PEÇAS
+            async function carregarModelos() {
+                try {
+                    const snapMod = await getDocs(collection(db, "tjp_modelos_pecas"));
+                    let optPronunciamento = "<option value=''>Usar Modelo...</option>";
+                    snapMod.forEach(d => {
+                        const m = d.data();
+                        window.modelosCache[m.nome] = m.html;
+                        if(m.cargo === "Geral" || m.cargo === user.cargo || user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+                            optPronunciamento += `<option value="${m.nome}">${m.nome}</option>`;
+                        }
+                    });
+                    document.getElementById('pronCarregarModelo').innerHTML = optPronunciamento;
+                } catch(e) { console.error("Aviso: Falha ao carregar modelos", e); }
+            }
+            carregarModelos();
+
+            window.inserirModelo = function(nomeModelo, editorRef, atualizarTitulo = false) {
+                if(window.modelosCache[nomeModelo]) {
+                    editorRef.root.innerHTML = window.modelosCache[nomeModelo];
+                    if(atualizarTitulo) document.getElementById('pronTituloCustom').value = nomeModelo;
+                    window.showToast("Modelo carregado!");
+                }
+            };
+
+            // CARREGAR PROCESSOS ATIVOS (Onde o Juiz está designado)
+            onSnapshot(query(collection(db, "tjp_processos"), orderBy("dataCriacao", "desc")), (snap) => {
+                let optProcessosAtivos = "<option value=''>Selecione um processo...</option>";
+                let encontrouAlgum = false;
+
+                snap.forEach(d => {
+                    try {
+                        const p = d.data(); p.id = d.id;
+                        const statusTexto = p.status || "Indefinido";
+                        
+                        const isRelator = (p.juiz === user.nick);
+                        const isDiretoria = (user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ");
+                        
+                        if (!statusTexto.includes("Trânsito") && (isRelator || isDiretoria)) {
+                            optProcessosAtivos += `<option value="${p.id}">${p.id} - Réu: ${p.reu || "N/A"}</option>`;
+                            encontrouAlgum = true;
+                        }
+                    } catch(errDoc) {}
+                });
+
+                document.getElementById('pronProcessoSelect').innerHTML = encontrouAlgum ? optProcessosAtivos : "<option value=''>Nenhum processo ativo sob sua relatoria</option>";
+            });
+
+            // FUNÇÃO PARA ANEXAR PRONUNCIAMENTO
+            window.anexarPeça = async function(editor, selectId, tituloId, statusId) {
+                try {
+                    const btnSalvar = document.querySelector('.btn-submit');
+                    btnSalvar.innerText = "Inserindo...";
+                    btnSalvar.disabled = true;
+
+                    const idProc = document.getElementById(selectId).value; 
+                    const titulo = document.getElementById(tituloId).value.trim(); 
+                    const texto = editor.root.innerHTML; 
+                    const novoStatus = document.getElementById(statusId).value;
+                    
+                    if(!idProc || !titulo || editor.getText().trim().length === 0) {
+                        btnSalvar.innerHTML = `<i class="fa-solid fa-gavel"></i> Inserir Pronunciamento nos Autos`;
+                        btnSalvar.disabled = false;
+                        return alert("Preencha o Processo, Título do Pronunciamento e o Conteúdo.");
+                    }
+
+                    const pecaObj = { 
+                        tipo: titulo, 
+                        autor: user.nick, 
+                        cargo: user.cargo, 
+                        texto: texto, 
+                        data: new Date().toLocaleDateString('pt-BR'), 
+                        hash: "TJP-" + Math.floor(1000000 + Math.random() * 9000000) 
+                    };
+                    
+                    let objAtualizacao = { autos: arrayUnion(pecaObj) }; 
+                    if(novoStatus !== "Manter") objAtualizacao.status = novoStatus;
+                    
+                    await updateDoc(doc(db, "tjp_processos", idProc), objAtualizacao);
+                    
+                    window.showToast("Pronunciamento inserido com sucesso!");
+                    
+                    setTimeout(() => {
+                        window.location.href = "./";
+                    }, 1500);
+
+                } catch(e) { 
+                    alert("Erro ao anexar pronunciamento: " + e.message); 
+                    document.querySelector('.btn-submit').innerHTML = `<i class="fa-solid fa-gavel"></i> Inserir Pronunciamento nos Autos`;
+                    document.querySelector('.btn-submit').disabled = false;
+                }
+            };
+
+        } catch (errorGeral) {
+            console.error("Falha na Inicialização: ", errorGeral);
+            if(errorGeral.message === "Usuário não autenticado") window.location.href = "../../login";
+        }
+    </script>
+</body>
+</html>

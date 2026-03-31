@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Publicações - JusPanel</title>
+    <link rel="icon" href="../assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    
+    <style>
+        .ql-destaque i { font-size: 14px; color: var(--text-main); }
+        .ql-destaque:hover i { color: var(--accent); }
+    </style>
+</head>
+<body class="admin-body">
+
+    <div id="toast" class="toast">
+        <i class="fa-solid fa-circle-check"></i> <span id="toastMessage">Sucesso!</span>
+    </div>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <img src="../assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <div>
+                    <h2>JusPanel</h2>
+                    <span>Administração Geral</span>
+                </div>
+            </div>
+
+            <nav class="admin-nav">
+                <span class="nav-label">Principal</span>
+                <a href="../admin.html"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
+                
+                <span class="nav-label">Portal Público</span>
+                <a href="publicacoes.html" class="active"><i class="fa-solid fa-newspaper"></i> Publicações</a>
+                <a href="dojup.html"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
+                <a href="aparencia.html"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
+                
+                <span class="nav-label">Intranet & Sistemas</span>
+                <a href="membros.html"><i class="fa-solid fa-users-gear"></i> Gestão de Membros</a>
+                <a href="configuracoes.html"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Buscar no painel...">
+                </div>
+                
+                <div class="header-user">
+                    <div class="user-info">
+                        <strong id="userNickDisplay">Carregando...</strong>
+                        <span id="userCargoDisplay">Aguarde...</span>
+                    </div>
+                    <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
+                    <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
+                        <a href="../intranet/processos.html" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
+                        <a href="../index.html" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
+                        <a href="#" onclick="logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="content-header">
+                    <div>
+                        <h1>Gerenciar Publicações</h1>
+                        <p>Controle do feed de notícias e publicações na página inicial do portal.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-solid" id="btnNovaPublicacao" onclick="abrirModalNova()"><i class="fa-solid fa-plus"></i> Criar Publicação</button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <div class="panel-header">
+                        <h3>Últimas Publicações</h3>
+                    </div>
+                    <div class="panel-body p-0">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Título</th>
+                                    <th>Capa?</th>
+                                    <th>Categoria</th>
+                                    <th>Data</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaPublicacoes">
+                                <tr><td colspan="6" style="text-align:center;">Carregando banco de dados...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modalPublicacao" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 id="modalTitle"><i class="fa-solid fa-pen-nib"></i> Editor de Publicação</h2>
+                <span class="close-modal" id="fecharModal">&times;</span>
+            </div>
+            <form id="formPublicacao">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Título da Publicação</label>
+                        <input type="text" id="pubTitulo" required placeholder="Ex: Pauta de Julgamento...">
+                    </div>
+                    <div class="form-group">
+                        <label>Categoria (Tag)</label>
+                        <select id="pubCategoria" required>
+                            <option value="Sessão Plenária">Sessão Plenária</option>
+                            <option value="Informativo">Informativo</option>
+                            <option value="Aviso Institucional">Aviso Institucional</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Autor (Seu Nick)</label>
+                    <input type="text" id="pubAutor" required placeholder="Ex: Presidência">
+                </div>
+
+                <div class="form-group" style="background: #f8fafc; padding: 15px; border: 1px dashed var(--stroke); border-radius: 6px;">
+                    <label style="color: var(--primary);"><i class="fa-solid fa-crop"></i> Imagem de Capa (Banner Opcional)</label>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <input type="url" id="pubCapaUrl" placeholder="Cole o link de uma imagem (ex: https://i.imgur.com/...)">
+                        <button type="button" class="btn-outline" id="btnCarregarCapa">Carregar</button>
+                    </div>
+                    <div id="cropperContainer" style="display: none; height: 250px;">
+                        <img id="cropperImage" src="" style="max-width: 100%; display: block;">
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">*A imagem será recortada no formato exato de 16:9 para encaixar perfeitamente no feed inicial.</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Resumo Breve (Fica na capa do Card)</label>
+                    <textarea id="pubResumo" required maxlength="150" placeholder="Digite uma breve chamada para a notícia..." style="min-height: 60px;"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Conteúdo Completo da Publicação</label>
+                    <div id="editor-container"></div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn-outline" onclick="abrirPreview()"><i class="fa-solid fa-eye"></i> Visualizar Prévia</button>
+                    <button type="submit" class="btn-submit" id="btnSalvarPub" style="flex: 1;"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar Oficialmente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalDestaque" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-microphone"></i> Adicionar Destaque / Citação</h2>
+                <span class="close-modal" onclick="document.getElementById('modalDestaque').classList.remove('active')">&times;</span>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Informe os dados abaixo. O editor irá envolver o seu texto com as tags de formatação. Você poderá alinhar e editar o texto livremente entre as tags!</p>
+            <div class="form-group">
+                <label>Nick do Entrevistado / Citado</label>
+                <input type="text" id="destNick" placeholder="Ex: .Chaves" required>
+            </div>
+            <div class="form-group">
+                <label>Link do Emblema do Grupo</label>
+                <input type="url" id="destEmblema" placeholder="https://..." value="https://www.habbo.com.br/habbo-imaging/badge/b19134s02114s01094t15094t27114649ec2bd2188f03d2e7406f856c734c3.gif" required>
+            </div>
+            <button class="btn-solid" onclick="inserirTagsDestaque()"><i class="fa-solid fa-code"></i> Inserir Tags no Texto</button>
+        </div>
+    </div>
+
+    <div id="modalPreview" class="modal">
+        <div class="modal-content large" style="max-width: 1000px; background: var(--bg-body); padding: 0;">
+            <div class="modal-header" style="background: #fff; padding: 20px 30px; border-radius: 8px 8px 0 0; margin: 0; border-bottom: 1px solid var(--stroke);">
+                <h2 style="margin: 0;"><i class="fa-solid fa-eye"></i> Pré-visualização da Publicação</h2>
+                <span class="close-modal" onclick="document.getElementById('modalPreview').classList.remove('active')">&times;</span>
+            </div>
+            
+            <div style="padding: 40px 30px; max-height: 75vh; overflow-y: auto;">
+                <div class="post-page-container" style="max-width: 900px; margin: 0 auto; background: #fff;">
+                    <div class="post-header">
+                        <span class="news-tag info" id="prevCategoria">Categoria</span>
+                        <h1 class="post-title" id="prevTitulo">Título da Publicação</h1>
+                        <div class="post-meta">
+                            <span><i class="fa-regular fa-calendar"></i> Agora mesmo</span>
+                            <span><i class="fa-solid fa-user-pen"></i> <span id="prevAutor">Autor</span></span>
+                        </div>
+                    </div>
+                    <div class="post-body ql-editor" id="prevConteudo" style="padding: 0;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    
+    <script>
+        let toastTimeout;
+        window.showToast = function(msg) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toastMessage").innerText = msg;
+            toast.classList.add("show");
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => { toast.classList.remove("show"); }, 4000);
+        };
+
+        // QUILL EDITOR
+        var quill = new Quill('#editor-container', {
+            theme: 'snow',
+            placeholder: 'Escreva o teor da notícia aqui. Dica: Selecione um texto e clique no microfone para transformá-lo num destaque!',
+            modules: {
+                toolbar: {
+                    container: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'align': [] }],
+                        ['link', 'image', 'video'],
+                        ['destaque'], // Botão Custom
+                        ['clean']
+                    ],
+                    handlers: {
+                        'destaque': function() {
+                            let range = this.quill.getSelection(true); 
+                            if(range && range.length > 0) {
+                                window.destaqueAtual = { index: range.index, length: range.length };
+                                document.getElementById("modalDestaque").classList.add("active");
+                            } else {
+                                window.showToast("Selecione o texto da entrevista primeiro!");
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Configura o ícone e os Tooltips da Barra de Ferramentas
+        const btnDestaque = document.querySelector('.ql-destaque');
+        if(btnDestaque) {
+            btnDestaque.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+        }
+
+        const tooltips = {
+            'button.ql-bold': 'Negrito',
+            'button.ql-italic': 'Itálico',
+            'button.ql-underline': 'Sublinhado',
+            'button.ql-strike': 'Tachado',
+            'button.ql-link': 'Inserir Link',
+            'button.ql-image': 'Inserir Imagem',
+            'button.ql-video': 'Inserir Vídeo',
+            'button.ql-clean': 'Remover Formatação',
+            'button.ql-destaque': 'Destaque / Citação',
+            'span.ql-header': 'Estilos de Título',
+            'span.ql-color': 'Cor do Texto',
+            'span.ql-background': 'Cor do Fundo',
+            'span.ql-list': 'Listas',
+            'span.ql-align': 'Alinhamento'
+        };
+
+        for (let selector in tooltips) {
+            document.querySelectorAll(selector).forEach(el => {
+                el.setAttribute('title', tooltips[selector]);
+            });
+        }
+
+        // INSERIR AS TAGS NO EDITOR
+        window.inserirTagsDestaque = function() {
+            const nick = document.getElementById("destNick").value.trim();
+            const emblema = document.getElementById("destEmblema").value.trim();
+            
+            if(!nick || !emblema) {
+                alert("Preencha o Nick e o Link do Emblema!"); return;
+            }
+
+            const idx = window.destaqueAtual.index;
+            const len = window.destaqueAtual.length;
+            
+            const tagInicio = `[ENTREVISTA | NICK: ${nick} | EMBLEMA: ${emblema}]\n`;
+            const tagFim = `\n[/ENTREVISTA]`;
+            
+            quill.insertText(idx + len, tagFim, { 'color': '#009c3b', 'bold': true, 'background': '#eff6f0' });
+            quill.insertText(idx, tagInicio, { 'color': '#009c3b', 'bold': true, 'background': '#eff6f0' });
+
+            document.getElementById("modalDestaque").classList.remove("active");
+            document.getElementById("destNick").value = ""; 
+        };
+
+        // RENDERIZAR ENTREVISTAS
+        window.renderizarEntrevistas = function(htmlContent, basePath = "../") {
+            const regex = /\[ENTREVISTA\s*\|\s*NICK:\s*(.*?)\s*\|\s*EMBLEMA:\s*(.*?)\](.*?)\[\/ENTREVISTA\]/gis;
+            
+            let novoHtml = htmlContent.replace(regex, (match, nick, emblema, texto) => {
+                const cleanNick = nick.replace(/(<([^>]+)>)/gi, "").trim();
+                const cleanEmblema = emblema.replace(/(<([^>]+)>)/gi, "").trim();
+                
+                return `</p>
+                <div class="caixa-entrevista">
+                    <div class="left-panel">
+                        <img class="brasao" src="${basePath}assets/img/brasao-hb.png">
+                        <img class="emblema" src="${cleanEmblema}">
+                        <img class="avatar" src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${cleanNick}&action=std&direction=2&head_direction=2&gesture=sml&size=l">
+                    </div>
+                    <div class="right-panel">
+                        <div class="nick-entrevistado">${cleanNick}</div>
+                        <div class="texto-entrevista"><p>${texto}</p></div>
+                    </div>
+                </div>
+                <p>`;
+            });
+            
+            novoHtml = novoHtml.replace(/<p><\/p>/g, "").replace(/<p><br><\/p>/g, "");
+            return novoHtml;
+        };
+
+        window.abrirPreview = function() {
+            document.getElementById("prevTitulo").innerText = document.getElementById("pubTitulo").value || "Sem Título Definido";
+            document.getElementById("prevCategoria").innerText = document.getElementById("pubCategoria").value || "Categoria";
+            document.getElementById("prevAutor").innerText = document.getElementById("pubAutor").value || "Autor";
+            
+            let rawHtml = quill.root.innerHTML;
+            let parsedHtml = renderizarEntrevistas(rawHtml, '../'); 
+            
+            document.getElementById("prevConteudo").innerHTML = parsedHtml;
+            document.getElementById("modalPreview").classList.add("active");
+        };
+
+        let cropper = null;
+        document.getElementById("btnCarregarCapa").addEventListener("click", () => {
+            const url = document.getElementById("pubCapaUrl").value;
+            if (url) {
+                const img = document.getElementById("cropperImage");
+                img.src = url;
+                document.getElementById("cropperContainer").style.display = "flex";
+                if (cropper) cropper.destroy();
+                img.onload = () => { cropper = new Cropper(img, { aspectRatio: 16 / 9, viewMode: 1, autoCropArea: 1 }); };
+            }
+        });
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // VERIFICAÇÃO DE SESSÃO (Proteção CMS)
+        const sessionData = localStorage.getItem("juspanel_session");
+        if (!sessionData) window.location.href = "../login.html";
+        const user = JSON.parse(sessionData);
+        
+        if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
+            alert("Acesso Negado. Área restrita."); window.location.href = "../login.html";
+        }
+
+        document.getElementById("userNickDisplay").innerText = user.nick;
+        document.getElementById("userCargoDisplay").innerText = user.cargo;
+        document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
+
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "../login.html"; };
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs",
+            authDomain: "monitores-sisap.firebaseapp.com",
+            projectId: "monitores-sisap",
+            storageBucket: "monitores-sisap.firebasestorage.app",
+            messagingSenderId: "489679893157",
+            appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const modal = document.getElementById("modalPublicacao");
+        const btnFechar = document.getElementById("fecharModal");
+        const formPub = document.getElementById("formPublicacao");
+        const tabelaPub = document.getElementById("tabelaPublicacoes");
+        let editIdAtivo = null;
+        window.noticiasAdmin = {}; 
+
+        window.abrirModalNova = function() {
+            editIdAtivo = null;
+            document.getElementById("modalTitle").innerHTML = `<i class="fa-solid fa-plus"></i> Criar Nova Publicação`;
+            document.getElementById("btnSalvarPub").innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Publicar Oficialmente`;
+            formPub.reset();
+            quill.root.innerHTML = "";
+            document.getElementById("cropperContainer").style.display = "none";
+            if (cropper) cropper.destroy();
+            const user = JSON.parse(localStorage.getItem("juspanel_session"));
+            document.getElementById("pubAutor").value = user.nick;
+            modal.classList.add("active");
+        };
+
+        window.abrirModalEditar = function(id) {
+            const data = window.noticiasAdmin[id];
+            if(!data) return;
+            editIdAtivo = id;
+            document.getElementById("modalTitle").innerHTML = `<i class="fa-solid fa-pen"></i> Editando Publicação #${id}`;
+            document.getElementById("btnSalvarPub").innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações`;
+            
+            document.getElementById("pubTitulo").value = data.titulo;
+            document.getElementById("pubCategoria").value = data.categoria;
+            document.getElementById("pubAutor").value = data.autor;
+            document.getElementById("pubResumo").value = data.resumo;
+            quill.root.innerHTML = data.conteudo;
+            document.getElementById("pubCapaUrl").value = data.capaUrlOriginal || "";
+            document.getElementById("cropperContainer").style.display = "none";
+            if (cropper) cropper.destroy();
+            modal.classList.add("active");
+        };
+
+        window.deletarPost = async function(id) {
+            if(confirm("Tem certeza que deseja apagar permanentemente a publicação #" + id + "?")) {
+                await deleteDoc(doc(db, "tjp_publicacoes", String(id)));
+                window.showToast("Publicação deletada!");
+            }
+        };
+
+        btnFechar.onclick = () => modal.classList.remove("active");
+
+        formPub.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const btnSalvar = document.getElementById("btnSalvarPub");
+            btnSalvar.innerText = "Salvando...";
+            let capaFinalBase64 = "";
+            let capaUrlOr = document.getElementById("pubCapaUrl").value;
+
+            if (cropper) {
+                capaFinalBase64 = cropper.getCroppedCanvas({ width: 800, height: 450 }).toDataURL("image/jpeg", 0.7);
+            } else if (editIdAtivo) {
+                capaFinalBase64 = window.noticiasAdmin[editIdAtivo].capa || "";
+                capaUrlOr = window.noticiasAdmin[editIdAtivo].capaUrlOriginal || "";
+            }
+
+            const dados = {
+                titulo: document.getElementById("pubTitulo").value,
+                categoria: document.getElementById("pubCategoria").value,
+                autor: document.getElementById("pubAutor").value,
+                resumo: document.getElementById("pubResumo").value,
+                conteudo: quill.root.innerHTML,
+                capa: capaFinalBase64,
+                capaUrlOriginal: capaUrlOr
+            };
+
+            try {
+                if(editIdAtivo) {
+                    await updateDoc(doc(db, "tjp_publicacoes", String(editIdAtivo)), dados);
+                    window.showToast("Alterações salvas com sucesso!");
+                } else {
+                    const qId = query(collection(db, "tjp_publicacoes"), orderBy("id_pub", "desc"), limit(1));
+                    const snapId = await getDocs(qId);
+                    let novoId = 1;
+                    if (!snapId.empty) {
+                        const ultimo = snapId.docs[0].data();
+                        if (ultimo.id_pub) novoId = ultimo.id_pub + 1;
+                    }
+                    dados.id_pub = novoId;
+                    dados.dataCriacao = serverTimestamp();
+                    await setDoc(doc(db, "tjp_publicacoes", novoId.toString()), dados);
+                    window.showToast("Publicação criada! ID: " + novoId);
+                }
+                modal.classList.remove("active");
+            } catch (error) {
+                console.error("Erro no Firebase: ", error);
+                window.showToast("Houve um erro no servidor ao salvar.");
+            }
+            btnSalvar.innerHTML = editIdAtivo ? `<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações` : `<i class="fa-solid fa-cloud-arrow-up"></i> Publicar Oficialmente`;
+        });
+
+        const q = query(collection(db, "tjp_publicacoes"), orderBy("dataCriacao", "desc"));
+        onSnapshot(q, (snapshot) => {
+            tabelaPub.innerHTML = "";
+            window.noticiasAdmin = {}; 
+            if(snapshot.empty) {
+                tabelaPub.innerHTML = `<tr><td colspan="6" style="text-align:center;">Nenhuma publicação encontrada.</td></tr>`;
+                return;
+            }
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const id = docSnap.id;
+                window.noticiasAdmin[id] = data;
+                let dataFormatada = "Agora";
+                if(data.dataCriacao) dataFormatada = data.dataCriacao.toDate().toLocaleDateString('pt-BR');
+                const badgeClass = data.categoria === 'Informativo' ? 'info' : '';
+                const temCapa = data.capa ? '<i class="fa-solid fa-image" style="color:var(--accent)"></i> Sim' : '<span style="color:var(--text-muted)">Não</span>';
+                tabelaPub.innerHTML += `
+                    <tr>
+                        <td><strong>#${id}</strong></td>
+                        <td><strong>${data.titulo}</strong></td>
+                        <td>${temCapa}</td>
+                        <td><span class="badge ${badgeClass}">${data.categoria}</span></td>
+                        <td>${dataFormatada}</td>
+                        <td>
+                            <div class="action-btns">
+                                <a href="../post.html?id=${id}#${id}" target="_blank" class="btn-icon edit" title="Ver Publicação" style="background:#e0f2fe; color:#0284c7; display:inline-flex; align-items:center; justify-content:center; text-decoration:none;"><i class="fa-solid fa-eye"></i></a>
+                                <button type="button" class="btn-icon edit" onclick="abrirModalEditar('${id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                                <button type="button" class="btn-icon delete" onclick="deletarPost('${id}')" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações Internas - JusPanel</title>
+    <link rel="icon" href="../assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+
+    <div id="toast" class="toast"><i class="fa-solid fa-circle-check"></i> <span id="toastMessage">Sucesso!</span></div>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <img src="../assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <div>
+                    <h2>JusPanel</h2>
+                    <span>Administração Geral</span>
+                </div>
+            </div>
+
+            <nav class="admin-nav">
+                <span class="nav-label">Principal</span>
+                <a href="../admin.html"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
+                
+                <span class="nav-label">Portal Público</span>
+                <a href="publicacoes.html"><i class="fa-solid fa-newspaper"></i> Publicações</a>
+                <a href="dojup.html"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
+                <a href="aparencia.html"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
+                
+                <span class="nav-label">Intranet & Sistemas</span>
+                <a href="membros.html"><i class="fa-solid fa-users-gear"></i> Controle da Bancada do TJP</a>
+                <a href="configuracoes.html" class="active"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Buscar configurações...">
+                </div>
+                
+                <div class="header-user">
+                    <div class="user-info">
+                        <strong id="userNickDisplay">Carregando...</strong>
+                        <span id="userCargoDisplay">Aguarde...</span>
+                    </div>
+                    <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
+                    <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
+                        <a href="../intranet/processos.html" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
+                        <a href="../index.html" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
+                        <a href="#" onclick="logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="content-header">
+                    <div>
+                        <h1>Configurações Internas</h1>
+                        <p>Defina as regras de acesso da Intranet e gerencie a personalização do Portal do Aprendiz.</p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    
+                    <div class="panel-section">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-scale-balanced"></i> Níveis de Acesso</h3>
+                        </div>
+                        <div class="panel-body">
+                            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Cadastre as funções que aparecerão no Controle da Bancada e defina o nível de sistema de cada uma.</p>
+                            
+                            <form id="formCargo" style="background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid var(--stroke); margin-bottom: 20px;">
+                                <div class="form-group">
+                                    <label>Nome da função interna</label>
+                                    <input type="text" id="cargoNome" required placeholder="Ex.: Juiz, Promotor, Defensor, Conselheiro...">
+                                </div>
+                                <div class="form-group">
+                                    <label>Nível de Permissão no Sistema</label>
+                                    <select id="cargoNivel" required>
+                                        <option value="CSJ">CSJ (Acesso Total)</option>
+                                        <option value="Presidente">Presidente (Acesso Total)</option>
+                                        <option value="Juiz">Juiz (Pode lançar Sentenças/Pronunciamentos)</option>
+                                        <option value="Promotor">Promotor (Pode lançar Denúncias)</option>
+                                        <option value="Defensor">Defensor (Pode lançar Apelações)</option>
+                                        <option value="Coordenador">Coordenador (Acesso à Gestão de Ensino Avançada)</option>
+                                        <option value="Monitor-Chefe">Monitor-Chefe (Acesso à Gestão de Ensino)</option>
+                                        <option value="Monitor">Monitor (Acesso ao Painel Pedagógico)</option>
+                                        <option value="Comum">Membro Comum (Apenas Leitura)</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn-submit"><i class="fa-solid fa-plus"></i> Adicionar função à hierarquia</button>
+                            </form>
+
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Função Cadastrada</th>
+                                        <th>Nível</th>
+                                        <th>Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="listaCargos">
+                                    <tr><td colspan="3" style="text-align:center;">Carregando funções...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-user-graduate"></i> Layout do Portal do Aprendiz</h3>
+                        </div>
+                        <div class="panel-body">
+                            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Ajuste as cores e links da interface usada pelos aprendizes.</p>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px;">
+                                <div class="form-group"><label>Fundo da Página</label><input type="color" id="corFundo" value="#f8fafc" style="height: 40px; padding: 5px; cursor: pointer;"></div>
+                                <div class="form-group"><label>Cartões (Painéis)</label><input type="color" id="corCards" value="#ffffff" style="height: 40px; padding: 5px; cursor: pointer;"></div>
+                                <div class="form-group"><label>Cor de Destaque</label><input type="color" id="corDestaque" value="#009c3b" style="height: 40px; padding: 5px; cursor: pointer;"></div>
+                                <div class="form-group"><label>Cor do Texto</label><input type="color" id="corTexto" value="#1f2937" style="height: 40px; padding: 5px; cursor: pointer;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>URL de Imagem de Fundo (Opcional)</label>
+                                <input type="url" id="imgFundoUrl" placeholder="https://i.imgur.com/...">
+                            </div>
+
+                            <hr style="border:none; border-top:1px dashed var(--stroke); margin: 20px 0;">
+                            
+                            <h4 style="font-size: 13px; color: var(--primary); margin-bottom: 10px;">Botões Extras no Menu do Aprendiz</h4>
+                            <div style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 15px;">
+                                <div class="form-group" style="flex: 1; margin:0;">
+                                    <label>Ícone</label>
+                                    <input type="text" id="addBtnIcone" placeholder="Ex: book, discord...">
+                                    <a href="https://fontawesome.com/search?o=r&m=free" target="_blank" style="font-size: 11px; color: var(--accent); margin-top: 5px; display: inline-block; font-weight: 600;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver ícones</a>
+                                </div>
+                                <div class="form-group" style="flex: 1; margin:0;"><label>Título</label><input type="text" id="addBtnTitulo" placeholder="Apostila"></div>
+                                <div class="form-group" style="flex: 2; margin:0;"><label>Link Destino</label><input type="url" id="addBtnLink" placeholder="https://..."></div>
+                                <button class="btn-outline" style="margin: 0; height: 44px; padding: 0 15px;" onclick="addBotaoAprendiz()"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                            
+                            <div id="listaBotoesAprendiz" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;"></div>
+                            
+                            <button class="btn-submit" onclick="salvarConfigPortal()"><i class="fa-solid fa-floppy-disk"></i> Salvar Layout e Botões</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // VERIFICAÇÃO DE SESSÃO
+        const sessionData = localStorage.getItem("juspanel_session");
+        if (!sessionData) window.location.href = "../login.html";
+        const user = JSON.parse(sessionData);
+        
+        if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
+            alert("Acesso Negado. Esta área é restrita à Administração Geral."); window.location.href = "../login.html";
+        }
+
+        document.getElementById("userNickDisplay").innerText = user.nick;
+        document.getElementById("userCargoDisplay").innerText = user.cargo;
+        document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
+
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "../login.html"; };
+        window.showToast = (msg) => { const t = document.getElementById("toast"); document.getElementById("toastMessage").innerText = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 4000); };
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs",
+            authDomain: "monitores-sisap.firebaseapp.com",
+            projectId: "monitores-sisap",
+            storageBucket: "monitores-sisap.firebasestorage.app",
+            messagingSenderId: "489679893157",
+            appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ==========================================
+        // 1. GESTÃO DE CARGOS E NÍVEIS
+        // ==========================================
+        onSnapshot(collection(db, "tjp_cargos"), (snap) => {
+            const tb = document.getElementById("listaCargos"); tb.innerHTML = "";
+            if(snap.empty) { tb.innerHTML = `<tr><td colspan="3" style="text-align:center;">Nenhuma função cadastrada.</td></tr>`; return; }
+            
+            snap.forEach((docSnap) => {
+                const data = docSnap.data();
+                const id = docSnap.id;
+                
+                // Mapeamento de Cores para os Níveis
+                let corBadge = "var(--text-main)"; let bgBadge = "#f1f5f9";
+                if(data.nivel === "CSJ" || data.nivel === "Presidente") { corBadge = "#ef4444"; bgBadge = "#fee2e2"; }
+                else if(data.nivel === "Juiz") { corBadge = "#0284c7"; bgBadge = "#e0f2fe"; }
+                else if(data.nivel === "Promotor" || data.nivel === "Defensor") { corBadge = "#f59e0b"; bgBadge = "#fef3c7"; }
+                else if(data.nivel === "Coordenador" || data.nivel === "Monitor-Chefe" || data.nivel === "Monitor") { corBadge = "#16a34a"; bgBadge = "#dcfce7"; }
+
+                tb.innerHTML += `
+                    <tr>
+                        <td><strong>${data.nome}</strong></td>
+                        <td><span class="badge" style="background:${bgBadge}; color:${corBadge}; font-weight:700;">${data.nivel}</span></td>
+                        <td><button type="button" class="btn-icon delete" onclick="deletarCargo('${id}')" title="Excluir Função"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>
+                `;
+            });
+        });
+
+        document.getElementById("formCargo").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const nome = document.getElementById("cargoNome").value.trim();
+            const nivel = document.getElementById("cargoNivel").value;
+            
+            if(!nome) return;
+            
+            await setDoc(doc(db, "tjp_cargos", nome), { nome: nome, nivel: nivel });
+            window.showToast("Função adicionada com sucesso!");
+            document.getElementById("formCargo").reset();
+        });
+
+        window.deletarCargo = async function(id) {
+            if(id === "CSJ" || id === "Presidente") { alert("Cargos vitais de administração não podem ser deletados."); return; }
+            if(confirm(`Tem certeza que deseja deletar a função '${id}'? Membros que a possuam não perderão o acesso, mas a função sumirá das opções de cadastro.`)) {
+                await deleteDoc(doc(db, "tjp_cargos", id));
+                window.showToast("Função removida.");
+            }
+        };
+
+        // ==========================================
+        // 2. LAYOUT DO APRENDIZ
+        // ==========================================
+        window.arrayBotoesAp = [];
+        
+        async function carregarConfiguracoesPortal() {
+            const snap = await getDoc(doc(db, 'configuracoes', 'portal_aprendiz'));
+            if(snap.exists()) {
+                const d = snap.data();
+                if(d.tema) { 
+                    document.getElementById('corFundo').value = d.tema.corFundo || "#f8fafc"; 
+                    document.getElementById('corCards').value = d.tema.corCards || "#ffffff"; 
+                    document.getElementById('corDestaque').value = d.tema.corDestaque || "#009c3b"; 
+                    document.getElementById('corTexto').value = d.tema.corTexto || "#1f2937"; 
+                    document.getElementById('imgFundoUrl').value = d.tema.imgFundo || ""; 
+                }
+                window.arrayBotoesAp = d.botoes ? JSON.parse(d.botoes) : [];
+            }
+            renderizarBotoesAp();
+        }
+        carregarConfiguracoesPortal();
+
+        window.addBotaoAprendiz = function() {
+            let iconeRaw = document.getElementById('addBtnIcone').value.trim() || "book"; 
+            const ti = document.getElementById('addBtnTitulo').value.trim(); 
+            const li = document.getElementById('addBtnLink').value.trim();
+            if(!ti || !li) return alert("Título e Link são obrigatórios."); 
+            
+            let iconeFinal = iconeRaw;
+            
+            // Filtro Inteligente de Ícones
+            if (iconeRaw && !iconeRaw.includes('http') && !iconeRaw.includes('assets') && !iconeRaw.includes('fa-')) {
+                const brands = ['facebook', 'twitter', 'instagram', 'youtube', 'tiktok', 'discord', 'github', 'whatsapp', 'telegram', 'spotify', 'x-twitter', 'twitch'];
+                if (brands.includes(iconeRaw.toLowerCase())) {
+                    iconeFinal = `fa-brands fa-${iconeRaw.toLowerCase()}`;
+                } else {
+                    iconeFinal = `fa-solid fa-${iconeRaw.toLowerCase()}`;
+                }
+            }
+
+            window.arrayBotoesAp.push({ icone: iconeFinal, titulo: ti, link: li });
+            
+            document.getElementById('addBtnIcone').value=""; 
+            document.getElementById('addBtnTitulo').value=""; 
+            document.getElementById('addBtnLink').value=""; 
+            renderizarBotoesAp();
+        };
+
+        window.removerBotaoAp = function(idx) { window.arrayBotoesAp.splice(idx, 1); renderizarBotoesAp(); };
+        
+        function renderizarBotoesAp() { 
+            let h = ""; 
+            window.arrayBotoesAp.forEach((b, i) => { 
+                h += `<div style="display:flex; justify-content:space-between; align-items:center; background:#f1f5f9; padding:8px 12px; border-radius:6px; border:1px solid var(--stroke);"><div style="font-size:13px;"><i class="${b.icone}" style="color:var(--primary); width:20px;"></i> <strong>${b.titulo}</strong></div><button class="btn-icon delete" style="width:26px; height:26px; font-size:10px;" onclick="removerBotaoAp(${i})"><i class="fa-solid fa-trash"></i></button></div>`; 
+            }); 
+            document.getElementById('listaBotoesAprendiz').innerHTML = h || `<p style="font-size:12px; color:var(--text-muted); margin:0;">Nenhum botão extra cadastrado.</p>`; 
+        }
+
+        window.salvarConfigPortal = async function() {
+            const t = { 
+                corFundo: document.getElementById('corFundo').value, 
+                corCards: document.getElementById('corCards').value, 
+                corDestaque: document.getElementById('corDestaque').value, 
+                corTexto: document.getElementById('corTexto').value, 
+                imgFundo: document.getElementById('imgFundoUrl').value 
+            };
+            await setDoc(doc(db, 'configuracoes', 'portal_aprendiz'), { tema: t, botoes: JSON.stringify(window.arrayBotoesAp) }, { merge: true });
+            window.showToast("Layout do Aprendiz Salvo na Nuvem!");
+        };
+    </script>
+</body>
+</html>

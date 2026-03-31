@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Aprendiz - Intranet DIC</title>
+    <link rel="icon" href="../assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="../assets/css/style.css">
+    
+    <style id="estiloDinamico">
+        /* Variáveis padrão que podem ser sobrescritas pelo Firebase */
+        :root {
+            --bg-aprendiz: #f8fafc;
+            --card-aprendiz: #ffffff;
+            --texto-aprendiz: #1f2937;
+            --destaque-aprendiz: #009c3b;
+        }
+        body.aprendiz-body { background-color: var(--bg-aprendiz); color: var(--texto-aprendiz); }
+        .card-ap { background: var(--card-aprendiz); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05); padding: 20px; }
+        .grid-notas { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .nota-box { background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; padding: 20px; text-align: center; }
+        .nota-box h4 { font-size: 13px; color: var(--texto-aprendiz); opacity: 0.8; text-transform: uppercase; margin-bottom: 5px; }
+        .nota-box .valor { font-size: 28px; font-weight: 800; }
+        .linha-aula { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .linha-aula:last-child { border-bottom: none; }
+        .btn-dinamico { display: block; padding: 12px; background: rgba(0,0,0,0.03); color: var(--texto-aprendiz); text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 13px; transition: 0.3s; text-align: left; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 10px; }
+        .btn-dinamico:hover { background: var(--destaque-aprendiz); color: #fff; }
+    </style>
+</head>
+<body class="admin-body aprendiz-body">
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar" style="background: var(--card-aprendiz);">
+            <div style="padding: 40px 20px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05);">
+                <img id="apAvatar" src="" style="width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--destaque-aprendiz); object-fit: cover; background: var(--bg-aprendiz); margin-bottom: 15px;">
+                <h3 id="apNick" style="margin: 0; font-size: 18px; color: var(--texto-aprendiz);">Carregando...</h3>
+                <span class="badge" style="background: var(--destaque-aprendiz); color: #fff; margin-top: 5px;">Aprendiz</span>
+            </div>
+
+            <nav class="admin-nav" style="padding: 20px;">
+                <span class="nav-label" style="color: var(--texto-aprendiz); opacity: 0.6;">Acesso Rápido</span>
+                <a href="sabatina.html" target="_blank" style="background: var(--destaque-aprendiz); color: #fff; justify-content: center; border-radius: 6px; margin-bottom: 15px;"><i class="fa-solid fa-pen-to-square"></i> Prestar Sabatina</a>
+                
+                <div id="botoesDinamicosContainer">
+                    </div>
+            </nav>
+
+            <div class="admin-sidebar-footer">
+                <a href="#" onclick="logoutUser()" style="background: #fee2e2; color: #ef4444; border: none;"><i class="fa-solid fa-power-off"></i> Encerrar Sessão</a>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header" style="background: var(--card-aprendiz);">
+                <div class="brand" style="display: flex; align-items: center; gap: 15px;">
+                    <img src="../assets/img/logo-tjp.png" style="height: 40px;">
+                    <div><h2 style="font-size: 18px; margin: 0; color: var(--texto-aprendiz);">Portal Acadêmico</h2></div>
+                </div>
+            </header>
+
+            <div class="admin-content" style="padding: 40px;">
+                <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px;">
+                    
+                    <div class="card-ap">
+                        <h3 style="margin-bottom: 20px; font-size: 16px; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 10px;"><i class="fa-solid fa-star" style="color: #f59e0b;"></i> Boletim de Notas</h3>
+                        <div id="areaNotas" class="grid-notas">
+                            <p style="opacity: 0.6; font-size: 13px;">Buscando notas no sistema...</p>
+                        </div>
+                    </div>
+
+                    <div class="card-ap">
+                        <h3 style="margin-bottom: 20px; font-size: 16px; border-bottom: 2px solid rgba(0,0,0,0.05); padding-bottom: 10px;"><i class="fa-solid fa-calendar-check" style="color: var(--destaque-aprendiz);"></i> Frequência nas Aulas</h3>
+                        <div id="areaPresencas" style="background: rgba(0,0,0,0.02); border-radius: 6px; border: 1px solid rgba(0,0,0,0.05);">
+                            <p style="padding: 15px; opacity: 0.6; font-size: 13px; text-align: center; margin: 0;">Buscando lista de presença...</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // CONTROLE DE SESSÃO
+        const sessionData = localStorage.getItem("juspanel_session");
+        if (!sessionData) window.location.href = "../login.html";
+        const user = JSON.parse(sessionData);
+
+        document.getElementById("apNick").innerText = user.nick;
+        document.getElementById("apAvatar").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=3&gesture=sml&size=l&headonly=1`;
+
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "../login.html"; };
+
+        const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
+        const db = getFirestore(app);
+
+        async function carregarPainel() {
+            // 1. Cores e Botões Personalizados (Configuração dos Monitores)
+            try {
+                const docConfig = await getDoc(doc(db, 'configuracoes', 'portal_aprendiz'));
+                if(docConfig.exists()) {
+                    const data = docConfig.data();
+                    if(data.tema) {
+                        let css = `:root { --bg-aprendiz: ${data.tema.corFundo || '#f8fafc'}; --card-aprendiz: ${data.tema.corCards || '#ffffff'}; --destaque-aprendiz: ${data.tema.corDestaque || '#009c3b'}; --texto-aprendiz: ${data.tema.corTexto || '#1f2937'}; }`;
+                        if(data.tema.imgFundo) css += `body.aprendiz-body { background-image: url('${data.tema.imgFundo}'); background-size: cover; background-position: center; background-attachment: fixed; }`;
+                        document.getElementById('estiloDinamico').innerHTML += css;
+                    }
+                    if(data.botoes) {
+                        const arr = JSON.parse(data.botoes); let htmlBtns = "";
+                        arr.forEach(b => { htmlBtns += `<a href="${b.link}" target="_blank" class="btn-dinamico"><i class="${b.icone}"></i> ${b.titulo}</a>`; });
+                        document.getElementById('botoesDinamicosContainer').innerHTML = htmlBtns;
+                    }
+                }
+            } catch(e){}
+
+            // 2. Carregar Notas
+            const snapNotas = await getDocs(query(collection(db, 'sabatinas'), where('aprendiz', '==', user.nick), where('status', '==', 'avaliada'))); 
+            let htmlNotas = "";
+            if(snapNotas.empty) htmlNotas = "<div style='grid-column: 1 / -1; opacity: 0.6; font-size: 13px;'>Nenhuma avaliação registrada.</div>";
+            else { 
+                snapNotas.forEach(doc => { 
+                    const d = doc.data(); const nota = parseFloat(d.nota); const cor = nota >= 7 ? "var(--destaque-aprendiz)" : "#ef4444"; 
+                    htmlNotas += `<div class="nota-box"><h4>${d.nomeAvaliacao||'Sabatina'}</h4><div class="valor" style="color: ${cor};">${nota.toFixed(1)}</div></div>`; 
+                }); 
+            }
+            document.getElementById('areaNotas').innerHTML = htmlNotas;
+
+            // 3. Carregar Presenças
+            const snapAulas = await getDocs(collection(db, 'aulas')); let htmlPresencas = "";
+            if(snapAulas.empty) htmlPresencas = "<div style='padding: 15px; opacity: 0.6; text-align: center; font-size:13px;'>Nenhuma aula registrada.</div>";
+            else {
+                let arr = []; snapAulas.forEach(d => arr.push(d.data())); arr.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                arr.forEach(aula => { 
+                    const st = aula.chamada && aula.chamada[user.nick] ? aula.chamada[user.nick] : "-"; 
+                    if(st !== "-") { 
+                        const cl = st === 'P' ? 'background:var(--destaque-aprendiz);' : 'background:#ef4444;'; 
+                        htmlPresencas += `<div class="linha-aula"><div><strong style="font-size:14px;">${aula.tema}</strong><br><small style="opacity:0.6;"><i class="fa-regular fa-calendar"></i> ${aula.data}</small></div><span class="badge" style="${cl} color:#fff;">${st}</span></div>`; 
+                    } 
+                });
+                if(htmlPresencas === "") htmlPresencas = "<div style='padding: 15px; opacity: 0.6; text-align: center; font-size:13px;'>Sem registros de frequência para o seu nick.</div>";
+            }
+            document.getElementById('areaPresencas').innerHTML = htmlPresencas;
+        }
+
+        carregarPainel();
+    </script>
+</body>
+</html>

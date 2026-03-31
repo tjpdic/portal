@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JusPanel - TJP</title>
+    <link rel="icon" href="assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <img src="assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <div>
+                    <h2>JusPanel</h2>
+                    <span>Administração Geral</span>
+                </div>
+            </div>
+
+            <nav class="admin-nav">
+                <span class="nav-label">Principal</span>
+                <a href="admin.html" class="active"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
+                
+                <span class="nav-label">Portal Público</span>
+                <a href="admin/publicacoes.html"><i class="fa-solid fa-newspaper"></i> Publicações</a>
+                <a href="admin/dojup.html"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
+                <a href="admin/aparencia.html"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
+                
+                <span class="nav-label">Intranet & Sistemas</span>
+                <a href="admin/membros.html"><i class="fa-solid fa-users-gear"></i> Gestão de Membros</a>
+                <a href="admin/configuracoes.html"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Buscar no sistema global...">
+                </div>
+                
+                <div class="header-user">
+                    <div class="user-info">
+                        <strong id="userNickDisplay">Carregando...</strong>
+                        <span id="userCargoDisplay">Aguarde...</span>
+                    </div>
+                    <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
+                    <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
+                        <a href="intranet/processos.html" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
+                        <a href="index.html" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
+                        <a href="#" onclick="logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="content-header">
+                    <div>
+                        <h1>Visão geral do JusPanel</h1>
+                        <p id="descDashboard">Carregando informações...</p>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(46, 90, 39, 0.1); color: var(--primary);">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Membros Cadastrados</h3>
+                            <h2 id="count-usuarios">-</h2>
+                            <span class="trend up"><i class="fa-solid fa-shield-halved"></i> Bancada do TJP</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(0, 156, 59, 0.1); color: var(--accent);">
+                            <i class="fa-solid fa-newspaper"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Publicações e Feed</h3>
+                            <h2 id="count-pub">-</h2>
+                            <span class="trend up"><i class="fa-solid fa-globe"></i> Portal Público</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Processos Autuados</h3>
+                            <h2 id="count-processos">-</h2>
+                            <span class="trend up"><i class="fa-solid fa-lock"></i> SisProc</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <div class="panel-header">
+                        <h3>Acesso Rápido</h3>
+                    </div>
+                    <div class="panel-body" style="display: flex; gap: 15px;">
+                        <a href="admin/configuracoes.html" class="btn-solid" style="text-decoration: none;"><i class="fa-solid fa-sliders"></i> Ajustar Níveis Internos</a>
+                        <a href="admin/membros.html" class="btn-outline" style="text-decoration: none;"><i class="fa-solid fa-user-shield"></i> Promover Membro</a>
+                        <a href="admin/dojup.html" class="btn-outline" style="text-decoration: none; border-color: transparent; background: #e2e8f0;"><i class="fa-solid fa-file-contract"></i> Lançar Decreto</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // VERIFICAÇÃO DE SESSÃO (Proteção e Restrição Admin)
+        const sessionData = localStorage.getItem("juspanel_session");
+        if (!sessionData) {
+            window.location.href = "login.html";
+        } else {
+            const user = JSON.parse(sessionData);
+            
+            // Apenas Presidentes/Admins/CSJ podem acessar o CMS Central (Ajuste conforme os novos níveis)
+            if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
+                alert("Acesso Negado. Esta área é restrita à Administração Geral.");
+                window.location.href = "login.html";
+            }
+
+            document.getElementById("userNickDisplay").innerText = user.nick;
+            document.getElementById("userCargoDisplay").innerText = user.cargo;
+            document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
+            
+            // Saudação Dinâmica
+            document.getElementById("descDashboard").innerText = `Bem-vindo ${user.nick} (${user.cargo}) ao JusPanel. Monitore o portal e os sistemas internos do Tribunal.`;
+        }
+
+        window.logoutUser = function() {
+            localStorage.removeItem("juspanel_session");
+            window.location.href = "login.html";
+        };
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs",
+            authDomain: "monitores-sisap.firebaseapp.com",
+            projectId: "monitores-sisap",
+            storageBucket: "monitores-sisap.firebasestorage.app",
+            messagingSenderId: "489679893157",
+            appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Carregar Estatísticas em Tempo Real
+        onSnapshot(collection(db, "tjp_membros"), (snap) => { document.getElementById("count-usuarios").innerText = snap.size; });
+        onSnapshot(collection(db, "tjp_publicacoes"), (snap) => { document.getElementById("count-pub").innerText = snap.size; });
+        onSnapshot(collection(db, "tjp_processos"), (snap) => { document.getElementById("count-processos").innerText = snap.size; });
+    </script>
+</body>
+</html>

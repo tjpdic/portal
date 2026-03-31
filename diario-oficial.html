@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diário Oficial - Portal TJP | Polícia DIC</title>
+    <link rel="icon" href="assets/img/logo-tjp.png" type="image/png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="container top-bar-content">
+            <div class="top-links" id="dynamicTopLinks">
+                </div>
+            <div class="top-actions">
+                <span>Transparência Institucional</span>
+            </div>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="container header-content">
+            <div class="brand">
+                <div class="logo">
+                    <img src="assets/img/logo-tjp.png" alt="Logo TJP" style="height: 55px;">
+                </div>
+                <div>
+                    <h1>Tribunal de Justiça Policial</h1>
+                    <small>Departamento de Investigação Criminal&reg;</small>
+                </div>
+            </div>
+
+            <nav class="main-nav">
+                <ul id="dynamicMenu">
+                    </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <main class="doj-section" style="padding: 40px 0; min-height: 50vh;">
+            <div class="doj-header" style="margin-bottom: 30px;">
+                <h2 style="font-size: 24px; color: var(--primary); margin-bottom: 10px;"><i class="fa-solid fa-file-contract"></i> DOJUP - Diário Oficial da Justiça Policial</h2>
+                <p style="color: var(--text-muted); font-size: 14px;">Consulte publicações oficiais, pautas, portarias da Presidência e atas do TJP.</p>
+            </div>
+
+            <div class="doj-filters" style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 15px; background: var(--bg-card); padding: 20px; border: 1px solid var(--stroke); border-radius: 6px; margin-bottom: 30px; align-items: end;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Palavra-chave</label>
+                    <input type="text" id="filtroPalavra" placeholder="Buscar por Portaria, Nomeação...">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Categoria</label>
+                    <select id="filtroCategoria">
+                        <option value="Todas">Todas</option>
+                        <option value="Decreto">Decretos</option>
+                        <option value="Portaria">Portarias</option>
+                        <option value="Relatório de Transparência">Relatórios</option>
+                        <option value="Pauta">Pautas</option>
+                    </select>
+                </div>
+                <button class="btn-submit" onclick="alert('Sistema de filtros em desenvolvimento.')" style="margin-bottom: 0; height: 44px;"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+            </div>
+
+            <div class="doj-list" id="dojupFeed" style="display: flex; flex-direction: column; gap: 15px;"></div>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-col brand-col">
+                <img src="assets/img/logo-tjp.png" alt="Logo TJP" style="height: 100px; margin-bottom: 15px;">
+                <strong style="display: block; color: var(--primary); font-size: 16px;">Tribunal de Justiça Policial</strong>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Departamento de Investigação Criminal&reg;</p>
+                <p style="font-size: 13px; color: var(--text-main); font-weight: 700;">NÃO HÁ ORDEM SEM JUSTIÇA!</p>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/tjp.dic" target="_blank" class="social-btn"><i class="fa-brands fa-facebook-f"></i></a>
+                </div>
+            </div>
+            
+            <div id="dynamicFooterColumns" style="display: contents;"></div>
+            
+        </div>
+        
+        <div class="container footer-system-middle">
+            <a href="https://dic.systemhb.net/" target="_blank" title="Acessar o System DIC">
+                <img src="assets/img/logo-dic.png" alt="System Polícia DIC" style="height: 80px;">
+            </a>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 Polícia DIC. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, doc, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs",
+            authDomain: "monitores-sisap.firebaseapp.com",
+            projectId: "monitores-sisap",
+            storageBucket: "monitores-sisap.firebasestorage.app",
+            messagingSenderId: "489679893157",
+            appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const defaultMenus = [
+            { id: "r1", nome: "O TJP", link: "#", sub: [
+                { id: "r1s1", nome: "Institucional", link: "#", sub: [
+                    { id: "r1s1a", nome: "Regimento Interno", link: "#" },
+                    { id: "r1s1b", nome: "Código de Processo Militar", link: "#" },
+                    { id: "r1s1c", nome: "Rito de Sessão", link: "#" },
+                    { id: "r1s1d", nome: "SISAP", link: "#", sub: [{ id: "r1s1d1", nome: "Regimento dos Aprendizes", link: "#" }] }
+                ]},
+                { id: "r1s2", nome: "História do TJP", link: "#" },
+                { id: "r1s3", nome: "Bancada do TJP", link: "#" }
+            ]},
+            { id: "r2", nome: "CSJ", link: "#" },
+            { id: "r3", nome: "Diário Oficial", link: "diario-oficial.html", sub: [
+                { id: "r3s1", nome: "DOJUP - Diário Oficial da Justiça Policial", link: "diario-oficial.html" },
+                { id: "r3s2", nome: "Decretos", link: "#" },
+                { id: "r3s3", nome: "Portarias", link: "#" },
+                { id: "r3s4", nome: "Relatórios de Transparência", link: "#" }
+            ]},
+            { id: "r4", nome: "Legislações", link: "#", sub: [
+                { id: "r4s1", nome: "Legislação", link: "#" },
+                { id: "r4s2", nome: "Regulamento Disciplinar", link: "#" },
+                { id: "r4s3", nome: "Emenda dos Cargos Executivos", link: "#" },
+                { id: "r4s4", nome: "Modus Operandis", link: "#" },
+                { id: "r4s5", nome: "Regulamento dos Uniformes", link: "#" },
+                { id: "r4s6", nome: "Regimento dos Distintivos", link: "#" }
+            ]}
+        ];
+
+        onSnapshot(doc(db, "tjp_config", "toplinks"), (snap) => {
+            const container = document.getElementById("dynamicTopLinks");
+            container.innerHTML = `<a href="#">Ouvidoria TJP</a>`; 
+            
+            let links = [];
+            if(snap.exists() && snap.data().lista && snap.data().lista.length > 0) {
+                links = snap.data().lista;
+            } else {
+                links = [
+                    { titulo: "System DIC", icone: "assets/img/emblema-dic.png", url: "https://dic.systemhb.net/" },
+                    { titulo: "", icone: "fa-brands fa-facebook-f", url: "https://www.facebook.com/tjp.dic" }
+                ];
+            }
+
+            links.forEach(lk => {
+                const icn = lk.icone.includes('http') || lk.icone.includes('assets') ? `<img src="${lk.icone}" style="height: 16px;">` : `<i class="${lk.icone}"></i>`;
+                const cls = lk.titulo ? "system-btn-top" : "icon-only-top"; 
+                const titleHtml = lk.titulo ? ` ${lk.titulo}` : "";
+                container.innerHTML += `<a href="${lk.url}" target="_blank" class="${cls}" title="${lk.titulo || 'Link'}">${icn}${titleHtml}</a>`;
+            });
+        });
+
+        const buildMenuHtml = (items) => {
+            let html = "";
+            items.forEach(item => {
+                let icon = "";
+                if(item.nome === "O TJP") icon = '<i class="fa-solid fa-building-columns"></i> ';
+                else if(item.nome === "CSJ") icon = '<i class="fa-solid fa-users-gear"></i> ';
+                else if(item.nome === "Diário Oficial") icon = '<i class="fa-solid fa-book-open"></i> ';
+                else if(item.nome === "Legislações") icon = '<i class="fa-solid fa-scale-balanced"></i> ';
+
+                if(item.sub && item.sub.length > 0) {
+                    html += `<li class="dropdown"><a href="${item.link || '#'}">${icon}${item.nome} <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i></a><div class="dropdown-content">`;
+                    item.sub.forEach(subItem => {
+                        if(subItem.sub && subItem.sub.length > 0) {
+                            html += `<div class="dropdown dropdown-submenu"><a href="${subItem.link || '#'}">${subItem.nome} <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i></a><div class="dropdown-content">`;
+                            subItem.sub.forEach(sub2 => { html += `<a href="${sub2.link || '#'}">${sub2.nome}</a>`; });
+                            html += `</div></div>`;
+                        } else {
+                            html += `<a href="${subItem.link || '#'}">${subItem.nome}</a>`;
+                        }
+                    });
+                    html += `</div></li>`;
+                } else {
+                    html += `<li><a href="${item.link || '#'}">${icon}${item.nome}</a></li>`;
+                }
+            });
+            return html;
+        };
+
+        onSnapshot(doc(db, "tjp_config", "menus"), (snap) => {
+            let menus = defaultMenus;
+            if(snap.exists() && snap.data().lista && snap.data().lista.length > 0) {
+                menus = snap.data().lista;
+            }
+            
+            document.getElementById("dynamicMenu").innerHTML = `
+                <li><a href="index.html"><i class="fa-solid fa-house"></i> Início</a></li>
+                ${buildMenuHtml(menus)}
+                <li><a href="login.html" class="btn-login"><i class="fa-solid fa-right-to-bracket"></i> Acesso Restrito</a></li>
+            `;
+
+            let footerHtml = '';
+            menus.forEach(rootItem => {
+                if(rootItem.sub && rootItem.sub.length > 0 && rootItem.nome !== "CSJ") {
+                    footerHtml += `<div class="footer-col"><h4>${rootItem.nome}</h4><ul>`;
+                    rootItem.sub.forEach(subItem => {
+                        footerHtml += `<li><a href="${subItem.link || '#'}">${subItem.nome}</a></li>`;
+                    });
+                    footerHtml += `</ul></div>`;
+                }
+            });
+            document.getElementById("dynamicFooterColumns").innerHTML = footerHtml;
+        });
+
+        const dojupFeed = document.getElementById("dojupFeed");
+        const q = query(collection(db, "tjp_dojup"), orderBy("dataCriacao", "desc"));
+
+        onSnapshot(q, (snapshot) => {
+            dojupFeed.innerHTML = "";
+            
+            if(snapshot.empty) {
+                return;
+            }
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const id = doc.id;
+                
+                let dataFormatada = "Hoje";
+                if(data.dataCriacao) {
+                    dataFormatada = data.dataCriacao.toDate().toLocaleDateString('pt-BR');
+                }
+
+                let iconClass = "fa-solid fa-file-lines";
+                let tagClass = "info"; 
+                
+                if(data.tipo === "Decreto") { iconClass = "fa-solid fa-scale-balanced"; tagClass = "info"; }
+                if(data.tipo === "Portaria") { iconClass = "fa-solid fa-file-signature"; tagClass = "info"; } 
+                if(data.tipo === "Pauta") { iconClass = "fa-regular fa-file-pdf"; }
+
+                dojupFeed.innerHTML += `
+                    <div style="background: var(--bg-card); border: 1px solid var(--stroke); border-radius: 6px; padding: 20px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; cursor: pointer;" onmouseover="this.style.borderColor='var(--accent)';" onmouseout="this.style.borderColor='var(--stroke)';">
+                        <div style="display: flex; gap: 20px; align-items: center;">
+                            <div style="width: 50px; height: 50px; background: #eff6f0; color: var(--accent); display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 20px;">
+                                <i class="${iconClass}"></i>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 16px; color: var(--text-main); margin-bottom: 5px;">${data.titulo}</h3>
+                                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">${data.resumo}</p>
+                                <div style="font-size: 12px; color: var(--text-muted); display: flex; gap: 15px; align-items: center;">
+                                    <span><i class="fa-regular fa-calendar"></i> Lançamento: ${dataFormatada}</span>
+                                    <span><strong>Edição: #${id}</strong></span>
+                                    <span class="badge ${tagClass}" style="font-size: 10px;">${data.tipo}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <a href="${data.link_pdf}" target="_blank" class="btn-outline" title="Visualizar Documento Oficial"><i class="fa-solid fa-eye"></i> Ler Documento</a>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>

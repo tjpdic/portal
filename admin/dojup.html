@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diário Oficial - JusPanel</title>
+    <link rel="icon" href="../assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+
+    <div id="toast" class="toast">
+        <i class="fa-solid fa-circle-check"></i> <span id="toastMessage">Sucesso!</span>
+    </div>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <img src="../assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <div>
+                    <h2>JusPanel</h2>
+                    <span>Administração Geral</span>
+                </div>
+            </div>
+
+            <nav class="admin-nav">
+                <span class="nav-label">Principal</span>
+                <a href="../admin.html"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
+                
+                <span class="nav-label">Portal Público</span>
+                <a href="publicacoes.html"><i class="fa-solid fa-newspaper"></i> Publicações</a>
+                <a href="dojup.html" class="active"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
+                <a href="aparencia.html"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
+                
+                <span class="nav-label">Intranet & Sistemas</span>
+                <a href="membros.html"><i class="fa-solid fa-users-gear"></i> Controle da Bancada do TJP</a>
+                <a href="configuracoes.html"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Buscar no painel...">
+                </div>
+                
+                <div class="header-user">
+                    <div class="user-info">
+                        <strong id="userNickDisplay">Carregando...</strong>
+                        <span id="userCargoDisplay">Aguarde...</span>
+                    </div>
+                    <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
+                    <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
+                        <a href="../intranet/processos.html" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
+                        <a href="../index.html" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
+                        <a href="#" onclick="logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="content-header">
+                    <div>
+                        <h1>Diário Oficial (DOJUP)</h1>
+                        <p>Gerenciador do Diário Oficial do TJP.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-solid" onclick="abrirModalNova()"><i class="fa-solid fa-plus"></i> Novo Documento</button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <div class="panel-header">
+                        <h3>Documentos Lançados</h3>
+                    </div>
+                    <div class="panel-body p-0">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Edição / ID</th>
+                                    <th>Título do Ato</th>
+                                    <th>Tipo</th>
+                                    <th>Data</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaDocumentos">
+                                <tr><td colspan="5" style="text-align:center;">Carregando banco de dados...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modalDoc" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"><i class="fa-solid fa-file-circle-plus"></i> Lançar Documento</h2>
+                <span class="close-modal" id="fecharModal">&times;</span>
+            </div>
+            <form id="formDoc">
+                <div class="form-group">
+                    <label>Título do Documento</label>
+                    <input type="text" id="docTitulo" required placeholder="Ex: Portaria Presidencial nº 12/2026">
+                </div>
+                <div class="form-group">
+                    <label>Categoria / Tipo</label>
+                    <select id="docTipo" required>
+                        <option value="Decreto">Decreto</option>
+                        <option value="Portaria">Portaria</option>
+                        <option value="Relatório de Transparência">Relatório de Transparência</option>
+                        <option value="Pauta">Pauta de Julgamento</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Resumo Breve do Ato</label>
+                    <textarea id="docResumo" required placeholder="Ex: Nomeação de novos membros para a bancada..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Link do PDF / Documento Oficial</label>
+                    <input type="url" id="docLink" required placeholder="https://...">
+                </div>
+                <button type="submit" class="btn-submit" id="btnSalvarDoc" style="margin-top: 15px;"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar no DOJUP</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // VERIFICAÇÃO DE SESSÃO
+        const sessionData = localStorage.getItem("juspanel_session");
+        if (!sessionData) {
+            window.location.href = "../login.html";
+        } else {
+            const user = JSON.parse(sessionData);
+            
+            if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
+                alert("Acesso Negado. Área restrita.");
+                window.location.href = "../login.html";
+            }
+
+            document.getElementById("userNickDisplay").innerText = user.nick;
+            document.getElementById("userCargoDisplay").innerText = user.cargo;
+            document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
+        }
+
+        window.logoutUser = function() {
+            localStorage.removeItem("juspanel_session");
+            window.location.href = "../login.html";
+        };
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs",
+            authDomain: "monitores-sisap.firebaseapp.com",
+            projectId: "monitores-sisap",
+            storageBucket: "monitores-sisap.firebasestorage.app",
+            messagingSenderId: "489679893157",
+            appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const modal = document.getElementById("modalDoc");
+        const formDoc = document.getElementById("formDoc");
+        const tabelaDocs = document.getElementById("tabelaDocumentos");
+        let editIdAtivo = null;
+        window.docsAdmin = {};
+
+        window.showToast = function(msg) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toastMessage").innerText = msg;
+            toast.classList.add("show");
+            setTimeout(() => { toast.classList.remove("show"); }, 4000);
+        };
+        document.getElementById("fecharModal").onclick = () => modal.classList.remove("active");
+
+        window.abrirModalNova = function() {
+            editIdAtivo = null;
+            document.getElementById("modalTitle").innerHTML = `<i class="fa-solid fa-file-circle-plus"></i> Lançar Documento`;
+            document.getElementById("btnSalvarDoc").innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Publicar no DOJUP`;
+            formDoc.reset();
+            modal.classList.add("active");
+        };
+
+        window.abrirModalEditar = function(id) {
+            const data = window.docsAdmin[id];
+            if(!data) return;
+            editIdAtivo = id;
+            document.getElementById("modalTitle").innerHTML = `<i class="fa-solid fa-pen"></i> Editando Documento #${id}`;
+            document.getElementById("btnSalvarDoc").innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações`;
+            document.getElementById("docTitulo").value = data.titulo;
+            document.getElementById("docTipo").value = data.tipo;
+            document.getElementById("docResumo").value = data.resumo;
+            document.getElementById("docLink").value = data.link_pdf;
+            modal.classList.add("active");
+        };
+
+        window.deletarDoc = async function(id) {
+            if(confirm("Tem certeza que deseja apagar o documento #" + id + "?")) {
+                await deleteDoc(doc(db, "tjp_dojup", String(id)));
+                window.showToast("Documento deletado!");
+            }
+        };
+
+        formDoc.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const btnSalvar = document.getElementById("btnSalvarDoc");
+            btnSalvar.innerText = "Salvando...";
+            const dados = {
+                titulo: document.getElementById("docTitulo").value,
+                tipo: document.getElementById("docTipo").value,
+                resumo: document.getElementById("docResumo").value,
+                link_pdf: document.getElementById("docLink").value
+            };
+
+            try {
+                if(editIdAtivo) {
+                    await updateDoc(doc(db, "tjp_dojup", String(editIdAtivo)), dados);
+                    window.showToast("Alterações salvas com sucesso!");
+                } else {
+                    const qId = query(collection(db, "tjp_dojup"), orderBy("id_doc", "desc"), limit(1));
+                    const snapId = await getDocs(qId);
+                    let novoId = 1;
+                    if (!snapId.empty) {
+                        const ultimo = snapId.docs[0].data();
+                        if (ultimo.id_doc) novoId = ultimo.id_doc + 1;
+                    }
+                    dados.id_doc = novoId;
+                    dados.dataCriacao = serverTimestamp();
+                    await setDoc(doc(db, "tjp_dojup", novoId.toString()), dados);
+                    window.showToast("Documento publicado no DOJUP!");
+                }
+                modal.classList.remove("active");
+            } catch (error) {
+                window.showToast("Erro ao salvar no banco de dados.");
+            }
+            btnSalvar.innerHTML = editIdAtivo ? `<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações` : `<i class="fa-solid fa-cloud-arrow-up"></i> Publicar no DOJUP`;
+        });
+
+        const q = query(collection(db, "tjp_dojup"), orderBy("dataCriacao", "desc"));
+        onSnapshot(q, (snapshot) => {
+            tabelaDocs.innerHTML = "";
+            window.docsAdmin = {}; 
+            if(snapshot.empty) {
+                tabelaDocs.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum documento encontrado.</td></tr>`;
+                return;
+            }
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const id = docSnap.id;
+                window.docsAdmin[id] = data;
+                let dataFormatada = "Agora";
+                if(data.dataCriacao) dataFormatada = data.dataCriacao.toDate().toLocaleDateString('pt-BR');
+                
+                let corBadge = "var(--text-main)";
+                if(data.tipo === "Decreto") corBadge = "#0284c7";
+                if(data.tipo === "Portaria") corBadge = "#f59e0b";
+                if(data.tipo === "Relatório de Transparência") corBadge = "var(--accent)";
+
+                tabelaDocs.innerHTML += `
+                    <tr>
+                        <td><strong>#${id}</strong></td>
+                        <td><strong>${data.titulo}</strong></td>
+                        <td><span style="font-size: 11px; font-weight: 700; color: ${corBadge}; background: rgba(0,0,0,0.05); padding: 4px 8px; border-radius: 4px;">${data.tipo}</span></td>
+                        <td>${dataFormatada}</td>
+                        <td>
+                            <div class="action-btns">
+                                <a href="${data.link_pdf}" target="_blank" class="btn-icon edit" title="Ver Arquivo" style="background:#e0f2fe; color:#0284c7; display:inline-flex; align-items:center; justify-content:center; text-decoration:none;"><i class="fa-solid fa-eye"></i></a>
+                                <button type="button" class="btn-icon edit" onclick="abrirModalEditar('${id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                                <button type="button" class="btn-icon delete" onclick="deletarDoc('${id}')" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>

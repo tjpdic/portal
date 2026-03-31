@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de Autos - TJP</title>
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/css/style.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        body {
+            background-color: #333;
+            margin: 0;
+            padding: 40px 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .folha-a4 { 
+            background: white; 
+            width: 210mm; 
+            min-height: 297mm; 
+            padding: 20mm 25mm 20mm 20mm; 
+            margin: 0 auto 30px auto; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
+            position: relative; 
+            box-sizing: border-box; 
+            color: black; 
+            font-family: 'Times New Roman', Times, serif; 
+            font-size: 15px; 
+            line-height: 1.5; 
+            text-align: justify; 
+        }
+        
+        .cabecalho-doc { 
+            text-align: center; 
+            font-weight: bold; 
+            margin-bottom: 40px; 
+            font-size: 14px; 
+            text-transform: uppercase; 
+            line-height: 1.3;
+        }
+        
+        .titulo-peca { 
+            text-align: center; 
+            font-size: 18px; 
+            font-weight: bold; 
+            margin: 30px 0; 
+            text-decoration: underline; 
+        }
+        
+        .texto-peca { 
+            white-space: normal; 
+            margin-bottom: 50px;
+        } 
+        
+        .texto-peca img { 
+            max-width: 100%; 
+            height: auto; 
+            display: block; 
+            margin: 10px auto;
+        }
+        
+        .margem-autenticacao { 
+            position: absolute; 
+            right: 10px; 
+            top: 0; 
+            height: 100%; 
+            width: 40px; 
+            border-left: 1px dashed #ccc; 
+        }
+        
+        .texto-autenticacao { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%) rotate(-90deg); 
+            font-size: 10px; 
+            color: #7f8c8d; 
+            font-family: Arial, sans-serif; 
+            white-space: nowrap; 
+        }
+        
+        .qr-code-doc { 
+            position: absolute; 
+            bottom: 30px; 
+            left: 5px; 
+            width: 30px; 
+            height: 30px; 
+        }
+        
+        .gerando-pdf .folha-a4 { 
+            margin: 0 !important; 
+            box-shadow: none !important; 
+            border: none !important; 
+            border-radius: 0 !important; 
+            height: 297mm !important; 
+            max-height: 297mm !important;
+            overflow: hidden !important; 
+            page-break-after: always; 
+            page-break-inside: avoid; 
+        }
+        
+        .gerando-pdf .folha-a4:last-of-type { 
+            page-break-after: avoid !important; 
+        }
+
+        .floating-bar {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            z-index: 1001;
+            display: flex;
+            gap: 10px;
+            background: rgba(31, 41, 55, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="floating-bar">
+        <button class="btn-solid" style="background: #2980b9; margin: 0;" onclick="window.baixarPDF()">
+            <i class="fa-solid fa-download"></i> Download PDF Oficial
+        </button>
+        <button class="btn-solid" style="background: #ef4444; margin: 0;" onclick="window.close()">
+            <i class="fa-solid fa-xmark"></i> Fechar Guia
+        </button>
+    </div>
+
+    <div id="conteudoAutosViewer">
+        <div class='folha-a4' style='display:flex; justify-content:center; align-items:center;'>
+            <h3 style="font-family: 'Poppins', sans-serif;">Carregando autos do processo...</h3>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        try {
+            const sessionData = localStorage.getItem("juspanel_session");
+            if (!sessionData) throw new Error("Acesso negado. Faça login no JusPanel.");
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const procIdParam = urlParams.get('id');
+
+            if(!procIdParam) {
+                document.getElementById('conteudoAutosViewer').innerHTML = "<h2 style='color:white; text-align:center; font-family: Poppins;'>Erro: Número do processo não informado.</h2>";
+                throw new Error("ID não informado");
+            }
+
+            window.processoAbertoAtual = procIdParam;
+            document.title = `Autos - Processo ${procIdParam} - TJP`;
+
+            const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
+            const db = getFirestore(app);
+
+            async function renderizarAutos() {
+                try {
+                    const snap = await getDoc(doc(db, "tjp_processos", procIdParam));
+                    
+                    if(!snap.exists()) { 
+                        document.getElementById('conteudoAutosViewer').innerHTML = "<h2 style='color:white; text-align:center; font-family: Poppins;'>Autos não encontrados no banco de dados.</h2>"; 
+                        return; 
+                    }
+                    
+                    const proc = snap.data(); 
+                    let htmlFolhas = "";
+                    
+                    if(proc.autos && proc.autos.length > 0) {
+                        proc.autos.forEach(peca => {
+                            const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=TJP-AUTENTICA:" + peca.hash;
+                            
+                            // LÓGICA DINÂMICA DO CABEÇALHO
+                            let txtGabinete = "DEPARTAMENTO DE INVESTIGAÇÃO CRIMINAL<br>CONSELHO SUPERIOR DE JUSTIÇA<br>";
+                            
+                            if (peca.cargo !== "Presidente" && peca.cargo !== "CSJ") {
+                                txtGabinete += "TRIBUNAL DE JUSTIÇA POLICIAL<br>";
+                            }
+
+                            if (peca.cargo === "Defensor") {
+                                txtGabinete += "DEFENSORIA PÚBLICA POLICIAL";
+                            } else if (peca.cargo === "Promotor") {
+                                txtGabinete += "MINISTÉRIO PÚBLICO DA JUSTIÇA POLICIAL";
+                            } else if (peca.cargo === "Juiz") {
+                                txtGabinete += `GABINETE DO JUIZ ${peca.autor.toUpperCase()}`;
+                            } else if (peca.cargo === "Presidente") {
+                                txtGabinete += `GABINETE DO PRESIDENTE ${peca.autor.toUpperCase()}`;
+                            } else if (peca.cargo === "CSJ") {
+                                txtGabinete += `GABINETE DO MINISTRO ${peca.autor.toUpperCase()}`;
+                            } else if (peca.autor === "Sistema" || peca.cargo === "Cartório Distribuidor") {
+                                txtGabinete += "CARTÓRIO DISTRIBUIDOR";
+                            } else {
+                                txtGabinete += `GABINETE DO(A) ${peca.cargo.toUpperCase()} ${peca.autor.toUpperCase()}`;
+                            }
+
+                            htmlFolhas += `
+                            <div class='folha-a4'>
+                                <div class='cabecalho-doc'>
+                                    <img src='/assets/img/emblema-tjp.png' style='width:70px; height:auto; margin-bottom:10px;'><br>
+                                    ${txtGabinete}
+                                </div>
+                                <div class='titulo-peca'>${peca.tipo.toUpperCase()}</div>
+                                <div class='texto-peca'>
+                                    Ref. Autos nº: <b>${procIdParam}</b><br><br>
+                                    ${peca.texto}
+                                </div>
+                                <div style='margin-top: 80px; text-align: center; font-size: 12px; color: #555;'>
+                                    Assinado digitalmente por ${peca.cargo} ${peca.autor}.<br>
+                                    <div style='margin-top: 5px;'>Data do Protocolo: ${peca.data}</div>
+                                </div>
+                                <div class='margem-autenticacao'>
+                                    <div class='texto-autenticacao'>Documento assinado digitalmente. Autenticação: ${peca.hash}</div>
+                                    <img src='${qrUrl}' class='qr-code-doc'>
+                                </div>
+                            </div>`;
+                        });
+                    } else { 
+                        htmlFolhas = `<div class='folha-a4' style='display:flex; justify-content:center; align-items:center;'><h3>Os autos estão vazios.</h3></div>`; 
+                    }
+                    
+                    document.getElementById("conteudoAutosViewer").innerHTML = htmlFolhas;
+                } catch(e) {
+                    console.error(e);
+                    document.getElementById('conteudoAutosViewer').innerHTML = "<h2 style='color:white; text-align:center; font-family: Poppins;'>Erro ao carregar o processo.</h2>";
+                }
+            }
+            
+            renderizarAutos();
+
+            window.baixarPDF = function() {
+                const element = document.getElementById('conteudoAutosViewer');
+                
+                element.classList.add('gerando-pdf'); 
+                
+                const btn = document.querySelector('.btn-solid');
+                const btnOriginalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando PDF...';
+                
+                const opt = { 
+                    margin: 0, 
+                    filename: `Autos_${window.processoAbertoAtual}.pdf`, 
+                    image: { type: 'jpeg', quality: 0.98 }, 
+                    html2canvas: { 
+                        scale: 2, 
+                        useCORS: true 
+                    }, 
+                    jsPDF: { 
+                        unit: 'mm', 
+                        format: 'a4', 
+                        orientation: 'portrait' 
+                    },
+                    pagebreak: { mode: ['css', 'legacy'] } 
+                };
+                
+                html2pdf().set(opt).from(element).save().then(() => {
+                    element.classList.remove('gerando-pdf');
+                    btn.innerHTML = btnOriginalText;
+                });
+            };
+
+        } catch (errorGeral) {
+            console.error(errorGeral);
+            if(errorGeral.message === "Acesso negado. Faça login no JusPanel.") {
+                alert(errorGeral.message);
+                window.location.href = "/login";
+            }
+        }
+    </script>
+</body>
+</html>

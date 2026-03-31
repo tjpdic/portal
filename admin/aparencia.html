@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerir Portal - JusPanel</title>
+    <link rel="icon" href="../assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="admin-body">
+
+    <div id="toast" class="toast"><i class="fa-solid fa-circle-check"></i> <span id="toastMessage">Sucesso!</span></div>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <img src="../assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <div>
+                    <h2>JusPanel</h2>
+                    <span>Administração Geral</span>
+                </div>
+            </div>
+
+            <nav class="admin-nav">
+                <span class="nav-label">Principal</span>
+                <a href="../admin.html"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
+                
+                <span class="nav-label">Portal Público</span>
+                <a href="publicacoes.html"><i class="fa-solid fa-newspaper"></i> Publicações</a>
+                <a href="dojup.html"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
+                <a href="aparencia.html" class="active"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
+                
+                <span class="nav-label">Intranet & Sistemas</span>
+                <a href="membros.html"><i class="fa-solid fa-users-gear"></i> Controle da Bancada do TJP</a>
+                <a href="configuracoes.html"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Buscar no painel...">
+                </div>
+                <div class="header-user">
+                    <div class="user-info">
+                        <strong id="userNickDisplay">Carregando...</strong>
+                        <span id="userCargoDisplay">Aguarde...</span>
+                    </div>
+                    <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
+                    <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
+                        <a href="../intranet/processos.html" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
+                        <a href="../index.html" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
+                        <a href="#" onclick="logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="content-header">
+                    <div>
+                        <h1>Gerir Portal</h1>
+                        <p>Controle absoluto do portal: altere banners, links do topo e menus de navegação.</p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="panel-section">
+                        <div class="panel-header"><h3><i class="fa-solid fa-images"></i> Banners (Carrossel Home)</h3></div>
+                        <div class="panel-body">
+                            <form id="formBanner" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                                <input type="url" id="imgBannerUrl" placeholder="Link da imagem (https://...)" required style="flex:1;">
+                                <button type="submit" class="btn-solid"><i class="fa-solid fa-plus"></i></button>
+                            </form>
+                            <table class="admin-table">
+                                <thead><tr><th>Imagem</th><th>Ação</th></tr></thead>
+                                <tbody id="listaBanners"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <div class="panel-header"><h3><i class="fa-solid fa-link"></i> Links Barra Superior</h3></div>
+                        <div class="panel-body">
+                            <form id="formTopLinks" style="display: flex; flex-direction:column; gap: 10px; margin-bottom: 20px;">
+                                <input type="text" id="topTitulo" placeholder="Título Opcional (Deixe em branco p/ ser só Ícone)">
+                                
+                                <div style="margin: 0;">
+                                    <input type="text" id="topIcone" placeholder="Nome do ícone (Ex: facebook, book) ou Link da Imagem" required style="width: 100%;">
+                                    <a href="https://fontawesome.com/search?o=r&m=free" target="_blank" style="font-size: 11px; color: var(--accent); margin-top: 5px; display: inline-block; font-weight: 600;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver nomes de ícones disponíveis</a>
+                                </div>
+                                
+                                <input type="url" id="topUrl" placeholder="URL de destino" required>
+                                <button type="submit" class="btn-solid">Adicionar Link no Topo</button>
+                            </form>
+                            <table class="admin-table">
+                                <thead><tr><th>Ícone/Nome</th><th>Ação</th></tr></thead>
+                                <tbody id="listaTopLinks"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <div class="panel-header"><h3><i class="fa-solid fa-sitemap"></i> Gerenciador de Menus (Topo e Rodapé)</h3></div>
+                    <div class="panel-body" style="display: grid; grid-template-columns: 1fr 2fr; gap: 30px;">
+                        
+                        <div>
+                            <h4 style="margin-bottom: 15px; font-size: 14px;">Adicionar Novo Item</h4>
+                            <form id="formMenu">
+                                <div class="form-group">
+                                    <label>Onde este item vai ficar?</label>
+                                    <select id="menuPai" required>
+                                        <option value="root">-- Na Barra Principal (Menu Raiz) --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Nome do Menu</label>
+                                    <input type="text" id="menuNome" required placeholder="Ex: Legislações">
+                                </div>
+                                <div class="form-group">
+                                    <label>Link de Destino</label>
+                                    <input type="text" id="menuLink" placeholder="URL ou deixe em branco se for apenas Dropdown">
+                                </div>
+                                <button type="submit" class="btn-solid"><i class="fa-solid fa-plus"></i> Adicionar ao Menu</button>
+                            </form>
+                        </div>
+
+                        <div>
+                            <h4 style="margin-bottom: 15px; font-size: 14px;">Estrutura Sincronizada do Site</h4>
+                            <ul class="menu-tree" id="arvoreMenus">
+                                <p style="font-size: 12px; color: var(--text-muted);">Carregando estrutura...</p>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // VERIFICAÇÃO DE SESSÃO
+        const sessionData = localStorage.getItem("juspanel_session");
+        if (!sessionData) {
+            window.location.href = "../login.html";
+        } else {
+            const user = JSON.parse(sessionData);
+            
+            if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
+                alert("Acesso Negado. Área restrita.");
+                window.location.href = "../login.html";
+            }
+
+            document.getElementById("userNickDisplay").innerText = user.nick;
+            document.getElementById("userCargoDisplay").innerText = user.cargo;
+            document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
+        }
+
+        window.logoutUser = function() {
+            localStorage.removeItem("juspanel_session");
+            window.location.href = "../login.html";
+        };
+
+        const app = initializeApp({
+            apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com",
+            projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app",
+            messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c"
+        });
+        const db = getFirestore(app);
+
+        window.showToast = (msg) => {
+            const t = document.getElementById("toast"); document.getElementById("toastMessage").innerText = msg;
+            t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 4000);
+        };
+
+        // BANNERS
+        let bannersArr = [];
+        onSnapshot(doc(db, "tjp_config", "banners"), (snap) => {
+            bannersArr = snap.exists() ? snap.data().lista || [] : [];
+            const tb = document.getElementById("listaBanners"); tb.innerHTML = "";
+            bannersArr.forEach((url, i) => {
+                tb.innerHTML += `<tr><td><img src="${url}" style="height:40px; border-radius:4px; object-fit:cover;"></td>
+                <td><button type="button" class="btn-icon delete" onclick="delBanner(${i})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+            });
+        });
+        document.getElementById("formBanner").onsubmit = async (e) => {
+            e.preventDefault(); bannersArr.push(document.getElementById("imgBannerUrl").value.trim());
+            await setDoc(doc(db, "tjp_config", "banners"), { lista: bannersArr });
+            document.getElementById("formBanner").reset(); showToast("Banner adicionado!");
+        };
+        window.delBanner = async (i) => { bannersArr.splice(i, 1); await setDoc(doc(db, "tjp_config", "banners"), { lista: bannersArr }); showToast("Removido!"); };
+
+        // TOP LINKS
+        let topLinksArr = [];
+        onSnapshot(doc(db, "tjp_config", "toplinks"), (snap) => {
+            topLinksArr = snap.exists() ? snap.data().lista || [] : [];
+            const tb = document.getElementById("listaTopLinks"); tb.innerHTML = "";
+            topLinksArr.forEach((lk, i) => {
+                const iconHtml = lk.icone.includes('http') || lk.icone.includes('assets') ? `<img src="${lk.icone}" style="height:16px;">` : `<i class="${lk.icone}"></i>`;
+                const titleHtml = lk.titulo ? ` ${lk.titulo}` : " <em>(Apenas Ícone)</em>";
+                tb.innerHTML += `<tr><td>${iconHtml}${titleHtml}</td>
+                <td><button type="button" class="btn-icon delete" onclick="delTopLink(${i})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+            });
+        });
+        
+        document.getElementById("formTopLinks").onsubmit = async (e) => {
+            e.preventDefault();
+            
+            let iconeRaw = document.getElementById("topIcone").value.trim();
+            let iconeFinal = iconeRaw;
+            
+            // Filtro Inteligente de Ícones
+            if (iconeRaw && !iconeRaw.includes('http') && !iconeRaw.includes('assets') && !iconeRaw.includes('fa-')) {
+                const brands = ['facebook', 'twitter', 'instagram', 'youtube', 'tiktok', 'discord', 'github', 'whatsapp', 'telegram', 'spotify', 'x-twitter', 'twitch'];
+                if (brands.includes(iconeRaw.toLowerCase())) {
+                    iconeFinal = `fa-brands fa-${iconeRaw.toLowerCase()}`;
+                } else {
+                    iconeFinal = `fa-solid fa-${iconeRaw.toLowerCase()}`;
+                }
+            }
+
+            topLinksArr.push({ 
+                titulo: document.getElementById("topTitulo").value.trim(), 
+                icone: iconeFinal, 
+                url: document.getElementById("topUrl").value.trim() 
+            });
+            
+            await setDoc(doc(db, "tjp_config", "toplinks"), { lista: topLinksArr });
+            document.getElementById("formTopLinks").reset(); showToast("Link adicionado!");
+        };
+        window.delTopLink = async (i) => { topLinksArr.splice(i, 1); await setDoc(doc(db, "tjp_config", "toplinks"), { lista: topLinksArr }); showToast("Removido!"); };
+
+        // MENUS ESTRUTURAIS
+        const defaultMenus = [
+            { id: "r1", nome: "O TJP", link: "#", locked: true, sub: [
+                { id: "r1s1", nome: "Institucional", link: "#", locked: true, sub: [
+                    { id: "r1s1a", nome: "Regimento Interno", link: "#", locked: true },
+                    { id: "r1s1b", nome: "Código de Processo Militar", link: "#", locked: true },
+                    { id: "r1s1c", nome: "Rito de Sessão", link: "#", locked: true },
+                    { id: "r1s1d", nome: "SISAP", link: "#", locked: true, sub: [{ id: "r1s1d1", nome: "Regimento dos Aprendizes", link: "#", locked: true }] }
+                ]},
+                { id: "r1s2", nome: "História do TJP", link: "#", locked: true },
+                { id: "r1s3", nome: "Bancada do TJP", link: "#", locked: true }
+            ]},
+            { id: "r2", nome: "CSJ", link: "#", locked: true },
+            { id: "r3", nome: "Diário Oficial", link: "diario-oficial.html", locked: true, sub: [
+                { id: "r3s1", nome: "DOJUP - Diário Oficial da Justiça Policial", link: "diario-oficial.html", locked: true },
+                { id: "r3s2", nome: "Decretos", link: "#", locked: true },
+                { id: "r3s3", nome: "Portarias", link: "#", locked: true },
+                { id: "r3s4", nome: "Relatórios de Transparência", link: "#", locked: true }
+            ]},
+            { id: "r4", nome: "Legislações", link: "#", locked: true, sub: [
+                { id: "r4s1", nome: "Legislação", link: "#", locked: true },
+                { id: "r4s2", nome: "Regulamento Disciplinar", link: "#", locked: true },
+                { id: "r4s3", nome: "Emenda dos Cargos Executivos", link: "#", locked: true },
+                { id: "r4s4", nome: "Modus Operandis", link: "#", locked: true },
+                { id: "r4s5", nome: "Regulamento dos Uniformes", link: "#", locked: true },
+                { id: "r4s6", nome: "Regimento dos Distintivos", link: "#", locked: true }
+            ]}
+        ];
+
+        let menusArr = [];
+        const renderTree = (items) => {
+            let html = "";
+            items.forEach(item => {
+                const lockIcon = item.locked ? `<span style="color:var(--accent); font-size:10px; margin-left:5px;"><i class="fa-solid fa-lock"></i> Padrão</span>` : ``;
+                const delBtn = item.locked ? `<button type="button" class="btn-icon" style="opacity:0.3; cursor:not-allowed;"><i class="fa-solid fa-lock"></i></button>` : `<button type="button" class="btn-icon delete" onclick="delMenu('${item.id}')"><i class="fa-solid fa-trash"></i></button>`;
+                html += `<li><div class="menu-item-row"><div class="menu-item-info"><strong>${item.nome}</strong> <span>(${item.link || 'Dropdown'})</span> ${lockIcon}</div>${delBtn}</div>`;
+                if(item.sub && item.sub.length > 0) html += `<ul class="sub-menu-tree">${renderTree(item.sub)}</ul>`;
+                html += `</li>`;
+            });
+            return html;
+        };
+
+        const updateParentSelect = (items, prefix = "") => {
+            let html = `<option value="root">-- Na Barra Principal (Menu Raiz) --</option>`;
+            items.forEach(item => {
+                html += `<option value="${item.id}">${prefix}${item.nome}</option>`;
+                if(item.sub) {
+                    item.sub.forEach(subItem => {
+                        html += `<option value="${subItem.id}">${prefix}— ${subItem.nome}</option>`;
+                        if(subItem.sub) subItem.sub.forEach(sub2 => { html += `<option value="${sub2.id}">${prefix}—— ${sub2.nome}</option>`; });
+                    });
+                }
+            });
+            document.getElementById("menuPai").innerHTML = html;
+        };
+
+        onSnapshot(doc(db, "tjp_config", "menus"), async (snap) => {
+            if(!snap.exists() || !snap.data().lista || snap.data().lista.length === 0) {
+                await setDoc(doc(db, "tjp_config", "menus"), { lista: defaultMenus }); return;
+            }
+            menusArr = snap.data().lista;
+            document.getElementById("arvoreMenus").innerHTML = renderTree(menusArr);
+            updateParentSelect(menusArr);
+        });
+
+        document.getElementById("formMenu").onsubmit = async (e) => {
+            e.preventDefault();
+            const paiId = document.getElementById("menuPai").value;
+            const novo = { id: "m" + Date.now(), nome: document.getElementById("menuNome").value.trim(), link: document.getElementById("menuLink").value.trim() || "", locked: false, sub: [] };
+            if(paiId === "root") menusArr.push(novo);
+            else {
+                let achou = false;
+                let pai = menusArr.find(m => m.id === paiId);
+                if(pai) { pai.sub.push(novo); achou = true; }
+                if(!achou) menusArr.forEach(m => { if(m.sub) { let subPai = m.sub.find(s => s.id === paiId); if(subPai) { subPai.sub.push(novo); achou = true; } } });
+                if(!achou) menusArr.forEach(m => { if(m.sub) m.sub.forEach(s => { if(s.sub) { let sub2Pai = s.sub.find(s2 => s2.id === paiId); if(sub2Pai) sub2Pai.sub.push(novo); } }); });
+            }
+            await setDoc(doc(db, "tjp_config", "menus"), { lista: menusArr });
+            document.getElementById("formMenu").reset(); showToast("Menu atualizado!");
+        };
+
+        window.delMenu = async (id) => {
+            if(!confirm("Deletar este item apagará todos os sub-menus dele. Confirma?")) return;
+            const clean = (arr) => {
+                for(let i=0; i<arr.length; i++) {
+                    if(arr[i].id === id) { if(arr[i].locked) { alert("Padrão."); return true; } arr.splice(i, 1); return true; }
+                    if(arr[i].sub && clean(arr[i].sub)) return true;
+                }
+            };
+            clean(menusArr); await setDoc(doc(db, "tjp_config", "menus"), { lista: menusArr }); showToast("Deletado!");
+        };
+    </script>
+</body>
+</html>
