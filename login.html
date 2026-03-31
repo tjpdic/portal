@@ -20,7 +20,6 @@
     </style>
 
     <script>
-        // Roteamento Automático Universal Inteligente (Lê o Nível de Acesso)
         const sessao = localStorage.getItem("juspanel_session");
         if (sessao) {
             const user = JSON.parse(sessao);
@@ -95,8 +94,7 @@
             <div class="login-card" id="registerSection">
                 <img src="assets/img/logo-tjp.png" alt="Emblema TJP" style="height: 60px; width: auto; margin-bottom: 15px;">
                 <h2>Cadastro Institucional</h2>
-                <p>Seu perfil deve estar público e no grupo oficial do TJP no Habbo.</p>
-                <p style="font-size: 11px; color: #ef4444; margin-bottom: 15px;"><strong>Aviso:</strong> Aprendizes não se cadastram aqui. A matrícula é feita pelo Monitor.</p>
+                <p style="margin-bottom: 15px;">Seu perfil deve estar público e no grupo oficial do TJP no Habbo.</p>
                 
                 <form id="formRegister">
                     <div class="form-group">
@@ -181,7 +179,7 @@
         }
 
         // ==========================================
-        // SISTEMA DE CADASTRO COM PONTE "TJP_MEMBROS"
+        // SISTEMA DE CADASTRO BLINDADO
         // ==========================================
         document.getElementById("formRegister").addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -195,11 +193,9 @@
             errorMsg.style.display = "none"; btn.disabled = true; btn.style.opacity = "0.5"; loader.style.display = "block";
 
             try {
-                // 1. O usuário já existe no banco de logins?
                 const userExist = await getDoc(doc(db, "tjp_usuarios", docId));
                 if (userExist.exists()) throw new Error("Este usuário já possui cadastro na Intranet.");
 
-                // 2. Validação Habbo Hotel
                 const userData = await fetchHabboAPI(`https://www.habbo.com.br/api/public/users?name=${nick}`);
                 if (!userData || !userData.uniqueId) throw new Error("Usuário não encontrado no Habbo Hotel.");
 
@@ -209,38 +205,30 @@
                 const inGroup = profileData.groups.some(g => g.badgeCode === HABBO_GROUP_BADGE);
                 if (!inGroup) throw new Error("Acesso negado. Você não pertence ao grupo do TJP.");
 
-                const senhaHash = await hashPassword(senha);
-
-                // 3. A PONTE MÁGICA: O cara já foi adicionado pelo Presidente na lista oficial?
+                // AQUI ESTÁ O BLOQUEIO: Verifica na lista oficial
                 const membroExistente = await getDoc(doc(db, "tjp_membros", docId));
-                
-                let cargoFinal, nivelFinal, statusFinal;
+                let cargoFinal, nivelFinal;
 
                 if (membroExistente.exists()) {
-                    // O membro já estava pre-setado pela Diretoria, herda tudo!
                     const dadosMembro = membroExistente.data();
                     cargoFinal = dadosMembro.cargo;
                     nivelFinal = dadosMembro.nivel_acesso;
-                    statusFinal = dadosMembro.status || "Ativo";
                 } else {
-                    // O membro não estava na lista. Checa se o banco tá vazio (Presidente Fundador) ou joga pro padrão.
                     const usersSnap = await getDocs(collection(db, "tjp_usuarios"));
                     if (usersSnap.empty) {
+                        // Primeiro usuário cadastra como Presidente Absoluto
                         cargoFinal = "Presidente";
                         nivelFinal = "Presidente";
-                        statusFinal = "Ativo";
+                        await setDoc(doc(db, "tjp_membros", docId), { nick: userData.name, cargo: "Presidente", nivel_acesso: "Presidente", status: "Ativo" });
                         await setDoc(doc(db, "tjp_cargos", "Presidente"), { nome: "Presidente", nivel: "Presidente" });
                     } else {
-                        cargoFinal = "Aguardando Vínculo";
-                        nivelFinal = "Comum";
-                        statusFinal = "Inativo";
+                        // BARRADO! Não é o primeiro e não está na lista oficial
+                        throw new Error("Acesso Negado. Você não está na lista oficial de membros. Procure a Presidência.");
                     }
-                    
-                    // Como não existia na lista oficial, cria lá também.
-                    await setDoc(doc(db, "tjp_membros", docId), { nick: userData.name, cargo: cargoFinal, nivel_acesso: nivelFinal, status: statusFinal });
                 }
 
-                // 4. Cria a conta de acesso na Intranet com os cargos puxados
+                const senhaHash = await hashPassword(senha);
+
                 await setDoc(doc(db, "tjp_usuarios", docId), { 
                     nick: userData.name, 
                     senha: senhaHash, 
@@ -258,7 +246,7 @@
         });
 
         // ==========================================
-        // SISTEMA DE LOGIN UNIVERSAL
+        // SISTEMA DE LOGIN
         // ==========================================
         document.getElementById("formLogin").addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -277,12 +265,7 @@
                 const senhaHash = await hashPassword(senha);
                 if (userData.senha !== senhaHash) throw new Error("Senha incorreta.");
 
-                let nivelFinal = userData.nivel_acesso;
-                if (!nivelFinal) {
-                    if (userData.cargo === "Aprendiz") nivelFinal = "Aprendiz";
-                    else if (userData.cargo === "Presidente" || userData.cargo === "Admin") nivelFinal = "Presidente";
-                    else nivelFinal = "Comum";
-                }
+                let nivelFinal = userData.nivel_acesso || userData.cargo; // Fallback se não tiver nível
 
                 localStorage.setItem("juspanel_session", JSON.stringify({ 
                     nick: userData.nick, 
@@ -306,7 +289,6 @@
             }
         });
 
-        // Links Dinâmicos do Topo
         onSnapshot(doc(db, "tjp_config", "toplinks"), (snap) => {
             const container = document.getElementById("dynamicTopLinks");
             container.innerHTML = `<a href="#">Ouvidoria TJP</a>`; 

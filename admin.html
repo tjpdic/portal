@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JusPanel - TJP</title>
-    <link rel="icon" href="assets/img/logo-tjp.png" type="image/png">
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body class="admin-body">
 
     <div class="admin-layout">
         <aside class="admin-sidebar">
             <div class="admin-brand">
-                <img src="assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <img src="/assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
                 <div>
                     <h2>JusPanel</h2>
                     <span>Administração Geral</span>
@@ -25,16 +25,16 @@
 
             <nav class="admin-nav">
                 <span class="nav-label">Principal</span>
-                <a href="admin.html" class="active"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
+                <a href="/admin" class="active"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
                 
                 <span class="nav-label">Portal Público</span>
-                <a href="admin/publicacoes.html"><i class="fa-solid fa-newspaper"></i> Publicações</a>
-                <a href="admin/dojup.html"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
-                <a href="admin/aparencia.html"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
+                <a href="/admin/publicacoes"><i class="fa-solid fa-newspaper"></i> Publicações</a>
+                <a href="/admin/dojup"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
+                <a href="/admin/aparencia"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
                 
                 <span class="nav-label">Intranet & Sistemas</span>
-                <a href="admin/membros.html"><i class="fa-solid fa-users-gear"></i> Gestão de Membros</a>
-                <a href="admin/configuracoes.html"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
+                <a href="/admin/membros"><i class="fa-solid fa-users-gear"></i> Gestão de Membros</a>
+                <a href="/admin/configuracoes"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
             </nav>
         </aside>
 
@@ -52,8 +52,8 @@
                     </div>
                     <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
                     <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
-                        <a href="intranet/processos.html" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
-                        <a href="index.html" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
+                        <a href="/intranet/processos" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
+                        <a href="/" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
                         <a href="#" onclick="logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
                     </div>
                 </div>
@@ -107,9 +107,9 @@
                         <h3>Acesso Rápido</h3>
                     </div>
                     <div class="panel-body" style="display: flex; gap: 15px;">
-                        <a href="admin/configuracoes.html" class="btn-solid" style="text-decoration: none;"><i class="fa-solid fa-sliders"></i> Ajustar Níveis Internos</a>
-                        <a href="admin/membros.html" class="btn-outline" style="text-decoration: none;"><i class="fa-solid fa-user-shield"></i> Promover Membro</a>
-                        <a href="admin/dojup.html" class="btn-outline" style="text-decoration: none; border-color: transparent; background: #e2e8f0;"><i class="fa-solid fa-file-contract"></i> Lançar Decreto</a>
+                        <a href="/admin/configuracoes" class="btn-solid" style="text-decoration: none;"><i class="fa-solid fa-sliders"></i> Ajustar Níveis Internos</a>
+                        <a href="/admin/membros" class="btn-outline" style="text-decoration: none;"><i class="fa-solid fa-user-shield"></i> Promover Membro</a>
+                        <a href="/admin/dojup" class="btn-outline" style="text-decoration: none; border-color: transparent; background: #e2e8f0;"><i class="fa-solid fa-file-contract"></i> Lançar Decreto</a>
                     </div>
                 </div>
             </div>
@@ -123,14 +123,14 @@
         // VERIFICAÇÃO DE SESSÃO (Proteção e Restrição Admin)
         const sessionData = localStorage.getItem("juspanel_session");
         if (!sessionData) {
-            window.location.href = "login.html";
+            window.location.href = "/login";
         } else {
             const user = JSON.parse(sessionData);
             
-            // Apenas Presidentes/Admins/CSJ podem acessar o CMS Central (Ajuste conforme os novos níveis)
+            // Apenas Presidentes/Admins/CSJ podem acessar o CMS Central
             if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
                 alert("Acesso Negado. Esta área é restrita à Administração Geral.");
-                window.location.href = "login.html";
+                window.location.href = "/login";
             }
 
             document.getElementById("userNickDisplay").innerText = user.nick;
@@ -143,7 +143,7 @@
 
         window.logoutUser = function() {
             localStorage.removeItem("juspanel_session");
-            window.location.href = "login.html";
+            window.location.href = "/login";
         };
 
         const firebaseConfig = {
