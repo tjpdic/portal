@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avaliações Pendentes - Painel de Monitores TJP</title>
-    <link rel="icon" href="../../assets/img/logo-tjp.png" type="image/png">
+    <title>Pendentes - Painel de Monitores TJP</title>
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
 
     <style>
         .sisproc-nav { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid var(--stroke); overflow-x: auto; padding-bottom: 5px; }
@@ -17,7 +17,6 @@
         .btn-tab.active { color: var(--primary); border-bottom-color: var(--accent); background: #eff6f0; }
         .btn-tab:hover:not(.active) { color: var(--primary); background: #f8fafc; }
         .escondido { display: none !important; }
-        .resposta-texto { background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid var(--stroke); margin-bottom: 15px; font-size: 13px; white-space: pre-wrap; }
     </style>
 </head>
 <body class="admin-body">
@@ -27,11 +26,11 @@
     <div class="admin-layout">
         <aside class="admin-sidebar">
             <div class="admin-brand">
-                <img src="../../assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <img src="/assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
                 <div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <h2 style="margin:0;">Intranet TJP</h2>
-                        <a href="../../admin.html" id="btnAdminDash" class="escondido" title="Acessar Administração do Sistema" style="color: var(--primary); font-size: 14px; transition: 0.3s;"><i class="fa-solid fa-gauge-high"></i></a>
+                        <a href="/admin" id="btnAdminDash" class="escondido" title="Acessar Administração do Sistema" style="color: var(--primary); font-size: 14px; transition: 0.3s;"><i class="fa-solid fa-gauge-high"></i></a>
                     </div>
                     <span>Portal Pedagógico</span>
                 </div>
@@ -39,8 +38,8 @@
 
             <nav class="admin-nav">
                 <span class="nav-label">Meus Sistemas</span>
-                <a href="../processos/index.html"><i class="fa-solid fa-scale-balanced"></i> Sistema Processual</a>
-                <a href="index.html" class="active"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
+                <a href="/intranet/processos"><i class="fa-solid fa-scale-balanced"></i> Sistema Processual</a>
+                <a href="/intranet/monitores" class="active"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
             </nav>
         </aside>
 
@@ -48,7 +47,7 @@
             <header class="admin-header">
                 <div class="header-search">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" placeholder="Buscar pendência..." oninput="window.filtrarTabela(this.value)">
+                    <input type="text" placeholder="Pesquisar aprendiz..." oninput="window.filtrarTabela(this.value)">
                 </div>
                 
                 <div class="header-user">
@@ -57,7 +56,7 @@
                         <span id="userCargoDisplay">Aguarde...</span>
                     </div>
                     <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
-                    <a href="../../index.html" class="btn-site" title="Voltar ao Portal Público"><i class="fa-solid fa-arrow-left"></i></a>
+                    <a href="/" class="btn-site" title="Voltar ao Portal Público"><i class="fa-solid fa-arrow-left"></i></a>
                     <a href="#" onclick="window.logoutUser()" class="btn-logout" title="Sair do Sistema"><i class="fa-solid fa-power-off"></i></a>
                 </div>
             </header>
@@ -71,28 +70,30 @@
                 </div>
 
                 <div class="sisproc-nav">
-                    <a href="index.html" class="btn-tab active"><i class="fa-solid fa-stopwatch"></i> Pendentes</a>
-                    <a href="historico.html" class="btn-tab"><i class="fa-solid fa-check-double"></i> Histórico de Notas</a>
-                    
-                    <a href="sabatina.html" class="btn-tab escondido" id="abaCriarProva"><i class="fa-solid fa-plus-circle"></i> Criar Sabatina</a>
-                    <a href="tempo-real.html" class="btn-tab escondido" id="abaTempoReal"><i class="fa-solid fa-satellite-dish"></i> Em Tempo Real</a>
-                    <a href="aprendizes.html" class="btn-tab escondido" id="abaAprendizes"><i class="fa-solid fa-user-graduate"></i> Matrículas</a>
-                    <a href="aulas.html" class="btn-tab escondido" id="abaAulas"><i class="fa-solid fa-calendar-check"></i> Frequências</a>
+                    <a href="/intranet/monitores" class="btn-tab active"><i class="fa-solid fa-stopwatch"></i> Pendentes</a>
+                    <a href="/intranet/monitores/historico" class="btn-tab"><i class="fa-solid fa-check-double"></i> Histórico de Notas</a>
+                    <a href="/intranet/monitores/sabatina" class="btn-tab escondido" id="abaCriarProva"><i class="fa-solid fa-plus-circle"></i> Criar Sabatina</a>
+                    <a href="/intranet/monitores/tempo-real" class="btn-tab escondido" id="abaTempoReal"><i class="fa-solid fa-satellite-dish"></i> Em Tempo Real</a>
+                    <a href="/intranet/monitores/aprendizes" class="btn-tab escondido" id="abaAprendizes"><i class="fa-solid fa-user-graduate"></i> Matrículas</a>
+                    <a href="/intranet/monitores/aulas" class="btn-tab escondido" id="abaAulas"><i class="fa-solid fa-calendar-check"></i> Frequências</a>
                 </div>
 
                 <div class="panel-section">
+                    <div class="panel-header">
+                        <h3>Sabatinas Aguardando Correção</h3>
+                    </div>
                     <div class="panel-body p-0">
                         <table class="admin-table">
                             <thead>
                                 <tr>
                                     <th>Aprendiz</th>
                                     <th>Avaliação</th>
-                                    <th>Data de Envio</th>
-                                    <th>Ação</th>
+                                    <th>Finalizada em</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="tabelaPendentes">
-                                <tr><td colspan="4" style="text-align:center;">Carregando...</td></tr>
+                                <tr><td colspan="4" style="text-align:center;">Buscando avaliações pendentes...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -101,67 +102,46 @@
         </main>
     </div>
 
-    <div id="modalAvaliar" class="modal">
-        <div class="modal-content large" style="max-width: 700px;">
+    <div id="modalCorrecao" class="modal">
+        <div class="modal-content large">
             <div class="modal-header">
-                <h2><i class="fa-solid fa-star"></i> Avaliação do Aprendiz</h2>
-                <span class="close-modal" onclick="document.getElementById('modalAvaliar').classList.remove('active')">&times;</span>
+                <h2><i class="fa-solid fa-pen-to-square"></i> Corrigir Sabatina</h2>
+                <span class="close-modal" onclick="document.getElementById('modalCorrecao').classList.remove('active')">&times;</span>
             </div>
-            
-            <input type="hidden" id="avIdSabatina">
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid var(--stroke); margin-bottom: 20px;">
-                <div>
-                    <strong style="color: var(--primary); font-size: 16px;" id="avNickAprendiz">Carregando...</strong><br>
-                    <span style="font-size: 12px; color: var(--text-muted);" id="avNomeProva">Carregando...</span>
-                </div>
-                <div id="avBoxCola" class="escondido" style="text-align: right; color: #ef4444; font-weight: 700; font-size: 13px;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> ALERTA DE COLA<br>
-                    <span style="font-size: 18px;" id="avQtdCola"></span>x fora da página
-                </div>
+            <div id="conteudoProva"></div>
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--stroke);">
+            <div class="form-group">
+                <label>Nota Final (0 a 10)</label>
+                <input type="number" id="notaFinal" step="0.1" min="0" max="10" placeholder="Ex: 8.5">
             </div>
-            
-            <div id="avRespostasContainer" style="max-height: 400px; overflow-y: auto; padding-right: 10px; margin-bottom: 20px;"></div>
-
-            <div style="background: #eff6f0; border: 1px solid #bbf7d0; padding: 20px; border-radius: 6px;">
-                <div style="display: flex; gap: 15px;">
-                    <div class="form-group" style="width: 150px; margin: 0;">
-                        <label>Nota (0 a 10)</label>
-                        <input type="number" id="avNotaFinal" min="0" max="10" step="0.1" style="font-size: 20px; font-weight: 700; color: var(--accent); margin: 0;">
-                    </div>
-                    <div class="form-group" style="flex: 1; margin: 0;">
-                        <label>Justificativa/Comentário</label>
-                        <textarea id="avComentario" rows="2" style="margin: 0;" placeholder="Análise do monitor..."></textarea>
-                    </div>
-                </div>
-                <button class="btn-submit" id="btnSalvarAvaliacao" onclick="window.enviarLancarNota()" style="margin-top: 15px;">
-                    <i class="fa-solid fa-check-double"></i> Lançar Avaliação
-                </button>
+            <div class="form-group">
+                <label>Feedback Pedagógico</label>
+                <textarea id="comentarioMonitor" rows="3" placeholder="Escreva os pontos de melhoria..."></textarea>
             </div>
+            <button class="btn-submit" id="btnLancarNota" onclick="window.lancarNota()"><i class="fa-solid fa-check-double"></i> Lançar Nota no Histórico</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, collection, doc, updateDoc, onSnapshot, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, query, where, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-        // Funções Globais Básicas
-        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "../../login.html"; };
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
         window.showToast = (msg) => { const t = document.getElementById("toast"); document.getElementById("toastMessage").innerText = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 4000); };
         window.filtrarTabela = function(termo) { termo = termo.toLowerCase(); document.querySelectorAll('tbody tr').forEach(row => { if(row.innerText.toLowerCase().includes(termo)) row.style.display = ""; else row.style.display = "none"; }); };
 
         try {
-            // SESSÃO
             const sessionData = localStorage.getItem("juspanel_session");
             if (!sessionData) throw new Error("Usuário não autenticado");
             const user = JSON.parse(sessionData);
             if(!user.nivel_acesso) user.nivel_acesso = user.cargo || "Comum";
-            if(user.nivel_acesso === "Aprendiz" || user.cargo === "Aprendiz") window.location.href = "../aprendiz.html";
+            
+            if(user.nivel_acesso === "Aprendiz" || user.cargo === "Aprendiz") window.location.href = "/intranet/aprendiz";
 
             document.getElementById("userNickDisplay").innerText = user.nick;
             document.getElementById("userCargoDisplay").innerText = user.cargo;
             document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
 
-            // PERMISSÕES DA UI (Liberando tacômetro e abas de coordenação)
             if (user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
                 document.getElementById('btnAdminDash').classList.remove('escondido');
             }
@@ -172,93 +152,47 @@
                 document.getElementById('abaAulas').classList.remove('escondido');
             }
 
-            // INICIALIZAÇÃO FIREBASE
             const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
             const db = getFirestore(app);
 
-            // CARREGAR AVALIAÇÕES PENDENTES
-            onSnapshot(query(collection(db, 'sabatinas'), where('status', '==', 'pendente')), (snap) => {
-                let htmlPendentes = "";
-                snap.forEach(d => { 
-                    try {
-                        const s = d.data(); 
-                        const badgCola = s.alertasCola > 0 ? `<span class="badge" style="background:#fee2e2; color:#ef4444; border:1px solid #fca5a5;">Cola detectada</span>` : "";
-                        htmlPendentes += `<tr><td><strong>${s.aprendiz}</strong> ${badgCola}</td><td>${s.nomeAvaliacao}</td><td>${s.dataEnvio}</td><td><button class="btn-solid btn-pequeno" onclick="window.abrirAvaliacao('${d.id}')">Avaliar</button></td></tr>`;
-                    } catch(errDoc) {}
+            onSnapshot(query(collection(db, 'sabatinas'), where('status', '==', 'aguardando_correcao')), (snap) => {
+                let htmlP = "";
+                snap.forEach(d => {
+                    const s = d.data();
+                    htmlP += `<tr><td><strong>${s.aprendiz}</strong></td><td>${s.nomeAvaliacao}</td><td><small>${s.dataFim}</small></td><td><button class="btn-solid btn-pequeno" onclick="window.abrirCorrecao('${d.id}')"><i class="fa-solid fa-pen-to-square"></i> Corrigir</button></td></tr>`;
                 });
-                document.getElementById('tabelaPendentes').innerHTML = htmlPendentes || `<tr><td colspan="4" style="text-align:center;">Nenhuma avaliação pendente.</td></tr>`;
+                document.getElementById('tabelaPendentes').innerHTML = htmlP || `<tr><td colspan="4" style="text-align:center;">Tudo em dia! Nenhuma sabatina pendente.</td></tr>`;
             });
 
-            // ABRIR AVALIAÇÃO NO MODAL
-            window.abrirAvaliacao = async function(id) {
-                try {
-                    const snap = await getDoc(doc(db, 'sabatinas', id)); 
-                    if(!snap.exists()) return alert("Sabatina não encontrada."); 
-                    const d = snap.data();
-                    
-                    document.getElementById("avIdSabatina").value = id; 
-                    document.getElementById("avNickAprendiz").innerText = d.aprendiz; 
-                    document.getElementById("avNomeProva").innerText = d.nomeAvaliacao;
-                    
-                    if(d.alertasCola > 0) { 
-                        document.getElementById("avBoxCola").classList.remove("escondido"); 
-                        document.getElementById("avQtdCola").innerText = d.alertasCola; 
-                    } else {
-                        document.getElementById("avBoxCola").classList.add("escondido");
-                    }
-
-                    let htmlResp = "";
-                    if(d.tipo === "manual") {
-                        htmlResp = `<p style="text-align:center; color:var(--text-muted);">Nota avulsa manual. Sem respostas para exibir.</p>`;
-                    } else if (d.respostas) {
-                        d.respostas.forEach((r, i) => { 
-                            htmlResp += `<div><strong style="font-size:13px; color:var(--secondary);">${i+1}. ${r.pergunta}</strong><div class="resposta-texto">${r.resposta}</div></div>`; 
-                        });
-                    }
-                    
-                    document.getElementById("avRespostasContainer").innerHTML = htmlResp;
-                    document.getElementById("avNotaFinal").value = ""; 
-                    document.getElementById("avComentario").value = "";
-                    document.getElementById("modalAvaliar").classList.add("active");
-                } catch(e) { alert("Erro ao abrir avaliação: " + e.message); }
+            window.abrirCorrecao = async function(id) {
+                window.idSabatinaAtual = id;
+                const docSnap = await getDoc(doc(db, 'sabatinas', id));
+                const s = docSnap.data();
+                let htmlContent = `<div style="background:#f8fafc; padding:15px; border-radius:8px; border:1px solid var(--stroke);"><h3>Respostas de ${s.aprendiz}</h3><br>`;
+                s.respostas.forEach((r, i) => {
+                    htmlContent += `<p style="margin-bottom:10px;"><strong>Q${i+1}: ${r.pergunta}</strong><br><span style="color:var(--primary); font-style:italic;">R: ${r.resposta}</span></p>`;
+                });
+                if(s.alertasCola > 0) htmlContent += `<div style="background:#fef2f2; color:#ef4444; padding:10px; border-radius:6px; margin-top:10px; font-weight:bold;"><i class="fa-solid fa-triangle-exclamation"></i> Alerta: O aprendiz saiu da aba da prova ${s.alertasCola} vezes.</div>`;
+                htmlContent += `</div>`;
+                document.getElementById('conteudoProva').innerHTML = htmlContent;
+                document.getElementById('modalCorrecao').classList.add('active');
             };
 
-            // SALVAR E LANÇAR NOTA
-            window.enviarLancarNota = async function() {
-                try {
-                    const id = document.getElementById("avIdSabatina").value; 
-                    const nota = document.getElementById("avNotaFinal").value; 
-                    const com = document.getElementById("avComentario").value;
-                    
-                    if(!nota || !com) return alert("Preencha a nota e o comentário obrigatório.");
-                    
-                    const btnSalvar = document.getElementById("btnSalvarAvaliacao");
-                    btnSalvar.innerText = "Lançando...";
-                    btnSalvar.disabled = true;
-
-                    await updateDoc(doc(db, 'sabatinas', id), { 
-                        nota: parseFloat(nota), 
-                        comentario: com, 
-                        status: "avaliada", 
-                        dataAvaliacao: new Date().toLocaleString('pt-BR'), 
-                        timestampAvaliacao: Date.now(), 
-                        avaliador: user.nick 
-                    });
-                    
-                    window.showToast("Avaliação lançada com sucesso!"); 
-                    document.getElementById("modalAvaliar").classList.remove("active");
-                    btnSalvar.innerHTML = `<i class="fa-solid fa-check-double"></i> Lançar Avaliação`;
-                    btnSalvar.disabled = false;
-                } catch(e) { 
-                    alert("Erro ao lançar nota: " + e.message); 
-                    document.getElementById("btnSalvarAvaliacao").innerHTML = `<i class="fa-solid fa-check-double"></i> Lançar Avaliação`;
-                    document.getElementById("btnSalvarAvaliacao").disabled = false;
-                }
+            window.lancarNota = async function() {
+                const nota = document.getElementById('notaFinal').value;
+                const feedback = document.getElementById('comentarioMonitor').value;
+                if(!nota || nota < 0 || nota > 10) return alert("Insira uma nota válida.");
+                const btn = document.getElementById('btnLancarNota');
+                btn.innerText = "Lançando..."; btn.disabled = true;
+                await updateDoc(doc(db, 'sabatinas', window.idSabatinaAtual), { nota: parseFloat(nota), comentario: feedback, status: 'avaliada', dataAvaliacao: new Date().toLocaleString('pt-BR'), avaliador: user.nick });
+                window.showToast("Nota lançada com sucesso!");
+                document.getElementById('modalCorrecao').classList.remove('active');
+                btn.innerHTML = `<i class="fa-solid fa-check-double"></i> Lançar Nota no Histórico`; btn.disabled = false;
             };
 
         } catch (errorGeral) {
-            console.error("Falha na Inicialização: ", errorGeral);
-            if(errorGeral.message === "Usuário não autenticado") window.location.href = "../../login.html";
+            console.error(errorGeral);
+            if(errorGeral.message === "Usuário não autenticado") window.location.href = "/login";
         }
     </script>
 </body>

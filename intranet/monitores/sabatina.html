@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Sabatina - Painel de Monitores TJP</title>
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/css/style.css">
+
+    <style>
+        .sisproc-nav { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid var(--stroke); overflow-x: auto; padding-bottom: 5px; }
+        .btn-tab { background: transparent; border: none; color: var(--text-muted); font-size: 13px; font-weight: 600; padding: 12px 20px; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; border-radius: 6px 6px 0 0; white-space: nowrap; text-decoration: none; }
+        .btn-tab.active { color: var(--primary); border-bottom-color: var(--accent); background: #eff6f0; }
+        .btn-tab:hover:not(.active) { color: var(--primary); background: #f8fafc; }
+        .escondido { display: none !important; }
+        
+        .box-pin { background: #e8f8f5; border: 2px dashed var(--accent); border-radius: 8px; padding: 20px; text-align: center; margin-top: 20px; }
+        .box-pin h1 { font-size: 40px; color: var(--accent); letter-spacing: 5px; margin: 10px 0;}
+    </style>
+</head>
+<body class="admin-body">
+
+    <div id="toast" class="toast"><i class="fa-solid fa-circle-check"></i> <span id="toastMessage">Sucesso!</span></div>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <img src="/assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <h2 style="margin:0;">Intranet TJP</h2>
+                        <a href="/admin" id="btnAdminDash" class="escondido" title="Acessar Administração do Sistema" style="color: var(--primary); font-size: 14px; transition: 0.3s;"><i class="fa-solid fa-gauge-high"></i></a>
+                    </div>
+                    <span>Portal Pedagógico</span>
+                </div>
+            </div>
+
+            <nav class="admin-nav">
+                <span class="nav-label">Meus Sistemas</span>
+                <a href="/intranet/processos"><i class="fa-solid fa-scale-balanced"></i> Sistema Processual</a>
+                <a href="/intranet/monitores" class="active"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Pesquisa desativada nesta tela..." disabled style="opacity: 0.5;">
+                </div>
+                
+                <div class="header-user">
+                    <div class="user-info">
+                        <strong id="userNickDisplay">Carregando...</strong>
+                        <span id="userCargoDisplay">Aguarde...</span>
+                    </div>
+                    <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
+                    <a href="/" class="btn-site" title="Voltar ao Portal Público"><i class="fa-solid fa-arrow-left"></i></a>
+                    <a href="#" onclick="window.logoutUser()" class="btn-logout" title="Sair do Sistema"><i class="fa-solid fa-power-off"></i></a>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="content-header">
+                    <div>
+                        <h1>Painel de Avaliação e Monitoria</h1>
+                        <p>Gestão pedagógica dos aprendizes, sabatinas e acompanhamento escolar.</p>
+                    </div>
+                </div>
+
+                <div class="sisproc-nav">
+                    <a href="/intranet/monitores" class="btn-tab"><i class="fa-solid fa-stopwatch"></i> Pendentes</a>
+                    <a href="/intranet/monitores/historico" class="btn-tab"><i class="fa-solid fa-check-double"></i> Histórico de Notas</a>
+                    <a href="/intranet/monitores/sabatina" class="btn-tab active"><i class="fa-solid fa-plus-circle"></i> Criar Sabatina</a>
+                    <a href="/intranet/monitores/tempo-real" class="btn-tab"><i class="fa-solid fa-satellite-dish"></i> Em Tempo Real</a>
+                    <a href="/intranet/monitores/aprendizes" class="btn-tab"><i class="fa-solid fa-user-graduate"></i> Matrículas</a>
+                    <a href="/intranet/monitores/aulas" class="btn-tab"><i class="fa-solid fa-calendar-check"></i> Frequências</a>
+                </div>
+
+                <div class="panel-section">
+                    <div class="panel-header">
+                        <h3>Gerador de Sabatinas e Provas</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px;">
+                            <div style="flex: 2;" class="form-group">
+                                <label>Nome da Avaliação</label>
+                                <input type="text" id="nomeSabatina" placeholder="Ex: Sabatina Inicial">
+                            </div>
+                            <div style="flex: 1;" class="form-group">
+                                <label>Tipo de Acesso</label>
+                                <select id="tipoSabatina" onchange="document.getElementById('boxLimite').style.display = this.value === 'geral' ? 'block' : 'none';">
+                                    <option value="individual">Individual (1 uso)</option>
+                                    <option value="geral">Múltiplos usos</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; display:none;" class="form-group" id="boxLimite">
+                                <label>Limite de Usos</label>
+                                <input type="number" id="limiteUsos" value="10">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 15px; align-items: flex-end;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Qtd. Questões</label>
+                                <input type="number" id="qtdQuestoes" value="5" min="1" max="20">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Duração (Min)</label>
+                                <input type="number" id="duracaoMinutos" value="30">
+                            </div>
+                            <button class="btn-outline" style="margin-bottom: 15px;" onclick="window.gerarCampos()">
+                                <i class="fa-solid fa-list-ol"></i> Gerar Campos
+                            </button>
+                        </div>
+                        
+                        <div id="areaCamposQuestoes" style="margin-top: 20px;"></div>
+                        
+                        <button id="btnSalvarNova" class="btn-submit escondido" onclick="window.salvarNovaSabatina()" style="margin-top: 15px;">
+                            <i class="fa-solid fa-key"></i> Gerar Prova e PIN de Acesso
+                        </button>
+                        
+                        <div id="boxPinGerado" class="box-pin escondido">
+                            <p style="margin:0; font-weight:600;">Forneça este PIN ao aprendiz:</p>
+                            <h1 id="displayPin">------</h1>
+                            <p style="margin:0; color:#ef4444; font-size:12px;">Válido por <span id="timerPin">60</span>s!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // Funções Globais com Rotas Absolutas
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
+        window.showToast = (msg) => { const t = document.getElementById("toast"); document.getElementById("toastMessage").innerText = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 4000); };
+
+        try {
+            // SESSÃO
+            const sessionData = localStorage.getItem("juspanel_session");
+            if (!sessionData) throw new Error("Usuário não autenticado");
+            const user = JSON.parse(sessionData);
+            if(!user.nivel_acesso) user.nivel_acesso = user.cargo || "Comum";
+            
+            // Trava exclusiva de Monitores/Coordenação
+            if (user.nivel_acesso === "Comum" || user.nivel_acesso === "Aprendiz") {
+                window.location.href = "/intranet/aprendiz"; 
+            }
+
+            document.getElementById("userNickDisplay").innerText = user.nick;
+            document.getElementById("userCargoDisplay").innerText = user.cargo;
+            document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
+
+            // PERMISSÕES UI
+            if (user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+                document.getElementById('btnAdminDash').classList.remove('escondido');
+            }
+
+            // FIREBASE
+            const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
+            const db = getFirestore(app);
+
+            // GERAR CAMPOS DE PERGUNTAS
+            window.gerarCampos = function() {
+                const qtd = parseInt(document.getElementById('qtdQuestoes').value); 
+                if(qtd < 1) return; 
+                let html = "";
+                for(let i=1; i<=qtd; i++) {
+                    html += `<div class="form-group"><label>Pergunta ${i}</label><input type="text" id="perguntaCriada_${i}"></div>`;
+                }
+                document.getElementById('areaCamposQuestoes').innerHTML = html; 
+                document.getElementById('btnSalvarNova').classList.remove('escondido'); 
+                document.getElementById('boxPinGerado').classList.add('escondido');
+            };
+
+            // SALVAR SABATINA E GERAR PIN
+            let timerPinSabatina = null;
+            window.salvarNovaSabatina = async function() {
+                try {
+                    const nome = document.getElementById('nomeSabatina').value.trim(); 
+                    const tipo = document.getElementById('tipoSabatina').value; 
+                    const lim = parseInt(document.getElementById('limiteUsos').value) || 1; 
+                    const duracao = parseInt(document.getElementById('duracaoMinutos').value) || 30;
+                    
+                    if(!nome) return alert("Dê um nome à avaliação.");
+                    
+                    const qtd = parseInt(document.getElementById('qtdQuestoes').value); 
+                    let perguntas = [];
+                    
+                    for(let i=1; i<=qtd; i++) { 
+                        let p = document.getElementById(`perguntaCriada_${i}`).value.trim(); 
+                        if(!p) return alert(`A pergunta ${i} está vazia.`); 
+                        perguntas.push(p); 
+                    }
+                    
+                    const btnSalvar = document.getElementById('btnSalvarNova');
+                    btnSalvar.innerText = "Gerando PIN...";
+                    btnSalvar.disabled = true;
+
+                    const pinGerado = Math.floor(100000 + Math.random() * 900000).toString();
+                    
+                    await addDoc(collection(db, 'provas_geradas'), { 
+                        nomeAvaliacao: nome, 
+                        pin: pinGerado, 
+                        perguntas: perguntas, 
+                        criador: user.nick, 
+                        expiraEm: Date.now() + 60000, // PIN vale 60 segundos
+                        usado: false, 
+                        tipo: tipo, 
+                        limiteUso: tipo==='geral'?lim:1, 
+                        usosAtuais: 0, 
+                        duracaoMinutos: duracao 
+                    });
+                    
+                    document.getElementById('boxPinGerado').classList.remove('escondido'); 
+                    document.getElementById('displayPin').innerText = pinGerado;
+                    
+                    let s = 60; 
+                    if(timerPinSabatina) clearInterval(timerPinSabatina); 
+                    document.getElementById('timerPin').innerText = s;
+                    
+                    timerPinSabatina = setInterval(() => { 
+                        s--; 
+                        document.getElementById('timerPin').innerText = s; 
+                        if(s<=0){ 
+                            clearInterval(timerPinSabatina); 
+                            document.getElementById('timerPin').innerText = "EXPIRADO"; 
+                        } 
+                    }, 1000);
+
+                    btnSalvar.innerHTML = `<i class="fa-solid fa-key"></i> Gerar Prova e PIN de Acesso`;
+                    btnSalvar.disabled = false;
+
+                } catch(e) {
+                    alert("Erro ao criar sabatina: " + e.message);
+                    document.getElementById('btnSalvarNova').innerHTML = `<i class="fa-solid fa-key"></i> Gerar Prova e PIN de Acesso`;
+                    document.getElementById('btnSalvarNova').disabled = false;
+                }
+            };
+
+        } catch (errorGeral) {
+            console.error("Falha na Inicialização: ", errorGeral);
+            if(errorGeral.message === "Usuário não autenticado") window.location.href = "/login";
+        }
+    </script>
+</body>
+</html>
