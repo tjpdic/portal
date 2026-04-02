@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documento Oficial - TJP</title>
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/css/style.css">
+    
+    <style>
+        .doc-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid var(--stroke);
+            min-height: 50vh;
+        }
+        .doc-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--stroke);
+        }
+        .doc-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            margin: 0 0 10px 0;
+            letter-spacing: 1px;
+        }
+        .doc-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        /* BLINDAGEM DE FORMATAÇÃO DO CKEDITOR */
+        .doc-content {
+            width: 100%;
+            overflow-x: auto;
+            color: #000;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+        .doc-content p { margin-top: 0; margin-bottom: 1em; }
+        .doc-content p:empty::before { content: "\00a0"; }
+        .doc-content ul, .doc-content ol { margin-top: 0; margin-bottom: 1em; padding-left: 40px; }
+        .doc-content li { margin-bottom: 0.5em; }
+        .doc-content h1, .doc-content h2, .doc-content h3, .doc-content h4, .doc-content h5, .doc-content h6 {
+            margin-top: 1.5em; margin-bottom: 0.5em; line-height: 1.2; font-weight: bold; font-family: inherit;
+        }
+        .doc-content hr { border: 0; border-top: 1px solid #e2e8f0; margin: 25px 0; }
+        .doc-content img { max-width: 100%; height: auto !important; }
+        .doc-content table { border-collapse: collapse; max-width: 100%; }
+
+        .doc-restricted { text-align: center; padding: 50px 20px; }
+        .doc-restricted i { font-size: 60px; color: #ef4444; margin-bottom: 20px; }
+        .doc-restricted h2 { color: var(--text-main); margin-bottom: 10px; }
+        .doc-restricted p { color: var(--text-muted); margin-bottom: 20px; }
+    </style>
+</head>
+<body style="background: #f1f5f9;">
+
+    <div class="top-bar">
+        <div class="container top-bar-content">
+            <div class="top-links">
+                <a href="/"><i class="fa-solid fa-arrow-left"></i> Retornar ao Portal</a>
+            </div>
+            <div class="top-actions">
+                <span>Tribunal de Justiça Policial - Documento Oficial</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="doc-container" id="boxDocumento">
+            <div style="text-align: center; padding: 50px; color: var(--text-muted);">
+                <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
+                <p style="margin-top: 15px;">Localizando documento...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
+        const db = getFirestore(app);
+
+        let pathParts = window.location.pathname.split('/').filter(Boolean);
+        let docId = pathParts.length > 0 ? pathParts[pathParts.length - 1] : null;
+
+        if(!docId || docId === "documento.html" || docId === "documento") {
+            const urlParams = new URLSearchParams(window.location.search);
+            docId = urlParams.get('id');
+        }
+
+        const box = document.getElementById("boxDocumento");
+
+        function renderError(icon, title, message, showLoginBtn = false) {
+            let loginBtn = showLoginBtn ? `<br><a href="/login.html" class="btn-solid" style="display:inline-block; margin-top:10px;"><i class="fa-solid fa-right-to-bracket"></i> Fazer Login na Intranet</a>` : "";
+            box.innerHTML = `<div class="doc-restricted"><i class="${icon}"></i><h2>${title}</h2><p>${message}</p>${loginBtn}</div>`;
+        }
+
+        async function carregarDocumento() {
+            if(!docId) return renderError("fa-solid fa-file-circle-xmark", "Documento Não Especificado", "Nenhum código de documento foi fornecido na URL.");
+
+            try {
+                const snap = await getDoc(doc(db, "tjp_documentos", docId));
+                if(!snap.exists()) return renderError("fa-solid fa-file-circle-question", "Documento Não Encontrado", "O documento que você procura não existe ou foi removido.");
+
+                const dados = snap.data();
+
+                if(dados.status === "Oculto") {
+                    return renderError("fa-solid fa-eye-slash", "Documento Indisponível", "Este documento está temporariamente arquivado ou em modo rascunho.");
+                }
+
+                if(dados.permissao !== "Todos") {
+                    const sessionData = localStorage.getItem("juspanel_session");
+                    if(!sessionData) return renderError("fa-solid fa-lock", "Acesso Restrito", `A leitura deste documento exige nível de segurança: <b>${dados.permissao}</b>.`, true);
+
+                    const user = JSON.parse(sessionData);
+                    const lvl = user.nivel_acesso || user.cargo;
+                    const admins = ["Presidente", "Admin", "CSJ"];
+                    let bloqueado = true;
+
+                    if(admins.includes(lvl)) bloqueado = false; 
+                    else if(dados.permissao === "Interno") bloqueado = false; 
+                    else if(dados.permissao === "Aprendizes" && (lvl === "Aprendiz" || lvl === "Comum")) bloqueado = false;
+                    else if(dados.permissao === "Defensores" && lvl === "Defensor") bloqueado = false;
+                    else if(dados.permissao === "Promotores" && lvl === "Promotor") bloqueado = false;
+                    else if(dados.permissao === "Juízes" && lvl === "Juiz") bloqueado = false;
+
+                    if(bloqueado) return renderError("fa-solid fa-shield-halved", "Acesso Negado", "Seu cargo atual não possui os privilégios necessários para ler este documento oficial.");
+                }
+
+                // LÓGICA DA DATA (Usa a manual, se existir. Senão, usa a automática)
+                let dataAtt = "Recente";
+                if(dados.dataManual && dados.dataManual.trim() !== "") {
+                    dataAtt = dados.dataManual;
+                } else {
+                    if(dados.dataAtualizacao) dataAtt = dados.dataAtualizacao.toDate().toLocaleDateString('pt-BR');
+                    else if(dados.dataCriacao) dataAtt = dados.dataCriacao.toDate().toLocaleDateString('pt-BR');
+                }
+
+                document.title = `${dados.titulo} - Oficial TJP`;
+
+                // LOGO REMOVIDA AQUI
+                box.innerHTML = `
+                    <div class="doc-header">
+                        <h1 class="doc-title">${dados.titulo}</h1>
+                        <div class="doc-meta">
+                            <span><i class="fa-solid fa-shield-halved"></i> Tribunal de Justiça Policial</span>
+                            <span><i class="fa-solid fa-calendar-check"></i> Atualizado em: ${dataAtt}</span>
+                        </div>
+                    </div>
+                    <div class="doc-content">
+                        ${dados.conteudo}
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error(error);
+                renderError("fa-solid fa-triangle-exclamation", "Erro de Conexão", "Houve um problema ao conectar com o servidor do TJP. Tente novamente mais tarde.");
+            }
+        }
+
+        carregarDocumento();
+    </script>
+</body>
+</html>

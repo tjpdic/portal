@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerir Canvas - JusPanel</title>
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body class="admin-body">
+
+    <div id="toast" class="toast"><i class="fa-solid fa-circle-check"></i> <span id="toastMessage">Sucesso!</span></div>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <img src="/assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <div>
+                    <h2>JusPanel</h2>
+                    <span>Administração Geral</span>
+                </div>
+            </div>
+
+            <nav class="admin-nav">
+                <span class="nav-label">Principal</span>
+                <a href="/admin/index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
+                
+                <span class="nav-label">Portal Público</span>
+                <a href="/admin/publicacoes.html"><i class="fa-solid fa-newspaper"></i> Publicações</a>
+                <a href="/admin/dojup.html"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
+                <a href="/admin/aparencia.html"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
+                
+                <span class="nav-label">Intranet & Sistemas</span>
+                <a href="/admin/documentos.html"><i class="fa-solid fa-file-signature"></i> Gestão de Documentos</a>
+                <a href="/admin/canvas.html" class="active"><i class="fa-solid fa-object-group"></i> Gestão de Canvas</a>
+                <a href="/admin/membros.html"><i class="fa-solid fa-users-gear"></i> Controle da Bancada</a>
+                <a href="/admin/comunicacao.html"><i class="fa-solid fa-tower-broadcast"></i> Comunicação Interna</a>
+                <a href="/admin/configuracoes.html"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Buscar canvas...">
+                </div>
+                <div class="header-user">
+                    <div class="user-info">
+                        <strong id="userNickDisplay">Carregando...</strong>
+                        <span id="userCargoDisplay">Aguarde...</span>
+                    </div>
+                    <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
+                    <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
+                        <a href="/intranet/index.html" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
+                        <a href="/index.html" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
+                        <a href="#" onclick="logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="content-header">
+                    <div>
+                        <h1>Gestão de Canvas</h1>
+                        <p>Cadastre links de apresentações e cartilhas interativas do Canva para exibição em iframe.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-solid" onclick="abrirModalCanvasNovo()"><i class="fa-solid fa-plus"></i> Novo Canvas</button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <div class="panel-header"><h3>Canvas Publicados</h3></div>
+                    <div class="panel-body p-0">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Título do Canvas</th>
+                                    <th>Permissão de Acesso</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaCanvas">
+                                <tr><td colspan="5" style="text-align:center;">Carregando banco de dados...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modalCanvas" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitleCanvas"><i class="fa-solid fa-object-group"></i> Editor de Canvas</h2>
+                <span class="close-modal" id="fecharModalCanvas">&times;</span>
+            </div>
+            <form id="formCanvas">
+                <div class="form-group">
+                    <label>Título do Documento (Apresentação)</label>
+                    <input type="text" id="canTitulo" required placeholder="Ex: [Sp] Cartilha de Formação">
+                </div>
+                
+                <div class="form-group">
+                    <label>Link de Visualização do Canva</label>
+                    <input type="url" id="canUrl" required placeholder="Ex: https://www.canva.com/design/.../view">
+                </div>
+
+                <div style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Função Necessária (Permissão)</label>
+                        <select id="canPermissao" required>
+                            <option value="Todos">Público (Todos)</option>
+                            <option value="Interno">Apenas Membros Ativos</option>
+                            <option value="Aprendizes">Aprendizes e Acima</option>
+                            <option value="Defensores">Apenas Defensores</option>
+                            <option value="Promotores">Apenas Promotores</option>
+                            <option value="Juízes">Apenas Juízes e CSJ</option>
+                            <option value="Diretoria">Apenas Presidente e CSJ</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Status de Visibilidade</label>
+                        <select id="canStatus" required>
+                            <option value="Ativado">Ativado (Visível)</option>
+                            <option value="Oculto">Oculto (Rascunho)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btnSalvarCan" style="margin-top: 15px;"><i class="fa-solid fa-cloud-arrow-up"></i> Salvar Canvas</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // SESSÃO E SEGURANÇA
+        const sessionData = localStorage.getItem("juspanel_session");
+        if (!sessionData) { window.location.href = "/login.html"; } 
+        else {
+            const user = JSON.parse(sessionData);
+            if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
+                alert("Acesso Negado. Área restrita."); window.location.href = "/login.html";
+            }
+            document.getElementById("userNickDisplay").innerText = user.nick;
+            document.getElementById("userCargoDisplay").innerText = user.cargo;
+            document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
+        }
+
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login.html"; };
+        window.showToast = (msg) => { const t = document.getElementById("toast"); document.getElementById("toastMessage").innerText = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 4000); };
+
+        const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
+        const db = getFirestore(app);
+
+        // LÓGICA DO CRUD DE CANVAS
+        let editIdAtivo = null;
+        window.canvasMemoria = {};
+
+        const modal = document.getElementById("modalCanvas");
+        document.getElementById("fecharModalCanvas").onclick = () => modal.classList.remove("active");
+
+        window.abrirModalCanvasNovo = function() {
+            editIdAtivo = null;
+            document.getElementById("modalTitleCanvas").innerHTML = `<i class="fa-solid fa-object-group"></i> Novo Canvas`;
+            document.getElementById("formCanvas").reset();
+            modal.classList.add("active");
+        }
+
+        window.editarCanvas = function(id) {
+            const data = window.canvasMemoria[id];
+            if(!data) return;
+            editIdAtivo = id;
+            document.getElementById("modalTitleCanvas").innerHTML = `<i class="fa-solid fa-pen"></i> Editando Canvas #${id}`;
+            document.getElementById("canTitulo").value = data.titulo;
+            document.getElementById("canUrl").value = data.url;
+            document.getElementById("canPermissao").value = data.permissao || "Todos";
+            document.getElementById("canStatus").value = data.status || "Ativado";
+            modal.classList.add("active");
+        }
+
+        window.deletarCanvas = async function(id) {
+            if(confirm("Tem certeza que deseja apagar permanentemente este canvas?")) {
+                await deleteDoc(doc(db, "tjp_canvas", id));
+                window.showToast("Canvas deletado.");
+            }
+        }
+
+        // NOVO FORMATO DE CÓPIA DO LINK DO PORTAL
+        window.copiarUrl = function(id) {
+            const urlCompleta = window.location.origin + "/canvas/" + id;
+            navigator.clipboard.writeText(urlCompleta).then(() => window.showToast("URL do Portal copiada!"));
+        }
+
+        document.getElementById("formCanvas").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById("btnSalvarCan");
+            btn.innerText = "Salvando..."; btn.disabled = true;
+
+            const dados = {
+                titulo: document.getElementById("canTitulo").value.trim(),
+                url: document.getElementById("canUrl").value.trim(),
+                permissao: document.getElementById("canPermissao").value,
+                status: document.getElementById("canStatus").value,
+                atualizadoPor: JSON.parse(sessionData).nick,
+                dataAtualizacao: serverTimestamp()
+            };
+
+            try {
+                if(editIdAtivo) {
+                    await updateDoc(doc(db, "tjp_canvas", editIdAtivo), dados);
+                    window.showToast("Canvas atualizado!");
+                } else {
+                    let slugId = dados.titulo.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+                    const canCheck = await getDocs(query(collection(db, "tjp_canvas")));
+                    let suffix = 1;
+                    let finalId = slugId;
+                    while(canCheck.docs.some(d => d.id === finalId)) {
+                        finalId = `${slugId}-${suffix}`; suffix++;
+                    }
+                    dados.dataCriacao = serverTimestamp();
+                    await setDoc(doc(db, "tjp_canvas", finalId), dados);
+                    window.showToast("Canvas cadastrado!");
+                }
+                modal.classList.remove("active");
+            } catch(err) {
+                alert("Erro ao salvar: " + err.message);
+            }
+            btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Salvar Canvas`; btn.disabled = false;
+        });
+
+        // RENDERIZAR TABELA
+        onSnapshot(query(collection(db, "tjp_canvas"), orderBy("dataAtualizacao", "desc")), (snap) => {
+            const tb = document.getElementById("tabelaCanvas");
+            tb.innerHTML = "";
+            window.canvasMemoria = {};
+
+            if(snap.empty) {
+                tb.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum canvas cadastrado.</td></tr>`;
+                return;
+            }
+
+            snap.forEach(d => {
+                const data = d.data();
+                window.canvasMemoria[d.id] = data;
+
+                let statusBadge = data.status === "Ativado" ? "var(--accent)" : "#ef4444";
+
+                tb.innerHTML += `
+                    <tr>
+                        <td><strong>#${d.id.substring(0,8)}...</strong></td>
+                        <td><strong>${data.titulo}</strong><br><small style="color:var(--text-muted)">/canvas/${d.id}</small></td>
+                        <td>${data.permissao}</td>
+                        <td><span style="color: ${statusBadge}; font-weight:700;">${data.status}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn-icon edit" onclick="window.editarCanvas('${d.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                                <button class="btn-icon" style="background:#e0f2fe; color:#0284c7;" onclick="window.copiarUrl('${d.id}')" title="Copiar Link do Portal"><i class="fa-solid fa-copy"></i></button>
+                                <a href="/canvas/${d.id}" class="btn-icon" style="background:#fef08a; color:#b45309; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;" title="Visualizar Canvas"><i class="fa-solid fa-eye"></i></a>
+                                <button class="btn-icon delete" onclick="window.deletarCanvas('${d.id}')" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>

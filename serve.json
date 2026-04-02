@@ -1,3 +1,14 @@
 {
-  "cleanUrls": true
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/documento/**",
+      "destination": "/documento.html"
+    },
+    {
+      "source": "/canvas/**",
+      "destination": "/canvas.html"
+    }
+  ]
 }

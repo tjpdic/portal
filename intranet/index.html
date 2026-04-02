@@ -22,43 +22,77 @@
         
         .notif-dropdown { position: absolute; top: 45px; right: -10px; width: 340px; background: white; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid var(--stroke); z-index: 1000; overflow: hidden; display: none; cursor: default; }
         .notif-dropdown.active { display: block; animation: slideDown 0.2s ease-out; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        
         .notif-header { padding: 15px; border-bottom: 1px solid var(--stroke); background: #f8fafc; font-weight: 700; display: flex; justify-content: space-between; align-items: center; color: var(--primary); }
         .notif-body { max-height: 380px; overflow-y: auto; }
         .notif-item { padding: 15px; border-bottom: 1px solid var(--stroke); display: flex; gap: 15px; align-items: flex-start; transition: 0.2s; text-decoration: none; color: var(--text-main); }
         .notif-item:hover { background: #f1f5f9; }
         .notif-item:last-child { border-bottom: none; }
-        
         .notif-icon-circle { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; font-size: 14px; }
         .notif-icon-circle.aviso { background: #f59e0b; }
         .notif-icon-circle.sistema { background: #0284c7; }
         .notif-icon-circle.urgente { background: #ef4444; }
         .notif-icon-circle.noticia { background: var(--accent); }
-        
         .notif-text { font-size: 12px; line-height: 1.4; }
         .notif-time { font-size: 10px; color: var(--text-muted); margin-top: 5px; display: block; }
 
-        /* FEED INTRANET (BARRAS / CARDS) */
-        .feed-container { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px 25px 5px; scroll-behavior: smooth; }
-        .feed-container::-webkit-scrollbar { height: 8px; }
-        .feed-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
-        .feed-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        /* VARIÁVEIS DO FEED */
+        :root {
+            --feed-max-width: 838px;
+            --feed-max-height: 600px;
+            --av-size: 45px;
+            --av-bg-size: 143%;
+            --av-pos-x: -10px;
+            --av-pos-y: -21px;
+        }
+
+        /* ESTRUTURA DE GRID (FEED ESQUERDA + MENU DIREITA) */
+        .intranet-grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            align-items: start;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 900px) {
+            .intranet-grid-layout { grid-template-columns: 1fr; }
+            .sidebar-area { order: -1; margin-bottom: 20px; } 
+        }
+
+        /* FEED INTRANET */
+        .feed-container { display: flex; flex-direction: column; align-items: center; gap: 25px; padding-bottom: 25px; }
+        .feed-post-card { background: #fff; border: 1px solid var(--stroke); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.03); width: 100%; max-width: var(--feed-max-width); margin: 0 auto; transition: 0.3s; }
+        .feed-post-card:hover { box-shadow: 0 5px 20px rgba(0,0,0,0.08); }
+        .feed-post-header { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--stroke); background: #f8fafc; }
+        .feed-avatar-box { width: var(--av-size); height: var(--av-size); border-radius: 50%; margin-right: 15px; background-color: #e2e8f0; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); background-repeat: no-repeat; background-size: var(--av-bg-size); background-position: var(--av-pos-x) var(--av-pos-y); flex-shrink: 0; }
+        .feed-post-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .feed-post-top-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 2px; }
+        .feed-author-nick { font-size: 15px; font-weight: 700; color: var(--text-main); }
+        .feed-post-title { font-size: 16px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .feed-author-cargo { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+        .feed-post-image { width: 100%; display: block; background: #f1f5f9; display: flex; justify-content: center; }
+        .feed-post-image img { width: 100%; height: auto; max-height: var(--feed-max-height); object-fit: contain; display: block; }
+        .feed-post-image img.blocked-drag { user-drag: none; -webkit-user-drag: none; }
+        .feed-post-image img.clickable-drag { cursor: pointer; }
+
+        /* MENU LATERAL DIREITO DINÂMICO */
+        .right-menu-box { background: #fff; border: 1px solid var(--stroke); border-radius: 8px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .right-menu-header { background: linear-gradient(to bottom, #c80000, #a90000); color: white; padding: 12px 15px; font-weight: 700; font-size: 14px; text-transform: uppercase; }
+        .right-menu-item { display: block; padding: 12px 15px; color: var(--text-main); font-size: 13px; text-decoration: none; border-bottom: 1px solid var(--stroke); transition: 0.2s; cursor: pointer; font-weight: 500; }
+        .right-menu-item:last-child { border-bottom: none; }
+        .right-menu-item:hover { background: #f8fafc; color: var(--primary); }
+        .right-menu-item i.main-icon { width: 20px; text-align: center; margin-right: 8px; opacity: 0.8; color: var(--primary); }
         
-        .feed-post { position: relative; width: 260px; height: 360px; border-radius: 12px; overflow: hidden; flex-shrink: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; background: #e2e8f0; }
-        .feed-post img.post-bg { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
-        .feed-post:hover img.post-bg { transform: scale(1.08); }
+        .right-submenu { display: none; background: #f8fafc; border-bottom: 1px solid var(--stroke); }
+        .right-submenu.active { display: block; animation: sanfona 0.3s ease-out; }
+        @keyframes sanfona { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
         
-        .post-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.8) 100%); pointer-events: none; }
-        
-        .post-author { position: absolute; top: 15px; left: 15px; display: flex; align-items: center; gap: 10px; z-index: 2; }
-        .post-author img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--accent); box-shadow: 0 2px 5px rgba(0,0,0,0.3); background: #fff; }
-        .post-author-info { opacity: 0; transition: 0.3s; transform: translateX(-10px); color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-        .feed-post:hover .post-author-info { opacity: 1; transform: translateX(0); }
-        
-        .post-title { position: absolute; bottom: 15px; left: 15px; right: 15px; color: white; z-index: 2; text-shadow: 0 1px 4px rgba(0,0,0,0.9); }
-        .post-title h4 { margin: 0 0 5px 0; font-size: 15px; line-height: 1.2; }
-        .post-title span { font-size: 11px; opacity: 0.8; }
+        .right-submenu-item { display: block; padding: 10px 15px 10px 45px; font-size: 12px; color: var(--text-muted); text-decoration: none; transition: 0.2s; position: relative; }
+        .right-submenu-item:before { content: ''; position: absolute; left: 24px; top: 50%; transform: translateY(-50%); width: 4px; height: 4px; border-radius: 50%; background: #cbd5e1; transition: 0.2s; }
+        .right-submenu-item:hover { color: var(--primary); background: #f1f5f9; }
+        .right-submenu-item:hover:before { background: var(--primary); }
+        .right-submenu-item i { margin-right: 8px; font-size: 11px; opacity: 0.6; }
     </style>
 </head>
 <body class="admin-body">
@@ -68,14 +102,17 @@
             <div class="admin-brand">
                 <img src="/assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
                 <div>
-                    <h2 style="margin:0;">Intranet TJP</h2>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <h2 style="margin:0;">Intranet TJP</h2>
+                        <a href="/admin/index.html" id="btnAdminDash" class="escondido" title="Acessar Administração do Sistema" style="color: var(--primary); font-size: 14px; transition: 0.3s;"><i class="fa-solid fa-gauge-high"></i></a>
+                    </div>
                     <span>Acesso Restrito</span>
                 </div>
             </div>
 
             <nav class="admin-nav">
                 <span class="nav-label">Meus Sistemas</span>
-                <a href="/intranet/" class="active"><i class="fa-solid fa-house-user"></i> Início</a>
+                <a href="/intranet/index.html" class="active"><i class="fa-solid fa-house-user"></i> Início</a>
                 <a href="/intranet/processos"><i class="fa-solid fa-scale-balanced"></i> Sistema Processual</a>
                 <a href="/intranet/monitores" id="btnMenuMonitores" class="escondido"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
             </nav>
@@ -86,7 +123,6 @@
                 <div class="header-search" style="opacity: 0;"></div>
                 
                 <div class="header-user">
-                    
                     <div class="notif-wrapper" onclick="toggleNotificacoes()">
                         <i class="fa-solid fa-bell notif-icon"></i>
                         <span class="notif-badge" id="badgeNotifCount">0</span>
@@ -107,28 +143,26 @@
                         <span id="userCargoDisplay">Aguarde...</span>
                     </div>
                     <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
-                    <a href="/admin" id="btnAdminDash" class="btn-site escondido" style="background:#e0f2fe; color:#0284c7;" title="Administração"><i class="fa-solid fa-gauge-high"></i></a>
-                    <a href="/" class="btn-site" title="Voltar ao Portal Público"><i class="fa-solid fa-house"></i></a>
+                    <a href="/index.html" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
                     <a href="#" onclick="window.logoutUser()" class="btn-logout" title="Sair do Sistema"><i class="fa-solid fa-power-off"></i></a>
                 </div>
             </header>
 
-            <div class="admin-content">
-                <div class="content-header" style="margin-bottom: 30px;">
-                    <div>
-                        <h1 id="textoBoasVindas" style="color: var(--primary);">Bem-vindo à Intranet do TJP</h1>
-                        <p>Fique por dentro das últimas atualizações, decretos e comunicados da presidência.</p>
-                    </div>
-                </div>
-
-                <div class="panel-section" style="background: transparent; box-shadow: none; padding: 0;">
-                    <h3 style="margin-bottom: 15px; color: var(--text-main); font-size: 16px;"><i class="fa-solid fa-images" style="color: var(--accent);"></i> Publicações Internas</h3>
+            <div class="admin-content" style="background: transparent; box-shadow: none; padding: 20px 0;">
+                
+                <div class="intranet-grid-layout">
                     
-                    <div class="feed-container" id="feedIntranetBox">
-                        <div class="feed-post" style="display:flex; justify-content:center; align-items:center; color:var(--text-muted);">
-                            <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
+                    <div class="main-feed-area">
+                        <div class="feed-container" id="feedIntranetBox">
+                            <div style="display:flex; justify-content:center; align-items:center; color:var(--text-muted); padding: 40px;">
+                                <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i> Carregando Intranet...
+                            </div>
                         </div>
                     </div>
+
+                    <div class="sidebar-area" id="rightSidebarMenu">
+                        </div>
+
                 </div>
 
             </div>
@@ -137,25 +171,22 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getFirestore, collection, query, orderBy, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
         // VERIFICAÇÃO DE SESSÃO
         const sessionData = localStorage.getItem("juspanel_session");
-        if (!sessionData) window.location.href = "/login";
+        if (!sessionData) window.location.href = "/login.html";
         const user = JSON.parse(sessionData);
 
         const nivelAtivo = (user.nivel_acesso || "").trim().toLowerCase();
         const cargoAtivo = (user.cargo || "").trim().toLowerCase();
 
-        // Bloqueio de Aprendiz (Eles têm o próprio painel)
-        if (nivelAtivo === "aprendiz" || cargoAtivo === "aprendiz") window.location.href = "/intranet/aprendiz"; 
+        if (nivelAtivo === "aprendiz" || cargoAtivo === "aprendiz") window.location.href = "/intranet/aprendiz.html"; 
 
         document.getElementById("userNickDisplay").innerText = user.nick;
         document.getElementById("userCargoDisplay").innerText = user.cargo;
         document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
-        document.getElementById("textoBoasVindas").innerText = `Bem-vindo ${user.nick} à Intranet do Tribunal de Justiça Policial`;
 
-        // Permissões Visuais
         const admins = ["presidente", "admin", "csj"];
         if(admins.includes(nivelAtivo) || admins.includes(cargoAtivo) || cargoAtivo.includes("presidente")) {
             document.getElementById('btnAdminDash').classList.remove('escondido');
@@ -166,13 +197,10 @@
             document.getElementById('btnMenuMonitores').classList.remove('escondido');
         }
 
-        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login.html"; };
+        window.toggleNotificacoes = function() { document.getElementById('dropdownNotificacoes').classList.toggle('active'); };
+        window.marcarTudoLido = function() { document.getElementById('badgeNotifCount').innerText = "0"; document.getElementById('badgeNotifCount').style.display = "none"; };
 
-        window.toggleNotificacoes = function() {
-            document.getElementById('dropdownNotificacoes').classList.toggle('active');
-        };
-
-        // Fecha o modal ao clicar fora
         document.addEventListener('click', (e) => {
             const wrapper = document.querySelector('.notif-wrapper');
             if(wrapper && !wrapper.contains(e.target)) {
@@ -180,82 +208,141 @@
             }
         });
 
-        window.marcarTudoLido = function() {
-            document.getElementById('badgeNotifCount').innerText = "0";
-            document.getElementById('badgeNotifCount').style.display = "none";
-            // Lógica futura para atualizar no DB se desejado
+        // Função global para expandir sanfona do menu lateral
+        window.toggleSubmenu = function(elemento) {
+            const sub = elemento.nextElementSibling;
+            if(sub && sub.classList.contains('right-submenu')) {
+                sub.classList.toggle('active');
+                const iconeSeta = elemento.querySelector('.fa-chevron-down, .fa-chevron-up');
+                if(iconeSeta) {
+                    if(sub.classList.contains('active')) {
+                        iconeSeta.classList.replace('fa-chevron-down', 'fa-chevron-up');
+                    } else {
+                        iconeSeta.classList.replace('fa-chevron-up', 'fa-chevron-down');
+                    }
+                }
+            }
         };
 
         const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
         const db = getFirestore(app);
 
-        // 1. CARREGAR NOTIFICAÇÕES DA INTRANET
+        // 1. CARREGAR NOTIFICAÇÕES (SININHO)
         onSnapshot(query(collection(db, "tjp_notificacoes"), orderBy("timestamp", "desc")), (snap) => {
             let htmlNotifs = "";
             let countNaoLidas = 0;
-
             snap.forEach(d => {
                 const n = d.data();
-                // Filtra para mostrar apenas se for para todos, ou para o nick específico, ou para o cargo específico
                 if(n.destinatario === 'todos' || n.destinatario.toLowerCase() === user.nick.toLowerCase() || n.destinatario.toLowerCase() === user.cargo.toLowerCase()) {
-                    
-                    // Definição de Ícone e Cor baseada no tipo (aviso, sistema, urgente, noticia)
                     let iconClass = "fa-solid fa-bell";
                     let circleClass = "sistema";
-                    
                     if(n.tipo === 'urgente') { iconClass = "fa-solid fa-triangle-exclamation"; circleClass = "urgente"; }
                     if(n.tipo === 'aviso') { iconClass = "fa-solid fa-bullhorn"; circleClass = "aviso"; }
                     if(n.tipo === 'noticia') { iconClass = "fa-solid fa-newspaper"; circleClass = "noticia"; }
-
-                    countNaoLidas++; // Simulação simples. Em sistema real cruza com array de visualizadores.
-
-                    htmlNotifs += `
-                        <a href="${n.link || '#'}" class="notif-item">
-                            <div class="notif-icon-circle ${circleClass}"><i class="${iconClass}"></i></div>
-                            <div>
-                                <div class="notif-text"><strong>${n.remetente}:</strong> ${n.mensagem}</div>
-                                <span class="notif-time">${n.dataStr}</span>
-                            </div>
-                        </a>
-                    `;
+                    countNaoLidas++; 
+                    htmlNotifs += `<a href="${n.link || '#'}" class="notif-item"><div class="notif-icon-circle ${circleClass}"><i class="${iconClass}"></i></div><div><div class="notif-text"><strong>${n.remetente}:</strong> ${n.mensagem}</div><span class="notif-time">${n.dataStr}</span></div></a>`;
                 }
             });
-
             document.getElementById('listaNotificacoes').innerHTML = htmlNotifs || `<div style="padding:20px; text-align:center; color:var(--text-muted); font-size:12px;">Você não tem novas notificações.</div>`;
-            
             const badge = document.getElementById('badgeNotifCount');
-            if(countNaoLidas > 0) {
-                badge.innerText = countNaoLidas;
-                badge.style.display = "block";
-            } else {
-                badge.style.display = "none";
-            }
+            if(countNaoLidas > 0) { badge.innerText = countNaoLidas; badge.style.display = "block"; } else { badge.style.display = "none"; }
         });
 
-        // 2. CARREGAR FEED DA INTRANET (STORIES)
-        onSnapshot(query(collection(db, "tjp_feed_intranet"), orderBy("timestamp", "desc")), (snap) => {
+        // 2. CARREGAR MENU LATERAL DIREITO DINÂMICO
+        onSnapshot(doc(db, "tjp_config", "menus_lateral"), (snap) => {
+            if(!snap.exists() || !snap.data().lista) return;
+            const categorias = snap.data().lista;
+            let htmlMenu = "";
+
+            categorias.sort((a,b) => a.prioridade - b.prioridade).forEach(cat => {
+                htmlMenu += `<div class="right-menu-box"><div class="right-menu-header">${cat.nome}</div>`;
+                
+                if(cat.links) {
+                    cat.links.forEach(lk => {
+                        if(lk.submenus && lk.submenus.length > 0) {
+                            htmlMenu += `
+                                <a class="right-menu-item" onclick="window.toggleSubmenu(this)">
+                                    <i class="${lk.icone} main-icon"></i> ${lk.nome} 
+                                    <i class="fa-solid fa-chevron-down" style="float:right; margin-top:3px; font-size:11px; opacity:0.5;"></i>
+                                </a>
+                                <div class="right-submenu">`;
+                                
+                            lk.submenus.forEach(sub => {
+                                htmlMenu += `<a href="${sub.url || '#'}" target="_blank" class="right-submenu-item"><i class="${sub.icone}"></i> ${sub.nome}</a>`;
+                            });
+                            
+                            htmlMenu += `</div>`;
+                        } else {
+                            htmlMenu += `<a href="${lk.url || '#'}" target="_blank" class="right-menu-item"><i class="${lk.icone} main-icon"></i> ${lk.nome}</a>`;
+                        }
+                    });
+                }
+                htmlMenu += `</div>`;
+            });
+            
+            document.getElementById('rightSidebarMenu').innerHTML = htmlMenu;
+        });
+
+        // 3. CARREGAR FEED DA INTRANET
+        onSnapshot(collection(db, "tjp_feed_intranet"), (snap) => {
+            let postsArray = [];
+            snap.forEach(d => { postsArray.push({ id: d.id, ...d.data() }); });
+
+            postsArray.sort((a, b) => {
+                let oA = a.ordem !== undefined ? a.ordem : (a.timestamp * -1);
+                let oB = b.ordem !== undefined ? b.ordem : (b.timestamp * -1);
+                if (oA !== oB) return oA - oB;
+                return b.timestamp - a.timestamp;
+            });
+
             let htmlFeed = "";
 
-            snap.forEach(d => {
-                const post = d.data();
-                const avatarUrl = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${post.autorNick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
+            postsArray.forEach(post => {
+                let headerHtml = "";
+                const showAutor = post.mostrarAutor !== false; 
+                const showCargo = post.mostrarCargo !== false;
+                let titleHtml = post.titulo ? `<span class="feed-post-title">${post.titulo}</span>` : "";
                 
-                htmlFeed += `
-                    <div class="feed-post" onclick="window.open('${post.imgUrl}', '_blank')">
-                        <img src="${post.imgUrl}" class="post-bg" alt="Publicação">
-                        <div class="post-overlay"></div>
-                        
-                        <div class="post-author">
-                            <img src="${avatarUrl}" alt="${post.autorNick}">
-                            <div class="post-author-info">
-                                <span style="font-size:11px; font-weight:700; display:block;">${post.autorNick}</span>
-                                <span style="font-size:9px; opacity:0.8;">${post.autorCargo}</span>
+                if (showAutor) {
+                    const avatarUrl = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${post.autorNick}&action=std&direction=2&head_direction=3&gesture=sml&size=l`;
+                    let cargoHtml = showCargo ? `<span class="feed-author-cargo">${post.autorCargo}</span>` : "";
+                    
+                    headerHtml = `
+                        <div class="feed-post-header">
+                            <div class="feed-avatar-box" style="background-image: url('${avatarUrl}')"></div>
+                            <div class="feed-post-info">
+                                <div class="feed-post-top-row">
+                                    <span class="feed-author-nick">${post.autorNick}</span>
+                                    ${titleHtml}
+                                </div>
+                                ${cargoHtml}
                             </div>
                         </div>
+                    `;
+                } else if (post.titulo) {
+                    headerHtml = `
+                        <div class="feed-post-header">
+                            <div class="feed-post-info">
+                                <div class="feed-post-top-row">
+                                    ${titleHtml}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
 
-                        <div class="post-title">
-                            <h4>${post.titulo || 'Comunicado Interno'}</h4>
-                            <span>${post.dataStr}</span>
+                let linkAction = "";
+                let imgClass = "blocked-drag";
+                if (post.linkPost) {
+                    linkAction = `onclick="window.open('${post.linkPost}', '_blank')"`;
+                    imgClass = "clickable-drag";
+                }
+
+                htmlFeed += `
+                    <div class="feed-post-card">
+                        ${headerHtml}
+                        <div class="feed-post-image" ${linkAction}>
+                            <img src="${post.imgUrl}" alt="Publicação Interna" class="${imgClass}" draggable="false" oncontextmenu="return false;">
                         </div>
                     </div>
                 `;

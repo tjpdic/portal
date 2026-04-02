@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador Canvas - TJP</title>
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/css/style.css">
+    
+    <style>
+        /* Trava a página exatamente no tamanho do monitor e oculta barras de rolagem */
+        body {
+            background: #f1f5f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden; 
+        }
+
+        .container-master {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            flex: 1; /* Preenche a tela restante abaixo da Top Bar */
+            padding: 20px;
+            box-sizing: border-box;
+            min-height: 0; /* Essencial para o Flexbox não estourar a tela */
+        }
+
+        .canvas-container {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .canvas-header {
+            background: #fff;
+            padding: 15px 25px;
+            border-radius: 12px 12px 0 0;
+            border: 1px solid var(--stroke);
+            border-bottom: none;
+            display: flex;
+            justify-content: center; /* Centraliza o título como solicitado */
+            align-items: center;
+            flex-shrink: 0; 
+        }
+
+        .canvas-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 0;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            flex: 1; /* Preenche TODO o espaço que sobrou no container */
+            overflow: hidden;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: #1e293b; /* Fundo mais escuro para destacar slides */
+            border: 1px solid var(--stroke);
+        }
+
+        .canvas-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* ERROS E CARREGAMENTO */
+        .doc-restricted {
+            text-align: center;
+            padding: 80px 20px;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid var(--stroke);
+            margin-top: 40px;
+        }
+        .doc-restricted i { font-size: 60px; color: #ef4444; margin-bottom: 20px; }
+        .doc-restricted h2 { color: var(--text-main); margin-bottom: 10px; }
+        .doc-restricted p { color: var(--text-muted); margin-bottom: 20px; }
+        
+        .loading-box {
+            text-align: center; 
+            padding: 100px; 
+            color: var(--text-muted); 
+            background: #fff; 
+            border-radius: 12px; 
+            border: 1px solid var(--stroke); 
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="container top-bar-content">
+            <div class="top-links">
+                <a href="/"><i class="fa-solid fa-arrow-left"></i> Retornar ao Portal</a>
+            </div>
+            <div class="top-actions">
+                <span>Tribunal de Justiça Policial - Apresentação Interativa</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-master">
+        <div class="canvas-container" id="boxCanvas">
+            <div class="loading-box">
+                <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
+                <p style="margin-top: 15px;">Carregando apresentação...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
+        const db = getFirestore(app);
+
+        // CAPTURA DO ID PARA LINKS LIMPOS (/canvas/slug)
+        let pathParts = window.location.pathname.split('/').filter(Boolean);
+        let docId = pathParts.length > 0 ? pathParts[pathParts.length - 1] : null;
+
+        if(!docId || docId === "canvas.html" || docId === "canvas") {
+            const urlParams = new URLSearchParams(window.location.search);
+            docId = urlParams.get('id');
+        }
+
+        const box = document.getElementById("boxCanvas");
+
+        function renderError(icon, title, message, showLoginBtn = false) {
+            let loginBtn = showLoginBtn ? `<br><a href="/login.html" class="btn-solid" style="display:inline-block; margin-top:10px;"><i class="fa-solid fa-right-to-bracket"></i> Fazer Login na Intranet</a>` : "";
+            box.innerHTML = `<div class="doc-restricted"><i class="${icon}"></i><h2>${title}</h2><p>${message}</p>${loginBtn}</div>`;
+        }
+
+        async function carregarCanvas() {
+            if(!docId) return renderError("fa-solid fa-file-circle-xmark", "Canvas Não Especificado", "Nenhum código de apresentação foi fornecido na URL.");
+
+            try {
+                const snap = await getDoc(doc(db, "tjp_canvas", docId));
+                if(!snap.exists()) return renderError("fa-solid fa-file-circle-question", "Apresentação Não Encontrada", "A apresentação que procura não existe ou foi removida.");
+
+                const dados = snap.data();
+
+                // LÓGICA DE PERMISSÃO / VISIBILIDADE
+                if(dados.status === "Oculto") {
+                    return renderError("fa-solid fa-eye-slash", "Apresentação Indisponível", "Esta apresentação está temporariamente arquivada ou em modo rascunho.");
+                }
+
+                if(dados.permissao !== "Todos") {
+                    const sessionData = localStorage.getItem("juspanel_session");
+                    if(!sessionData) return renderError("fa-solid fa-lock", "Acesso Restrito", `A leitura desta apresentação exige nível de segurança: <b>${dados.permissao}</b>.`, true);
+
+                    const user = JSON.parse(sessionData);
+                    const lvl = user.nivel_acesso || user.cargo;
+                    const admins = ["Presidente", "Admin", "CSJ"];
+                    let bloqueado = true;
+
+                    if(admins.includes(lvl)) bloqueado = false; 
+                    else if(dados.permissao === "Interno") bloqueado = false; 
+                    else if(dados.permissao === "Aprendizes" && (lvl === "Aprendiz" || lvl === "Comum")) bloqueado = false;
+                    else if(dados.permissao === "Defensores" && lvl === "Defensor") bloqueado = false;
+                    else if(dados.permissao === "Promotores" && lvl === "Promotor") bloqueado = false;
+                    else if(dados.permissao === "Juízes" && lvl === "Juiz") bloqueado = false;
+
+                    if(bloqueado) return renderError("fa-solid fa-shield-halved", "Acesso Negado", "Seu cargo atual não possui os privilégios necessários para ver esta apresentação.");
+                }
+
+                document.title = `${dados.titulo} - Oficial TJP`;
+
+                // LIMPEZA DA URL DO CANVA E CONVERSÃO PARA MODO EMBED
+                let finalUrl = dados.url;
+                if(finalUrl.includes("canva.com")) {
+                    try {
+                        let urlObj = new URL(finalUrl);
+                        urlObj.search = ""; // Zera ?utm...
+                        urlObj.hash = ""; // Zera #page=2 (Força sempre o slide 1)
+                        
+                        let path = urlObj.pathname;
+                        if(path.endsWith('/edit')) {
+                            path = path.replace('/edit', '/view');
+                        } else if (!path.endsWith('/view')) {
+                            path = path.replace(/\/$/, '') + '/view';
+                        }
+                        
+                        urlObj.pathname = path;
+                        urlObj.search = "?embed"; 
+                        finalUrl = urlObj.toString();
+                    } catch(e) {
+                        console.error("Falha ao formatar URL Canva:", e);
+                    }
+                }
+
+                box.innerHTML = `
+                    <div class="canvas-header">
+                        <h1 class="canvas-title"><i class="fa-solid fa-object-group" style="margin-right: 8px; color: #a90000;"></i> ${dados.titulo}</h1>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <iframe src="${finalUrl}" allowfullscreen="allowfullscreen" allow="fullscreen"></iframe>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error(error);
+                renderError("fa-solid fa-triangle-exclamation", "Erro de Conexão", "Houve um problema ao conectar com o servidor do TJP. Tente novamente mais tarde.");
+            }
+        }
+
+        carregarCanvas();
+    </script>
+</body>
+</html>

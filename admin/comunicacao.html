@@ -11,9 +11,24 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="/assets/css/style.css">
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+
     <style>
         .escondido { display: none !important; }
         .preview-img { width: 100%; height: 120px; object-fit: cover; border-radius: 6px; border: 1px dashed var(--stroke); margin-bottom: 10px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 12px; }
+        
+        /* Cursor de arrastar */
+        .drag-handle {
+            cursor: grab;
+            color: #cbd5e1;
+            font-size: 18px;
+            padding: 5px 15px 5px 5px;
+            transition: 0.2s;
+        }
+        .drag-handle:hover { color: var(--primary); }
+        .drag-handle:active { cursor: grabbing; }
+        
+        .sortable-ghost { opacity: 0.4; }
     </style>
 </head>
 <body class="admin-body">
@@ -32,17 +47,17 @@
 
             <nav class="admin-nav">
                 <span class="nav-label">Principal</span>
-                <a href="/admin"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
+                <a href="/admin/index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
                 
                 <span class="nav-label">Portal Público</span>
-                <a href="/admin/publicacoes"><i class="fa-solid fa-newspaper"></i> Publicações</a>
-                <a href="/admin/dojup"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
-                <a href="/admin/aparencia"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
+                <a href="/admin/publicacoes.html"><i class="fa-solid fa-newspaper"></i> Publicações</a>
+                <a href="/admin/dojup.html"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
+                <a href="/admin/aparencia.html"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
                 
                 <span class="nav-label">Intranet & Sistemas</span>
-                <a href="/admin/membros"><i class="fa-solid fa-users-gear"></i> Controle da Bancada do TJP</a>
-                <a href="/admin/comunicacao" class="active"><i class="fa-solid fa-tower-broadcast"></i> Comunicação Interna</a>
-                <a href="/admin/configuracoes"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
+                <a href="/admin/membros.html"><i class="fa-solid fa-users-gear"></i> Controle da Bancada do TJP</a>
+                <a href="/admin/comunicacao.html" class="active"><i class="fa-solid fa-tower-broadcast"></i> Comunicação Interna</a>
+                <a href="/admin/configuracoes.html"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
             </nav>
         </aside>
 
@@ -57,7 +72,7 @@
                     </div>
                     <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
                     <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
-                        <a href="/intranet/inicio" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
+                        <a href="/intranet/index.html" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
                         <a href="/" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
                         <a href="#" onclick="logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
                     </div>
@@ -123,25 +138,43 @@
 
                     <div class="panel-section">
                         <div class="panel-header">
-                            <h3><i class="fa-solid fa-images" style="color: var(--accent);"></i> Feed da Intranet (Stories)</h3>
+                            <h3><i class="fa-solid fa-images" style="color: var(--accent);"></i> Gerenciar Feed da Intranet</h3>
                         </div>
                         <div class="panel-body">
                             <form id="formFeed" style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid var(--stroke); margin-bottom: 20px;">
                                 <div class="form-group">
-                                    <label>URL da Imagem (Dimensão recomendada: 1080x1920)</label>
+                                    <label>URL da Imagem (Não será cortada, exibição em tamanho original)</label>
                                     <input type="url" id="feedImg" required placeholder="https://i.imgur.com/...png" oninput="previewFeedImg(this.value)">
                                 </div>
                                 <div id="feedPreview" class="preview-img">Preview da Imagem</div>
                                 
                                 <div class="form-group">
-                                    <label>Título do Post (Curto)</label>
-                                    <input type="text" id="feedTitulo" required placeholder="Ex: Novo Regimento Publicado!" maxlength="40">
+                                    <label>Título do Post (Opcional)</label>
+                                    <input type="text" id="feedTitulo" placeholder="Ex: Novo Regimento Publicado!" maxlength="60">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Link de Destino (Opcional)</label>
+                                    <input type="url" id="feedLink" placeholder="Ex: https://..." >
+                                    <small style="font-size:11px; color:var(--text-muted);">Se preenchido, a imagem se tornará um botão clicável.</small>
+                                </div>
+                                
+                                <div style="display: flex; gap: 15px; margin-bottom: 15px; background: #fff; padding: 10px; border: 1px solid var(--stroke); border-radius: 6px;">
+                                    <label style="display: flex; align-items: center; gap: 5px; font-size: 13px; cursor: pointer; color: var(--text-main);">
+                                        <input type="checkbox" id="feedShowAutor" checked> Mostrar Avatar e Nick
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 5px; font-size: 13px; cursor: pointer; color: var(--text-main);">
+                                        <input type="checkbox" id="feedShowCargo" checked> Mostrar Cargo
+                                    </label>
                                 </div>
 
                                 <button type="submit" class="btn-submit" id="btnPostarFeed"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar no Feed</button>
                             </form>
 
-                            <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px; border-bottom: 1px solid var(--stroke); padding-bottom: 5px;">Posts Ativos no Feed</h4>
+                            <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px; border-bottom: 1px solid var(--stroke); padding-bottom: 5px; display: flex; justify-content: space-between;">
+                                <span>Posts Ativos no Feed</span>
+                                <span style="font-size: 10px;"><i class="fa-solid fa-arrows-up-down"></i> Arraste para ordenar</span>
+                            </h4>
                             <div id="listaFeedAtivo" style="display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; padding-right: 5px;">
                                 <p style="font-size: 12px; color: var(--text-muted); text-align: center;">Carregando feed...</p>
                             </div>
@@ -155,11 +188,11 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
         // VERIFICAÇÃO DE SESSÃO
         const sessionData = localStorage.getItem("juspanel_session");
-        if (!sessionData) window.location.href = "/login";
+        if (!sessionData) window.location.href = "/login.html";
         const user = JSON.parse(sessionData);
 
         const nivelAtivo = (user.nivel_acesso || "").trim().toLowerCase();
@@ -168,14 +201,14 @@
         // Proteção (Presidente, Admin, CSJ)
         if (!["presidente", "admin", "csj"].includes(nivelAtivo) && !["presidente", "admin", "csj"].includes(cargoAtivo) && !cargoAtivo.includes("presidente")) {
             alert("Acesso Negado. Ferramentas de comunicação restritas à Administração Geral."); 
-            window.location.href = "/intranet/inicio";
+            window.location.href = "/intranet/index.html";
         }
 
         document.getElementById("userNickDisplay").innerText = user.nick;
         document.getElementById("userCargoDisplay").innerText = user.cargo;
         document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
 
-        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login.html"; };
         window.showToast = (msg) => { const t = document.getElementById("toast"); document.getElementById("toastMessage").innerText = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 4000); };
 
         const firebaseConfig = {
@@ -188,6 +221,27 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // INICIALIZA SORTABLE JS PARA DRAG AND DROP
+        const containerListaFeed = document.getElementById('listaFeedAtivo');
+        new Sortable(containerListaFeed, {
+            animation: 150,
+            handle: '.drag-handle',
+            ghostClass: 'sortable-ghost',
+            onEnd: async function (evt) {
+                const items = containerListaFeed.children;
+                const baseOrder = Date.now() * -1; // Estratégia para garantir que as reordenações sempre vençam no topo
+                
+                for(let i = 0; i < items.length; i++) {
+                    const id = items[i].getAttribute('data-id');
+                    if(id) {
+                        // Atualiza silenciosamente no background
+                        updateDoc(doc(db, "tjp_feed_intranet", id), { ordem: baseOrder + i });
+                    }
+                }
+                window.showToast("Nova ordem salva automaticamente!");
+            }
+        });
 
         // =====================================
         // LÓGICA DE NOTIFICAÇÕES (SININHO)
@@ -240,12 +294,12 @@
         });
 
         // =====================================
-        // LÓGICA DO FEED INTRANET (STORIES)
+        // LÓGICA DO FEED INTRANET
         // =====================================
         window.previewFeedImg = function(url) {
             const prev = document.getElementById('feedPreview');
             if(url.match(/\.(jpeg|jpg|gif|png|webp)/) || url.includes('imgur')) {
-                prev.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;">`;
+                prev.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:contain; border-radius:6px;">`;
             } else {
                 prev.innerHTML = "Preview da Imagem";
             }
@@ -260,9 +314,11 @@
                 await addDoc(collection(db, "tjp_feed_intranet"), {
                     imgUrl: document.getElementById('feedImg').value.trim(),
                     titulo: document.getElementById('feedTitulo').value.trim(),
+                    linkPost: document.getElementById('feedLink').value.trim(),
                     autorNick: user.nick,
                     autorCargo: user.cargo,
-                    dataStr: new Date().toLocaleDateString('pt-BR'),
+                    mostrarAutor: document.getElementById('feedShowAutor').checked,
+                    mostrarCargo: document.getElementById('feedShowCargo').checked,
                     timestamp: Date.now()
                 });
                 
@@ -275,28 +331,44 @@
             btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Publicar no Feed`; btn.disabled = false;
         });
 
-        // RENDERIZAR LISTA DO FEED PARA PODER APAGAR
-        onSnapshot(query(collection(db, "tjp_feed_intranet"), orderBy("timestamp", "desc")), (snap) => {
-            const container = document.getElementById('listaFeedAtivo');
-            if(snap.empty) { container.innerHTML = `<p style="font-size:12px; color:var(--text-muted); text-align:center;">Nenhuma publicação ativa.</p>`; return; }
+        // RENDERIZAR LISTA DO FEED PARA PODER APAGAR E ORDENAR
+        onSnapshot(collection(db, "tjp_feed_intranet"), (snap) => {
+            if(snap.empty) { containerListaFeed.innerHTML = `<p style="font-size:12px; color:var(--text-muted); text-align:center;">Nenhuma publicação ativa.</p>`; return; }
+
+            let postsArray = [];
+            snap.forEach(d => { postsArray.push({ id: d.id, ...d.data() }); });
+
+            // Ordena de forma inteligente: Respeita drag/drop se existir, senão usa timestamp
+            postsArray.sort((a, b) => {
+                let oA = a.ordem !== undefined ? a.ordem : (a.timestamp * -1);
+                let oB = b.ordem !== undefined ? b.ordem : (b.timestamp * -1);
+                if (oA !== oB) return oA - oB;
+                return b.timestamp - a.timestamp;
+            });
 
             let html = "";
-            snap.forEach(d => {
-                const p = d.data();
+            postsArray.forEach(p => {
+                let tituloExibicao = p.titulo || 'Publicação sem título (Apenas Imagem)';
+                
+                let infoExtra = [];
+                if(p.mostrarAutor !== false) infoExtra.push(`por ${p.autorNick}`);
+                let subtitulo = infoExtra.length > 0 ? `<span style="font-size:10px; color:var(--text-muted);">${infoExtra.join(' • ')}</span>` : '';
+
                 html += `
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px; background:white; border:1px solid var(--stroke); border-radius:8px;">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <img src="${p.imgUrl}" style="width:40px; height:40px; object-fit:cover; border-radius:4px; border:1px solid #e2e8f0;">
+                    <div data-id="${p.id}" style="display:flex; align-items:center; justify-content:space-between; padding:10px; background:white; border:1px solid var(--stroke); border-radius:8px; cursor: grab;">
+                        <div style="display:flex; align-items:center;">
+                            <i class="fa-solid fa-grip-lines drag-handle"></i>
+                            <img src="${p.imgUrl}" style="width:40px; height:40px; object-fit:cover; border-radius:4px; border:1px solid #e2e8f0; margin-right:10px;">
                             <div>
-                                <strong style="font-size:13px; display:block; color:var(--text-main);">${p.titulo}</strong>
-                                <span style="font-size:10px; color:var(--text-muted);">${p.dataStr} • por ${p.autorNick}</span>
+                                <strong style="font-size:13px; display:block; color:var(--text-main);">${tituloExibicao}</strong>
+                                ${subtitulo}
                             </div>
                         </div>
-                        <button class="btn-icon delete" onclick="window.apagarPostFeed('${d.id}')" title="Remover do Feed"><i class="fa-solid fa-trash"></i></button>
+                        <button class="btn-icon delete" onclick="window.apagarPostFeed('${p.id}')" title="Remover do Feed"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `;
             });
-            container.innerHTML = html;
+            containerListaFeed.innerHTML = html;
         });
 
         window.apagarPostFeed = async function(id) {
