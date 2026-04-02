@@ -38,8 +38,9 @@
 
             <nav class="admin-nav">
                 <span class="nav-label">Meus Sistemas</span>
-                <a href="./" class="active"><i class="fa-solid fa-scale-balanced"></i> Sistema Processual</a>
-                <a href="../monitores"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
+                <a href="/intranet/"><i class="fa-solid fa-house-user"></i> Início</a>
+                <a href="/intranet/processos" class="active"><i class="fa-solid fa-scale-balanced"></i> Sistema Processual</a>
+                <a href="/intranet/monitores"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
             </nav>
         </aside>
 
@@ -56,7 +57,7 @@
                         <span id="userCargoDisplay">Aguarde...</span>
                     </div>
                     <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
-                    <a href="/" class="btn-site" title="Voltar ao Portal Público"><i class="fa-solid fa-arrow-left"></i></a>
+                    <a href="/" class="btn-site" title="Voltar ao Portal Público"><i class="fa-solid fa-house"></i></a>
                     <a href="#" onclick="window.logoutUser()" class="btn-logout" title="Sair do Sistema"><i class="fa-solid fa-power-off"></i></a>
                 </div>
             </header>
@@ -70,13 +71,13 @@
                 </div>
 
                 <div class="sisproc-nav" id="navSisproc">
-                    <a href="./" class="btn-tab">Meus Processos</a>
-                    <a href="cartorio" class="btn-tab active" id="abaCartorio">Cartório Distribuidor</a>
-                    <a href="acervo" class="btn-tab escondido" id="abaAcervo">Acervo Geral</a>
-                    <a href="denuncia" class="btn-tab escondido" id="abaDenuncia">Nova Denúncia</a>
-                    <a href="apelacao" class="btn-tab escondido" id="abaApelacao">Nova Apelação</a>
-                    <a href="peticionar" class="btn-tab escondido" id="abaPeticionar">Peticionar nos Autos</a>
-                    <a href="pronunciamentos" class="btn-tab escondido" id="abaPronunciamento">Pronunciamentos</a>
+                    <a href="/intranet/processos" class="btn-tab">Meus Processos</a>
+                    <a href="/intranet/processos/cartorio" class="btn-tab active" id="abaCartorio">Cartório Distribuidor</a>
+                    <a href="/intranet/processos/acervo" class="btn-tab escondido" id="abaAcervo">Acervo Geral</a>
+                    <a href="/intranet/processos/denuncia" class="btn-tab escondido" id="abaDenuncia">Nova Denúncia</a>
+                    <a href="/intranet/processos/apelacao" class="btn-tab escondido" id="abaApelacao">Nova Apelação</a>
+                    <a href="/intranet/processos/peticionar" class="btn-tab escondido" id="abaPeticionar">Peticionar nos Autos</a>
+                    <a href="/intranet/processos/pronunciamentos" class="btn-tab escondido" id="abaPronunciamento">Pronunciamentos</a>
                 </div>
 
                 <div class="panel-section">
@@ -136,7 +137,7 @@
         window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
         window.showToast = (msg) => { const t = document.getElementById("toast"); document.getElementById("toastMessage").innerText = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 4000); };
         window.filtrarProcessos = function(termo) { termo = termo.toLowerCase(); document.querySelectorAll('tbody tr').forEach(row => { if(row.innerText.toLowerCase().includes(termo)) row.style.display = ""; else row.style.display = "none"; }); };
-        window.abrirAutos = function(idProcesso) { const token = Math.random().toString(36).substring(2, 10); window.open(`visualizador?id=${idProcesso}&token=${token}`, '_blank'); };
+        window.abrirAutos = function(idProcesso) { const token = Math.random().toString(36).substring(2, 10); window.open(`/intranet/processos/visualizador?id=${idProcesso}&token=${token}`, '_blank'); };
 
         try {
             const sessionData = localStorage.getItem("juspanel_session");
@@ -145,7 +146,7 @@
             if(!user.nivel_acesso) user.nivel_acesso = user.cargo || "Comum";
             
             if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
-                window.location.href = "./"; 
+                window.location.href = "/intranet/processos"; 
             }
 
             document.getElementById("userNickDisplay").innerText = user.nick;

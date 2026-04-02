@@ -41,6 +41,7 @@
 
             <nav class="admin-nav">
                 <span class="nav-label">Meus Sistemas</span>
+                <a href="/intranet/"><i class="fa-solid fa-house-user"></i> Início</a>
                 <a href="/intranet/processos"><i class="fa-solid fa-scale-balanced"></i> Sistema Processual</a>
                 <a href="/intranet/monitores" class="active"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
             </nav>
@@ -82,15 +83,28 @@
                 </div>
 
                 <div class="panel-section">
-                    <div class="panel-header">
+                    <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <h3>Gerador de Sabatinas e Provas</h3>
+                        <button id="btnGerenciarBQs" class="btn-outline btn-pequeno escondido" onclick="document.getElementById('modalBQs').classList.add('active')">
+                            <i class="fa-solid fa-database"></i> Gerenciar BQs
+                        </button>
                     </div>
                     <div class="panel-body">
+                        
                         <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px;">
                             <div style="flex: 2;" class="form-group">
                                 <label>Nome da Avaliação</label>
                                 <input type="text" id="nomeSabatina" placeholder="Ex: Sabatina Inicial">
                             </div>
+                            <div style="flex: 2;" class="form-group">
+                                <label>Banco de Questões</label>
+                                <select id="selectBQ" onchange="window.selecionarBQSistema(this.value)">
+                                    <option value="manual">Criar Manualmente</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px;">
                             <div style="flex: 1;" class="form-group">
                                 <label>Tipo de Acesso</label>
                                 <select id="tipoSabatina" onchange="document.getElementById('boxLimite').style.display = this.value === 'geral' ? 'block' : 'none';">
@@ -102,17 +116,22 @@
                                 <label>Limite de Usos</label>
                                 <input type="number" id="limiteUsos" value="10">
                             </div>
+                            <div style="flex: 1;" class="form-group">
+                                <label>Duração (Minutos)</label>
+                                <input type="number" id="duracaoMinutos" value="30">
+                            </div>
+                            <div style="flex: 1;" class="form-group">
+                                <label>Validade PIN (Seg)</label>
+                                <input type="number" id="tempoValidadePin" value="60">
+                            </div>
                         </div>
-                        <div style="display: flex; gap: 15px; align-items: flex-end;">
+
+                        <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px;" id="boxGerarManual">
                             <div class="form-group" style="flex: 1;">
                                 <label>Qtd. Questões</label>
                                 <input type="number" id="qtdQuestoes" value="5" min="1" max="20">
                             </div>
-                            <div class="form-group" style="flex: 1;">
-                                <label>Duração (Min)</label>
-                                <input type="number" id="duracaoMinutos" value="30">
-                            </div>
-                            <button class="btn-outline" style="margin-bottom: 15px;" onclick="window.gerarCampos()">
+                            <button id="btnGerarCamposArea" class="btn-outline" style="margin-bottom: 15px; flex: 2;" onclick="window.gerarCampos()">
                                 <i class="fa-solid fa-list-ol"></i> Gerar Campos
                             </button>
                         </div>
@@ -124,9 +143,17 @@
                         </button>
                         
                         <div id="boxPinGerado" class="box-pin escondido">
-                            <p style="margin:0; font-weight:600;">Forneça este PIN ao aprendiz:</p>
-                            <h1 id="displayPin">------</h1>
-                            <p style="margin:0; color:#ef4444; font-size:12px;">Válido por <span id="timerPin">60</span>s!</p>
+                            <div id="conteudoPinAtivo">
+                                <p style="margin:0; font-weight:600;">Forneça este PIN ao aprendiz:</p>
+                                <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+                                    <h1 id="displayPin" style="margin:0;">------</h1>
+                                    <button class="btn-icon" onclick="window.copiarPin()" title="Copiar PIN" style="background:var(--primary); color:white; border-radius:6px; padding:10px;"><i class="fa-solid fa-copy"></i></button>
+                                </div>
+                                <p style="margin:0; color:#ef4444; font-size:12px;">Válido por <span id="timerPin">60</span>s!</p>
+                            </div>
+                            <div id="conteudoPinExpirado" class="escondido">
+                                <h2 style="color:#ef4444; margin:10px 0;">PIN EXPIRADO POR PRAZO OU USO!</h2>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -134,40 +161,209 @@
         </main>
     </div>
 
+    <div id="modalBQs" class="modal">
+        <div class="modal-content large" style="max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-database"></i> Gerenciar Bancos de Questões (BQ)</h2>
+                <span class="close-modal" onclick="document.getElementById('modalBQs').classList.remove('active')">&times;</span>
+            </div>
+            
+            <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--stroke); margin-bottom: 20px;">
+                <h3 id="tituloFormBQ">Criar Novo BQ</h3>
+                <input type="hidden" id="editIdBq" value="">
+                
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group" style="flex: 3;">
+                        <label>Nome do BQ</label>
+                        <input type="text" id="bqNome" placeholder="Ex: Avaliação Soldado PM">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Qtd. Questões</label>
+                        <input type="number" id="bqQtd" value="5" min="1">
+                    </div>
+                    <div class="form-group" style="flex: 1; display: flex; align-items: flex-end;">
+                        <button class="btn-outline" style="width: 100%; margin-bottom: 15px;" onclick="window.gerarCamposBqManager()">Carregar Campos</button>
+                    </div>
+                </div>
+
+                <div id="areaPerguntasBqManager"></div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-submit escondido" id="btnSalvarBqManager" onclick="window.salvarBQ()"><i class="fa-solid fa-floppy-disk"></i> Salvar BQ no Sistema</button>
+                    <button class="btn-outline escondido" id="btnCancelarEditBq" onclick="window.cancelarEditBq()"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+                </div>
+            </div>
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Nome do BQ</th>
+                        <th>Questões</th>
+                        <th>Criado por</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaBQs">
+                    <tr><td colspan="4" style="text-align:center;">Carregando bancos...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-        // Funções Globais com Rotas Absolutas
         window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
         window.showToast = (msg) => { const t = document.getElementById("toast"); document.getElementById("toastMessage").innerText = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 4000); };
+        
+        window.bqsEmMemoria = {};
 
         try {
-            // SESSÃO
             const sessionData = localStorage.getItem("juspanel_session");
             if (!sessionData) throw new Error("Usuário não autenticado");
             const user = JSON.parse(sessionData);
             if(!user.nivel_acesso) user.nivel_acesso = user.cargo || "Comum";
             
-            // Trava exclusiva de Monitores/Coordenação
-            if (user.nivel_acesso === "Comum" || user.nivel_acesso === "Aprendiz") {
-                window.location.href = "/intranet/aprendiz"; 
-            }
+            if (user.nivel_acesso === "Comum" || user.nivel_acesso === "Aprendiz") window.location.href = "/intranet/aprendiz"; 
 
             document.getElementById("userNickDisplay").innerText = user.nick;
             document.getElementById("userCargoDisplay").innerText = user.cargo;
             document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
 
-            // PERMISSÕES UI
+            const niveisPermitidosBQ = ["Coordenador", "Monitor-Chefe", "Presidente", "Admin", "CSJ"];
+            if (niveisPermitidosBQ.includes(user.nivel_acesso)) {
+                document.getElementById('btnGerenciarBQs').classList.remove('escondido');
+            }
             if (user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
                 document.getElementById('btnAdminDash').classList.remove('escondido');
             }
 
-            // FIREBASE
             const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
             const db = getFirestore(app);
 
-            // GERAR CAMPOS DE PERGUNTAS
+            onSnapshot(query(collection(db, 'tjp_banco_questoes')), (snap) => {
+                let htmlSelect = `<option value="manual">Criar Manualmente</option>`;
+                let htmlTabela = "";
+                window.bqsEmMemoria = {};
+
+                snap.forEach(d => {
+                    const bq = d.data();
+                    window.bqsEmMemoria[d.id] = bq;
+                    htmlSelect += `<option value="${d.id}">${bq.nome} (${bq.questoes.length} Questões)</option>`;
+                    htmlTabela += `
+                        <tr>
+                            <td><strong>${bq.nome}</strong></td>
+                            <td>${bq.questoes.length}</td>
+                            <td>${bq.criador || 'Sistema'}</td>
+                            <td>
+                                <button class="btn-icon" onclick="window.editarBQ('${d.id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                                <button class="btn-icon delete" onclick="window.excluirBQ('${d.id}')" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                document.getElementById('selectBQ').innerHTML = htmlSelect;
+                document.getElementById('tabelaBQs').innerHTML = htmlTabela || `<tr><td colspan="4" style="text-align:center;">Nenhum Banco de Questões salvo.</td></tr>`;
+            });
+
+            window.gerarCamposBqManager = function(valoresPreenchidos = []) {
+                const qtd = parseInt(document.getElementById('bqQtd').value);
+                if(qtd < 1) return;
+                let html = "";
+                for(let i=1; i<=qtd; i++) {
+                    let val = valoresPreenchidos[i-1] || "";
+                    html += `<div class="form-group"><label>Texto da Questão ${i}</label><input type="text" id="bqInput_${i}" value="${val}"></div>`;
+                }
+                document.getElementById('areaPerguntasBqManager').innerHTML = html;
+                document.getElementById('btnSalvarBqManager').classList.remove('escondido');
+            };
+
+            window.salvarBQ = async function() {
+                const nome = document.getElementById('bqNome').value.trim();
+                const qtd = parseInt(document.getElementById('bqQtd').value);
+                const editId = document.getElementById('editIdBq').value;
+
+                if(!nome) return alert("Dê um nome ao Banco de Questões.");
+                
+                let perguntas = [];
+                for(let i=1; i<=qtd; i++) {
+                    let p = document.getElementById(`bqInput_${i}`).value.trim();
+                    if(!p) return alert(`A questão ${i} está vazia.`);
+                    perguntas.push(p);
+                }
+
+                try {
+                    document.getElementById('btnSalvarBqManager').innerText = "Salvando...";
+                    if(editId) {
+                        await updateDoc(doc(db, 'tjp_banco_questoes', editId), { nome: nome, questoes: perguntas });
+                        window.showToast("BQ atualizado com sucesso!");
+                    } else {
+                        await addDoc(collection(db, 'tjp_banco_questoes'), { nome: nome, questoes: perguntas, criador: user.nick });
+                        window.showToast("BQ criado com sucesso!");
+                    }
+                    window.cancelarEditBq();
+                } catch(e) {
+                    alert("Erro ao salvar BQ: " + e.message);
+                    document.getElementById('btnSalvarBqManager').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar BQ no Sistema`;
+                }
+            };
+
+            window.editarBQ = function(id) {
+                const bq = window.bqsEmMemoria[id];
+                document.getElementById('tituloFormBQ').innerText = "Editar Banco de Questões";
+                document.getElementById('editIdBq').value = id;
+                document.getElementById('bqNome').value = bq.nome;
+                document.getElementById('bqQtd').value = bq.questoes.length;
+                document.getElementById('btnCancelarEditBq').classList.remove('escondido');
+                window.gerarCamposBqManager(bq.questoes);
+            };
+
+            window.excluirBQ = async function(id) {
+                if(confirm("Tem certeza que deseja apagar este Banco de Questões? Essa ação é irreversível.")) {
+                    await deleteDoc(doc(db, 'tjp_banco_questoes', id));
+                    window.showToast("BQ excluído.");
+                }
+            };
+
+            window.cancelarEditBq = function() {
+                document.getElementById('tituloFormBQ').innerText = "Criar Novo BQ";
+                document.getElementById('editIdBq').value = "";
+                document.getElementById('bqNome').value = "";
+                document.getElementById('bqQtd').value = "5";
+                document.getElementById('areaPerguntasBqManager').innerHTML = "";
+                document.getElementById('btnSalvarBqManager').classList.add('escondido');
+                document.getElementById('btnCancelarEditBq').classList.add('escondido');
+                document.getElementById('btnSalvarBqManager').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar BQ no Sistema`;
+            };
+
+            window.selecionarBQSistema = function(id) {
+                const area = document.getElementById('areaCamposQuestoes');
+                const btnNova = document.getElementById('btnSalvarNova');
+                
+                if (id === "manual") {
+                    document.getElementById('qtdQuestoes').disabled = false;
+                    document.getElementById('nomeSabatina').disabled = false;
+                    document.getElementById('boxGerarManual').classList.remove('escondido');
+                    area.innerHTML = "";
+                    btnNova.classList.add('escondido');
+                } else {
+                    const bq = window.bqsEmMemoria[id];
+                    document.getElementById('qtdQuestoes').value = bq.questoes.length;
+                    document.getElementById('qtdQuestoes').disabled = true;
+                    document.getElementById('nomeSabatina').value = bq.nome;
+                    document.getElementById('nomeSabatina').disabled = true;
+                    document.getElementById('boxGerarManual').classList.add('escondido');
+
+                    let html = "";
+                    bq.questoes.forEach((p, i) => {
+                        html += `<div class="form-group"><label>Questão ${i+1}</label><input type="text" id="perguntaCriada_${i+1}" value="${p}" readonly style="background:#f1f5f9; cursor:not-allowed;"></div>`;
+                    });
+                    area.innerHTML = html;
+                    btnNova.classList.remove('escondido');
+                }
+            };
+
             window.gerarCampos = function() {
                 const qtd = parseInt(document.getElementById('qtdQuestoes').value); 
                 if(qtd < 1) return; 
@@ -177,10 +373,13 @@
                 }
                 document.getElementById('areaCamposQuestoes').innerHTML = html; 
                 document.getElementById('btnSalvarNova').classList.remove('escondido'); 
-                document.getElementById('boxPinGerado').classList.add('escondido');
             };
 
-            // SALVAR SABATINA E GERAR PIN
+            window.copiarPin = function() {
+                const pin = document.getElementById('displayPin').innerText;
+                navigator.clipboard.writeText(pin).then(() => window.showToast("PIN copiado!"));
+            };
+
             let timerPinSabatina = null;
             window.salvarNovaSabatina = async function() {
                 try {
@@ -188,12 +387,12 @@
                     const tipo = document.getElementById('tipoSabatina').value; 
                     const lim = parseInt(document.getElementById('limiteUsos').value) || 1; 
                     const duracao = parseInt(document.getElementById('duracaoMinutos').value) || 30;
+                    const tempoValidadePin = parseInt(document.getElementById('tempoValidadePin').value) || 60;
                     
                     if(!nome) return alert("Dê um nome à avaliação.");
                     
                     const qtd = parseInt(document.getElementById('qtdQuestoes').value); 
                     let perguntas = [];
-                    
                     for(let i=1; i<=qtd; i++) { 
                         let p = document.getElementById(`perguntaCriada_${i}`).value.trim(); 
                         if(!p) return alert(`A pergunta ${i} está vazia.`); 
@@ -211,7 +410,7 @@
                         pin: pinGerado, 
                         perguntas: perguntas, 
                         criador: user.nick, 
-                        expiraEm: Date.now() + 60000, // PIN vale 60 segundos
+                        expiraEm: Date.now() + (tempoValidadePin * 1000),
                         usado: false, 
                         tipo: tipo, 
                         limiteUso: tipo==='geral'?lim:1, 
@@ -219,19 +418,31 @@
                         duracaoMinutos: duracao 
                     });
                     
+                    document.getElementById('nomeSabatina').value = "";
+                    document.getElementById('nomeSabatina').disabled = false;
+                    document.getElementById('selectBQ').value = "manual";
+                    document.getElementById('qtdQuestoes').value = "5";
+                    document.getElementById('qtdQuestoes').disabled = false;
+                    document.getElementById('boxGerarManual').classList.remove('escondido');
+                    document.getElementById('areaCamposQuestoes').innerHTML = "";
+                    btnSalvar.classList.add('escondido');
+
                     document.getElementById('boxPinGerado').classList.remove('escondido'); 
+                    document.getElementById('conteudoPinAtivo').classList.remove('escondido');
+                    document.getElementById('conteudoPinExpirado').classList.add('escondido');
                     document.getElementById('displayPin').innerText = pinGerado;
                     
-                    let s = 60; 
+                    let s = tempoValidadePin; 
                     if(timerPinSabatina) clearInterval(timerPinSabatina); 
                     document.getElementById('timerPin').innerText = s;
                     
                     timerPinSabatina = setInterval(() => { 
                         s--; 
                         document.getElementById('timerPin').innerText = s; 
-                        if(s<=0){ 
+                        if(s <= 0){ 
                             clearInterval(timerPinSabatina); 
-                            document.getElementById('timerPin').innerText = "EXPIRADO"; 
+                            document.getElementById('conteudoPinAtivo').classList.add('escondido');
+                            document.getElementById('conteudoPinExpirado').classList.remove('escondido');
                         } 
                     }, 1000);
 
@@ -239,14 +450,13 @@
                     btnSalvar.disabled = false;
 
                 } catch(e) {
-                    alert("Erro ao criar sabatina: " + e.message);
-                    document.getElementById('btnSalvarNova').innerHTML = `<i class="fa-solid fa-key"></i> Gerar Prova e PIN de Acesso`;
+                    alert("Erro: " + e.message);
                     document.getElementById('btnSalvarNova').disabled = false;
                 }
             };
 
         } catch (errorGeral) {
-            console.error("Falha na Inicialização: ", errorGeral);
+            console.error(errorGeral);
             if(errorGeral.message === "Usuário não autenticado") window.location.href = "/login";
         }
     </script>

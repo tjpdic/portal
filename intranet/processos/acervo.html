@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acervo Geral - SisProc TJP</title>
-    <link rel="icon" href="../../assets/img/logo-tjp.png" type="image/png">
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
 
     <style>
         .sisproc-nav { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid var(--stroke); flex-wrap: wrap; }
@@ -24,11 +24,11 @@
     <div class="admin-layout">
         <aside class="admin-sidebar">
             <div class="admin-brand">
-                <img src="../../assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <img src="/assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
                 <div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <h2 style="margin:0;">Intranet TJP</h2>
-                        <a href="../../admin" id="btnAdminDash" class="escondido" title="Acessar Administração do Sistema" style="color: var(--primary); font-size: 14px; transition: 0.3s;"><i class="fa-solid fa-gauge-high"></i></a>
+                        <a href="/admin" id="btnAdminDash" class="escondido" title="Acessar Administração do Sistema" style="color: var(--primary); font-size: 14px; transition: 0.3s;"><i class="fa-solid fa-gauge-high"></i></a>
                     </div>
                     <span>Gestão Judiciária</span>
                 </div>
@@ -36,8 +36,9 @@
 
             <nav class="admin-nav">
                 <span class="nav-label">Meus Sistemas</span>
-                <a href="./" class="active"><i class="fa-solid fa-scale-balanced"></i> Sistema Processual</a>
-                <a href="../monitores"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
+                <a href="/intranet/"><i class="fa-solid fa-house-user"></i> Início</a>
+                <a href="/intranet/processos" class="active"><i class="fa-solid fa-scale-balanced"></i> Sistema Processual</a>
+                <a href="/intranet/monitores"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
             </nav>
         </aside>
 
@@ -54,7 +55,7 @@
                         <span id="userCargoDisplay">Aguarde...</span>
                     </div>
                     <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
-                    <a href="../../" class="btn-site" title="Voltar ao Portal Público"><i class="fa-solid fa-arrow-left"></i></a>
+                    <a href="/" class="btn-site" title="Voltar ao Portal Público"><i class="fa-solid fa-arrow-left"></i></a>
                     <a href="#" onclick="window.logoutUser()" class="btn-logout" title="Sair do Sistema"><i class="fa-solid fa-power-off"></i></a>
                 </div>
             </header>
@@ -68,13 +69,13 @@
                 </div>
 
                 <div class="sisproc-nav" id="navSisproc">
-                    <a href="./" class="btn-tab">Meus Processos</a>
-                    <a href="cartorio" class="btn-tab escondido" id="abaCartorio">Cartório Distribuidor</a>
-                    <a href="acervo" class="btn-tab active" id="abaAcervo">Acervo Geral</a>
-                    <a href="denuncia" class="btn-tab escondido" id="abaDenuncia">Nova Denúncia</a>
-                    <a href="apelacao" class="btn-tab escondido" id="abaApelacao">Nova Apelação</a>
-                    <a href="peticionar" class="btn-tab escondido" id="abaPeticionar">Peticionar nos Autos</a>
-                    <a href="pronunciamentos" class="btn-tab escondido" id="abaPronunciamento">Pronunciamentos</a>
+                    <a href="/intranet/processos" class="btn-tab">Meus Processos</a>
+                    <a href="/intranet/processos/cartorio" class="btn-tab escondido" id="abaCartorio">Cartório Distribuidor</a>
+                    <a href="/intranet/processos/acervo" class="btn-tab active" id="abaAcervo">Acervo Geral</a>
+                    <a href="/intranet/processos/denuncia" class="btn-tab escondido" id="abaDenuncia">Nova Denúncia</a>
+                    <a href="/intranet/processos/apelacao" class="btn-tab escondido" id="abaApelacao">Nova Apelação</a>
+                    <a href="/intranet/processos/peticionar" class="btn-tab escondido" id="abaPeticionar">Peticionar nos Autos</a>
+                    <a href="/intranet/processos/pronunciamentos" class="btn-tab escondido" id="abaPronunciamento">Pronunciamentos</a>
                 </div>
 
                 <div class="panel-section">
@@ -107,9 +108,9 @@
         import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
         // Funções Globais
-        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "../../login"; };
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
         window.filtrarProcessos = function(termo) { termo = termo.toLowerCase(); document.querySelectorAll('tbody tr').forEach(row => { if(row.innerText.toLowerCase().includes(termo)) row.style.display = ""; else row.style.display = "none"; }); };
-        window.abrirAutos = function(idProcesso) { const token = Math.random().toString(36).substring(2, 10); window.open(`visualizador?id=${idProcesso}&token=${token}`, '_blank'); };
+        window.abrirAutos = function(idProcesso) { const token = Math.random().toString(36).substring(2, 10); window.open(`/intranet/processos/visualizador?id=${idProcesso}&token=${token}`, '_blank'); };
 
         try {
             // SESSÃO E SEGURANÇA
@@ -120,7 +121,7 @@
             
             // Trava exclusiva do Acervo (Apenas Diretoria)
             if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
-                window.location.href = "./"; 
+                window.location.href = "/intranet/processos"; 
             }
 
             document.getElementById("userNickDisplay").innerText = user.nick;
@@ -175,7 +176,7 @@
 
         } catch (errorGeral) {
             console.error("Falha na Inicialização: ", errorGeral);
-            if(errorGeral.message === "Usuário não autenticado") window.location.href = "../../login";
+            if(errorGeral.message === "Usuário não autenticado") window.location.href = "/login";
         }
     </script>
 </body>

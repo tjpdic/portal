@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sabatina - Intranet DIC</title>
-    <link rel="icon" href="../assets/img/logo-tjp.png" type="image/png">
+    <title>Sabatina - Intranet TJP</title>
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
     
     <style>
         body { background: var(--bg-body); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        
+        /* CORREÇÃO DO BUG DE SOBREPOSIÇÃO */
+        .escondido { display: none !important; }
         
         .box-pergunta { background: var(--bg-card); border: 1px solid var(--stroke); border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
         .pergunta-titulo { font-weight: 700; color: var(--primary); margin-bottom: 15px; font-size: 15px; }
@@ -29,21 +32,21 @@
 <body>
 
     <div class="login-card" id="telaPin" style="width: 100%; max-width: 420px;">
-        <img src="../assets/img/logo-tjp.png" style="height: 60px; margin-bottom: 15px;">
+        <img src="/assets/img/logo-tjp.png" style="height: 60px; margin-bottom: 15px;">
         <h2>Acesso à Sabatina</h2>
-        <p>Insira seu Nick e o PIN de acesso fornecido pelo monitor para iniciar a avaliação.</p>
+        <p>Insira o PIN de acesso fornecido pelo monitor para iniciar a avaliação.</p>
         
         <div class="form-group">
-            <label>Seu Nick no Habbo</label>
-            <input type="text" id="nickAprendiz" placeholder="Ex: .Chaves">
-        </div>
-        <div class="form-group">
             <label>PIN de Acesso</label>
-            <input type="text" id="pinAcesso" placeholder="000000" maxlength="6" style="font-size: 24px; text-align: center; letter-spacing: 10px; font-weight: 800;">
+            <input type="text" id="pinAcesso" placeholder="000000" maxlength="6" style="font-size: 24px; text-align: center; letter-spacing: 10px; font-weight: 800;" autocomplete="off">
         </div>
         
         <p id="msgErroPin" style="color: #ef4444; font-size: 12px; font-weight: 600; margin-bottom: 10px;"></p>
         <button type="button" id="btnIniciarSabatina" class="btn-submit" onclick="verificarPinEIniciar()"><i class="fa-solid fa-play"></i> Iniciar Prova</button>
+        
+        <div style="text-align: center; margin-top: 15px;">
+            <a href="/intranet/aprendiz" style="font-size: 13px; color: var(--text-muted); text-decoration: none;"><i class="fa-solid fa-arrow-left"></i> Voltar ao Painel</a>
+        </div>
     </div>
 
     <div class="post-page-container escondido" id="telaProva" style="width: 100%; max-width: 800px; padding: 30px;">
@@ -62,24 +65,60 @@
     <div class="login-card escondido" id="telaFinalizado" style="width: 100%; max-width: 420px; text-align: center;">
         <i class="fa-solid fa-circle-check" style="font-size: 80px; color: var(--accent); margin-bottom: 20px;"></i>
         <h2 style="color: var(--accent);">Avaliação Concluída!</h2>
-        <p>Suas respostas foram enviadas ao banco de dados e aguardam correção do corpo de Monitores.</p>
-        <a href="aprendiz.html" class="btn-outline" style="margin-top: 20px; text-decoration: none;"><i class="fa-solid fa-arrow-left"></i> Voltar ao Painel</a>
+        <p>Suas respostas foram enviadas! Em breve os Monitores farão a correção e sua nota será exibida no seu boletim. Boa sorte!</p>
+        <a href="/intranet/aprendiz" class="btn-outline" style="margin-top: 20px; text-decoration: none;"><i class="fa-solid fa-arrow-left"></i> Voltar ao Painel</a>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs, doc, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getFirestore, collection, query, where, getDocs, doc, updateDoc, addDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
         const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
         const db = getFirestore(app);
 
-        // Preenche o nick automaticamente se estiver logado
+        // EXIGE SESSÃO PARA FAZER A PROVA
         const session = localStorage.getItem("juspanel_session");
-        if(session) { const usr = JSON.parse(session); document.getElementById("nickAprendiz").value = usr.nick; }
+        if(!session) { window.location.href = "/login"; }
+        const usr = JSON.parse(session);
 
         window.provaAtualNome = ""; window.sabatinaIdRealTime = ""; window.perguntasEmTela = []; 
         window.tempoRestanteSegundos = 0; window.intervaloRelogio = null; 
         window.alertasColaAcumulados = 0; window.provaIniciadaAtiva = false; window.timerAutosave = null;
+
+        // VERIFICADOR DE F5 / RECOVERY
+        document.addEventListener("DOMContentLoaded", async () => {
+            const recoveryData = localStorage.getItem('tjp_sabatina_recuperacao');
+            if(recoveryData) {
+                const rec = JSON.parse(recoveryData);
+                // Checa se o tempo não expirou durante o F5
+                if(Date.now() < rec.expiraEm) {
+                    window.sabatinaIdRealTime = rec.idSab;
+                    window.provaAtualNome = rec.nome;
+                    window.perguntasEmTela = rec.perguntas;
+                    
+                    document.getElementById('msgErroPin').innerText = "Recuperando sessão anterior...";
+                    document.getElementById('btnIniciarSabatina').disabled = true;
+
+                    try {
+                        const docSnap = await getDoc(doc(db, 'sabatinas', window.sabatinaIdRealTime));
+                        let respSalvas = null;
+                        if(docSnap.exists()) {
+                            respSalvas = docSnap.data().respostas;
+                            window.alertasColaAcumulados = docSnap.data().alertasCola || 0;
+                        }
+                        
+                        let tempoRestSegundos = Math.floor((rec.expiraEm - Date.now())/1000);
+                        // A função recebe os minutos em decimal, logo / 60
+                        montarTelaDeProva(usr.nick, tempoRestSegundos / 60, respSalvas);
+                    } catch(e) {
+                        document.getElementById('msgErroPin').innerText = "Falha ao recuperar prova.";
+                        document.getElementById('btnIniciarSabatina').disabled = false;
+                    }
+                } else {
+                    localStorage.removeItem('tjp_sabatina_recuperacao');
+                }
+            }
+        });
 
         // ANTI-COLA: Detecta se o usuário trocou de aba
         document.addEventListener('visibilitychange', async () => {
@@ -116,10 +155,11 @@
         };
 
         window.verificarPinEIniciar = async function() {
-            let nick = document.getElementById('nickAprendiz').value; let pin = document.getElementById('pinAcesso').value; 
+            let nick = usr.nick; 
+            let pin = document.getElementById('pinAcesso').value; 
             let msgErro = document.getElementById('msgErroPin'); let btn = document.getElementById('btnIniciarSabatina');
             
-            if(!nick.trim() || !pin.trim()) { msgErro.innerText = "Preencha o nick e o PIN."; return; }
+            if(!pin.trim()) { msgErro.innerText = "Preencha o PIN de acesso."; return; }
             btn.innerText = "Validando..."; btn.disabled = true; msgErro.innerText = "";
 
             try {
@@ -144,28 +184,45 @@
                 let respostasIniciais = [];
                 window.perguntasEmTela.forEach(p => { respostasIniciais.push({ pergunta: p, resposta: "" }); });
 
+                const dataInicioFmt = new Date().toLocaleString('pt-BR');
+
                 const novaSab = await addDoc(collection(db, 'sabatinas'), {
                     aprendiz: nick, nomeAvaliacao: window.provaAtualNome, status: "em_andamento",
-                    dataInicio: new Date().toLocaleTimeString('pt-BR'), alertasCola: 0, respostas: respostasIniciais
+                    dataInicio: dataInicioFmt, alertasCola: 0, respostas: respostasIniciais
                 });
                 
                 window.sabatinaIdRealTime = novaSab.id;
-                montarTelaDeProva(nick, duracaoMinutos);
+
+                // REGISTRA O ESTADO PARA O CASO DE F5
+                let objRecuperacao = {
+                    idSab: novaSab.id,
+                    nome: window.provaAtualNome,
+                    perguntas: window.perguntasEmTela,
+                    expiraEm: Date.now() + (duracaoMinutos * 60 * 1000)
+                };
+                localStorage.setItem('tjp_sabatina_recuperacao', JSON.stringify(objRecuperacao));
+
+                montarTelaDeProva(nick, duracaoMinutos, null);
 
             } catch (e) { msgErro.innerText = "Erro de conexão. Tente novamente."; btn.innerText = "Iniciar Prova"; btn.disabled = false; }
         };
 
-        function montarTelaDeProva(nick, duracaoMinutos) {
+        // Função modificada para aceitar respostasAntigas vindas do F5
+        function montarTelaDeProva(nick, duracaoMinutos, respostasAntigas) {
             document.getElementById('telaPin').classList.add('escondido'); document.getElementById('telaProva').classList.remove('escondido');
             document.getElementById('displayNickProva').innerText = nick; document.getElementById('tituloProvaRender').innerText = window.provaAtualNome;
 
             let html = ""; 
             window.perguntasEmTela.forEach((perguntaStr, index) => { 
-                html += `<div class="box-pergunta"><div class="pergunta-titulo">${index + 1}. ${perguntaStr}</div><textarea id="resposta_${index}" class="resp-input" oninput="salvarRespostasEmTempoReal()" placeholder="Digite sua resposta de forma clara e objetiva..."></textarea></div>`; 
+                let valorSalvo = "";
+                if(respostasAntigas && respostasAntigas[index]) valorSalvo = respostasAntigas[index].resposta || "";
+                if(valorSalvo === "(Em branco)") valorSalvo = "";
+                
+                html += `<div class="box-pergunta"><div class="pergunta-titulo">${index + 1}. ${perguntaStr}</div><textarea id="resposta_${index}" class="resp-input" oninput="salvarRespostasEmTempoReal()" placeholder="Digite sua resposta de forma clara e objetiva...">${valorSalvo}</textarea></div>`; 
             });
             document.getElementById('areaPerguntasFormulario').innerHTML = html;
             
-            window.tempoRestanteSegundos = duracaoMinutos * 60;
+            window.tempoRestanteSegundos = Math.floor(duracaoMinutos * 60);
             window.provaIniciadaAtiva = true; iniciarCronometro();
         }
 
@@ -195,11 +252,17 @@
                 respostasCapturadas.push({ pergunta: perguntaStr, resposta: tx.trim() !== "" ? tx : "(Em branco)" });
             });
 
+            const dataFimFmt = new Date().toLocaleString('pt-BR');
+
             try {
                 await updateDoc(doc(db, 'sabatinas', window.sabatinaIdRealTime), {
-                    dataEnvio: new Date().toLocaleString('pt-BR'), status: "pendente", alertasCola: window.alertasColaAcumulados,
+                    dataFim: dataFimFmt, status: "aguardando_correcao", alertasCola: window.alertasColaAcumulados,
                     respostas: respostasCapturadas, nota: 0, comentario: "", avaliador: ""
                 });
+                
+                // Limpa o registro de F5 para que o aluno não caia na prova novamente
+                localStorage.removeItem('tjp_sabatina_recuperacao');
+                
                 document.getElementById('telaProva').classList.add('escondido'); document.getElementById('telaFinalizado').classList.remove('escondido');
             } catch (error) { alert("Erro ao enviar! Sua internet pode ter caído."); btn.innerText = "Tentar Novamente"; btn.disabled = false; window.provaIniciadaAtiva = true; }
         };

@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controle da Bancada - JusPanel</title>
-    <link rel="icon" href="../assets/img/logo-tjp.png" type="image/png">
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body class="admin-body">
 
@@ -20,7 +20,7 @@
     <div class="admin-layout">
         <aside class="admin-sidebar">
             <div class="admin-brand">
-                <img src="../assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <img src="/assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
                 <div>
                     <h2>JusPanel</h2>
                     <span>Administração Geral</span>
@@ -29,16 +29,16 @@
 
             <nav class="admin-nav">
                 <span class="nav-label">Principal</span>
-                <a href="../admin.html"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
+                <a href="/admin"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
                 
                 <span class="nav-label">Portal Público</span>
-                <a href="publicacoes.html"><i class="fa-solid fa-newspaper"></i> Publicações</a>
-                <a href="dojup.html"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
-                <a href="aparencia.html"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
+                <a href="/admin/publicacoes"><i class="fa-solid fa-newspaper"></i> Publicações</a>
+                <a href="/admin/dojup"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
+                <a href="/admin/aparencia"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
                 
                 <span class="nav-label">Intranet & Sistemas</span>
-                <a href="membros.html" class="active"><i class="fa-solid fa-users-gear"></i> Controle da Bancada do TJP</a>
-                <a href="configuracoes.html"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
+                <a href="/admin/membros" class="active"><i class="fa-solid fa-users-gear"></i> Controle da Bancada do TJP</a>
+                <a href="/admin/configuracoes"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
             </nav>
         </aside>
 
@@ -56,8 +56,8 @@
                     </div>
                     <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
                     <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
-                        <a href="../intranet/processos.html" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
-                        <a href="../index.html" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
+                        <a href="/intranet/processos" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
+                        <a href="/" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
                         <a href="#" onclick="logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
                     </div>
                 </div>
@@ -67,7 +67,7 @@
                 <div class="content-header">
                     <div>
                         <h1>Controle da Bancada do TJP</h1>
-                        <p>Adicione, promova e gerencie todos os membros pertencentes ao TJP.</p>
+                        <p>Adicione, promova e gerencie todos os membros e suas funções de monitoria no TJP.</p>
                     </div>
                     <div class="header-actions">
                         <button class="btn-solid" onclick="abrirModalNova()"><i class="fa-solid fa-user-plus"></i> Adicionar Membro</button>
@@ -83,14 +83,15 @@
                             <thead>
                                 <tr>
                                     <th>Membro</th>
-                                    <th>Função</th>
+                                    <th>Cargo (TJP)</th>
+                                    <th>Função (SISAP)</th>
                                     <th>Nível de Sistema</th>
                                     <th>Status</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="tabelaMembros">
-                                <tr><td colspan="5" style="text-align:center;">Carregando banco de dados...</td></tr>
+                                <tr><td colspan="6" style="text-align:center;">Carregando banco de dados...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -111,11 +112,23 @@
                     <input type="text" id="memNick" required placeholder="Nick exato no jogo">
                 </div>
                 
-                <div class="form-group">
-                    <label>Função</label>
-                    <select id="memCargo" required>
-                        <option value="">Carregando funções do sistema...</option>
-                    </select>
+                <div style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Cargo Principal no TJP</label>
+                        <select id="memCargo" required>
+                            <option value="">Carregando cargos...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="flex: 1;">
+                        <label>Função SISAP (Monitoria)</label>
+                        <select id="memFuncaoSisap">
+                            <option value="Nenhuma">Nenhuma</option>
+                            <option value="Monitor">Monitor</option>
+                            <option value="Monitor-Chefe">Monitor-Chefe</option>
+                            <option value="Coordenador">Coordenador</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -138,19 +151,19 @@
 
         // VERIFICAÇÃO DE SESSÃO
         const sessionData = localStorage.getItem("juspanel_session");
-        if (!sessionData) window.location.href = "../login.html";
+        if (!sessionData) window.location.href = "/login";
         const user = JSON.parse(sessionData);
         
         // Proteção de Rota (Apenas Admins/Presidentes/CSJ)
         if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
-            alert("Acesso Negado. Controle da Bancada restrito à Administração Geral."); window.location.href = "../login.html";
+            alert("Acesso Negado. Controle da Bancada restrito à Administração Geral."); window.location.href = "/login";
         }
 
         document.getElementById("userNickDisplay").innerText = user.nick;
         document.getElementById("userCargoDisplay").innerText = user.cargo;
         document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
 
-        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "../login.html"; };
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
         window.showToast = (msg) => { const t = document.getElementById("toast"); document.getElementById("toastMessage").innerText = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 4000); };
 
         const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
@@ -165,9 +178,9 @@
 
         document.getElementById("fecharModal").onclick = () => modal.classList.remove("active");
 
-        // 1. CARREGAR AS FUNÇÕES DINAMICAMENTE
+        // 1. CARREGAR OS CARGOS DINAMICAMENTE
         onSnapshot(collection(db, "tjp_cargos"), (snap) => {
-            let htmlOptions = "<option value=''>Selecione a Função...</option>";
+            let htmlOptions = "<option value=''>Selecione o Cargo Principal...</option>";
             window.mapaNiveisCargos = {}; 
             
             snap.forEach((docSnap) => {
@@ -198,6 +211,7 @@
             document.getElementById("memNick").value = data.nick;
             document.getElementById("memNick").disabled = true; 
             document.getElementById("memCargo").value = data.cargo;
+            document.getElementById("memFuncaoSisap").value = data.funcao_sisap || "Nenhuma";
             document.getElementById("memStatus").value = data.status;
             
             modal.classList.add("active");
@@ -220,12 +234,16 @@
             const nick = document.getElementById("memNick").value.trim();
             const docId = nick.toLowerCase(); 
             const cargoSelecionado = document.getElementById("memCargo").value;
-            const nivelMapeado = window.mapaNiveisCargos[cargoSelecionado] || "Comum"; 
+            const funcaoSelecionada = document.getElementById("memFuncaoSisap").value;
             const statusSelecionado = document.getElementById("memStatus").value;
+
+            // O Nível de Acesso primário é o do cargo, mas se for Coordenador/Monitor ele "sobrescreve" no backend de visualização de painel
+            let nivelMapeado = window.mapaNiveisCargos[cargoSelecionado] || "Comum"; 
 
             const dadosMembro = {
                 nick: nick,
                 cargo: cargoSelecionado,
+                funcao_sisap: funcaoSelecionada,
                 nivel_acesso: nivelMapeado,
                 status: statusSelecionado
             };
@@ -234,7 +252,12 @@
                 if(editIdAtivo) {
                     await updateDoc(doc(db, "tjp_membros", editIdAtivo), dadosMembro);
                     try { 
-                        await updateDoc(doc(db, "tjp_usuarios", editIdAtivo), { cargo: cargoSelecionado, nivel_acesso: nivelMapeado }); 
+                        // Atualiza a tabela de login com a nova estrutura dupla
+                        await updateDoc(doc(db, "tjp_usuarios", editIdAtivo), { 
+                            cargo: cargoSelecionado, 
+                            nivel_acesso: nivelMapeado,
+                            funcao_sisap: funcaoSelecionada
+                        }); 
                     } catch(e) {}
                     
                     window.showToast("Cadastro alterado com sucesso!");
@@ -258,21 +281,44 @@
             });
         };
 
-        // 5. CARREGAR TABELA DE MEMBROS
-        const q = query(collection(db, "tjp_membros"), orderBy("cargo", "desc"));
-        onSnapshot(q, (snapshot) => {
+        // 5. CARREGAR E RENDERIZAR TABELA COM ORDEM HIERÁRQUICA ESTRITA
+        const hierarquiaOrdem = {
+            "CSJ": 1,
+            "Presidente": 2,
+            "Juiz": 3,
+            "Promotor": 4,
+            "Defensor": 5
+        };
+
+        onSnapshot(collection(db, "tjp_membros"), (snapshot) => {
             tabelaMembros.innerHTML = "";
             window.membrosAdmin = {}; 
             if(snapshot.empty) {
-                tabelaMembros.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum membro registrado.</td></tr>`;
+                tabelaMembros.innerHTML = `<tr><td colspan="6" style="text-align:center;">Nenhum membro registrado.</td></tr>`;
                 return;
             }
 
+            let membrosArray = [];
             snapshot.forEach((docSnap) => {
                 const data = docSnap.data();
-                const id = docSnap.id;
-                window.membrosAdmin[id] = data;
+                data.id = docSnap.id;
+                membrosArray.push(data);
+                window.membrosAdmin[docSnap.id] = data;
+            });
 
+            // Ordenação no Front-End forçando a hierarquia da bancada
+            membrosArray.sort((a, b) => {
+                let pesoA = hierarquiaOrdem[a.nivel_acesso] || 99; // Se não for da bancada oficial, joga pro fim
+                let pesoB = hierarquiaOrdem[b.nivel_acesso] || 99;
+                
+                if (pesoA !== pesoB) {
+                    return pesoA - pesoB;
+                }
+                // Desempata por ordem alfabética de nick caso o cargo seja o mesmo
+                return a.nick.localeCompare(b.nick);
+            });
+
+            membrosArray.forEach((data) => {
                 let corStatus = "var(--accent)"; let bgStatus = "rgba(0, 156, 59, 0.1)";
                 if(data.status === "Afastado") { corStatus = "#f59e0b"; bgStatus = "rgba(245, 158, 11, 0.1)"; }
                 if(data.status === "Inativo") { corStatus = "#ef4444"; bgStatus = "rgba(239, 68, 68, 0.1)"; }
@@ -282,7 +328,10 @@
                 if(nivelStr === "Presidente" || nivelStr === "CSJ") { corBadgeNivel = "#ef4444"; bgBadgeNivel = "#fee2e2"; }
                 else if(nivelStr === "Juiz") { corBadgeNivel = "#0284c7"; bgBadgeNivel = "#e0f2fe"; }
                 else if(nivelStr === "Promotor" || nivelStr === "Defensor") { corBadgeNivel = "#f59e0b"; bgBadgeNivel = "#fef3c7"; }
-                else if(nivelStr === "Coordenador" || nivelStr === "Monitor-Chefe" || nivelStr === "Monitor") { corBadgeNivel = "#16a34a"; bgBadgeNivel = "#dcfce7"; }
+                else if(nivelStr.startsWith("ADM")) { corBadgeNivel = "#7c3aed"; bgBadgeNivel = "#ede9fe"; }
+                
+                let funcaoStr = data.funcao_sisap || "Nenhuma";
+                let badgeFuncao = funcaoStr === "Nenhuma" ? `<span style="opacity:0.5; font-size:12px;">-</span>` : `<span class="badge" style="background:#dcfce7; color:#16a34a; font-weight:600;"><i class="fa-solid fa-graduation-cap"></i> ${funcaoStr}</span>`;
 
                 const avatarImg = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${data.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
 
@@ -295,12 +344,13 @@
                             </div>
                         </td>
                         <td><strong>${data.cargo}</strong></td>
+                        <td>${badgeFuncao}</td>
                         <td><span class="badge" style="background:${bgBadgeNivel}; color:${corBadgeNivel}; font-weight:700;">${nivelStr}</span></td>
                         <td><span style="font-size: 11px; font-weight: 700; color: ${corStatus}; background: ${bgStatus}; padding: 4px 10px; border-radius: 4px;">${data.status}</span></td>
                         <td>
                             <div class="action-btns">
-                                <button type="button" class="btn-icon edit" onclick="abrirModalEditar('${id}')" title="Editar Função e Status"><i class="fa-solid fa-pen"></i></button>
-                                <button type="button" class="btn-icon delete" onclick="deletarMembro('${id}')" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                                <button type="button" class="btn-icon edit" onclick="abrirModalEditar('${data.id}')" title="Editar Função e Status"><i class="fa-solid fa-pen"></i></button>
+                                <button type="button" class="btn-icon delete" onclick="deletarMembro('${data.id}')" title="Excluir"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </td>
                     </tr>

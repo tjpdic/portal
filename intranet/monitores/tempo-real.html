@@ -54,6 +54,7 @@
 
             <nav class="admin-nav">
                 <span class="nav-label">Meus Sistemas</span>
+                <a href="/intranet/"><i class="fa-solid fa-house-user"></i> Início</a>
                 <a href="/intranet/processos"><i class="fa-solid fa-scale-balanced"></i> Sistema Processual</a>
                 <a href="/intranet/monitores" class="active"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
             </nav>
@@ -143,7 +144,12 @@
             if (user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
                 document.getElementById('btnAdminDash').classList.remove('escondido');
             }
-            if (user.nivel_acesso !== "Comum") {
+            
+            const niveisPermitidosBQ = ["coordenador", "monitor-chefe", "monitor chefe", "monitor", "presidente", "admin", "csj"];
+            const nivelAtivo = user.nivel_acesso.toLowerCase();
+            const cargoAtivo = user.cargo.toLowerCase();
+            
+            if (niveisPermitidosBQ.includes(nivelAtivo) || niveisPermitidosBQ.includes(cargoAtivo) || cargoAtivo.includes("presidente") || nivelAtivo.includes("presidente")) {
                 document.getElementById('abaCriarProva').classList.remove('escondido');
                 document.getElementById('abaTempoReal').classList.remove('escondido');
                 document.getElementById('abaAprendizes').classList.remove('escondido');

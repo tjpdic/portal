@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunicação Interna - JusPanel</title>
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/css/style.css">
+    
+    <style>
+        .escondido { display: none !important; }
+        .preview-img { width: 100%; height: 120px; object-fit: cover; border-radius: 6px; border: 1px dashed var(--stroke); margin-bottom: 10px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 12px; }
+    </style>
+</head>
+<body class="admin-body">
+
+    <div id="toast" class="toast"><i class="fa-solid fa-circle-check"></i> <span id="toastMessage">Sucesso!</span></div>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <img src="/assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <div>
+                    <h2>JusPanel</h2>
+                    <span>Administração Geral</span>
+                </div>
+            </div>
+
+            <nav class="admin-nav">
+                <span class="nav-label">Principal</span>
+                <a href="/admin"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
+                
+                <span class="nav-label">Portal Público</span>
+                <a href="/admin/publicacoes"><i class="fa-solid fa-newspaper"></i> Publicações</a>
+                <a href="/admin/dojup"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
+                <a href="/admin/aparencia"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
+                
+                <span class="nav-label">Intranet & Sistemas</span>
+                <a href="/admin/membros"><i class="fa-solid fa-users-gear"></i> Controle da Bancada do TJP</a>
+                <a href="/admin/comunicacao" class="active"><i class="fa-solid fa-tower-broadcast"></i> Comunicação Interna</a>
+                <a href="/admin/configuracoes"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-search" style="opacity: 0;"></div>
+                
+                <div class="header-user">
+                    <div class="user-info">
+                        <strong id="userNickDisplay">Carregando...</strong>
+                        <span id="userCargoDisplay">Aguarde...</span>
+                    </div>
+                    <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
+                    <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
+                        <a href="/intranet/inicio" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
+                        <a href="/" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
+                        <a href="#" onclick="logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="content-header">
+                    <div>
+                        <h1>Comunicação Interna</h1>
+                        <p>Dispare notificações para a bancada e alimente o feed visual da Intranet.</p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    
+                    <div class="panel-section">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-bell" style="color: #f59e0b;"></i> Disparar Notificação</h3>
+                        </div>
+                        <div class="panel-body">
+                            <form id="formNotificacao">
+                                <div class="form-group">
+                                    <label>Mensagem da Notificação</label>
+                                    <textarea id="notifMensagem" rows="3" required placeholder="Escreva o aviso, lembrete ou convocação..."></textarea>
+                                </div>
+                                
+                                <div style="display: flex; gap: 15px;">
+                                    <div class="form-group" style="flex: 1;">
+                                        <label>Tipo de Alerta</label>
+                                        <select id="notifTipo" required>
+                                            <option value="aviso">Aviso Padrão (Laranja)</option>
+                                            <option value="urgente">Urgente (Vermelho)</option>
+                                            <option value="noticia">Notícia (Verde)</option>
+                                            <option value="sistema">Sistema (Azul)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="flex: 1;">
+                                        <label>Público Alvo</label>
+                                        <select id="notifPublico" required onchange="toggleAlvoInput()">
+                                            <option value="todos">Todos os Membros</option>
+                                            <option value="cargo">Cargo Específico</option>
+                                            <option value="nick">Nick Específico</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group escondido" id="boxAlvoEspecifico">
+                                    <label id="labelAlvoEspecifico">Digite o Cargo ou Nick</label>
+                                    <input type="text" id="notifAlvoExato" placeholder="Ex: Defensor ou .Chaves">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Link de Destino (Opcional)</label>
+                                    <input type="url" id="notifLink" placeholder="https://...">
+                                    <small style="font-size:11px; color:var(--text-muted);">Se preenchido, o membro será redirecionado ao clicar na notificação.</small>
+                                </div>
+
+                                <button type="submit" class="btn-submit" id="btnDisparar"><i class="fa-solid fa-paper-plane"></i> Enviar Notificação Agora</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-images" style="color: var(--accent);"></i> Feed da Intranet (Stories)</h3>
+                        </div>
+                        <div class="panel-body">
+                            <form id="formFeed" style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid var(--stroke); margin-bottom: 20px;">
+                                <div class="form-group">
+                                    <label>URL da Imagem (Dimensão recomendada: 1080x1920)</label>
+                                    <input type="url" id="feedImg" required placeholder="https://i.imgur.com/...png" oninput="previewFeedImg(this.value)">
+                                </div>
+                                <div id="feedPreview" class="preview-img">Preview da Imagem</div>
+                                
+                                <div class="form-group">
+                                    <label>Título do Post (Curto)</label>
+                                    <input type="text" id="feedTitulo" required placeholder="Ex: Novo Regimento Publicado!" maxlength="40">
+                                </div>
+
+                                <button type="submit" class="btn-submit" id="btnPostarFeed"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar no Feed</button>
+                            </form>
+
+                            <h4 style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px; border-bottom: 1px solid var(--stroke); padding-bottom: 5px;">Posts Ativos no Feed</h4>
+                            <div id="listaFeedAtivo" style="display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                                <p style="font-size: 12px; color: var(--text-muted); text-align: center;">Carregando feed...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // VERIFICAÇÃO DE SESSÃO
+        const sessionData = localStorage.getItem("juspanel_session");
+        if (!sessionData) window.location.href = "/login";
+        const user = JSON.parse(sessionData);
+
+        const nivelAtivo = (user.nivel_acesso || "").trim().toLowerCase();
+        const cargoAtivo = (user.cargo || "").trim().toLowerCase();
+        
+        // Proteção (Presidente, Admin, CSJ)
+        if (!["presidente", "admin", "csj"].includes(nivelAtivo) && !["presidente", "admin", "csj"].includes(cargoAtivo) && !cargoAtivo.includes("presidente")) {
+            alert("Acesso Negado. Ferramentas de comunicação restritas à Administração Geral."); 
+            window.location.href = "/intranet/inicio";
+        }
+
+        document.getElementById("userNickDisplay").innerText = user.nick;
+        document.getElementById("userCargoDisplay").innerText = user.cargo;
+        document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
+
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
+        window.showToast = (msg) => { const t = document.getElementById("toast"); document.getElementById("toastMessage").innerText = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 4000); };
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs",
+            authDomain: "monitores-sisap.firebaseapp.com",
+            projectId: "monitores-sisap",
+            storageBucket: "monitores-sisap.firebasestorage.app",
+            messagingSenderId: "489679893157",
+            appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // =====================================
+        // LÓGICA DE NOTIFICAÇÕES (SININHO)
+        // =====================================
+        window.toggleAlvoInput = function() {
+            const pub = document.getElementById('notifPublico').value;
+            const box = document.getElementById('boxAlvoEspecifico');
+            const label = document.getElementById('labelAlvoEspecifico');
+            
+            if(pub === 'todos') {
+                box.classList.add('escondido');
+                document.getElementById('notifAlvoExato').value = "todos";
+            } else {
+                box.classList.remove('escondido');
+                document.getElementById('notifAlvoExato').value = "";
+                label.innerText = pub === 'cargo' ? "Digite o Nome do Cargo" : "Digite o Nick Exato";
+            }
+        };
+
+        document.getElementById('formNotificacao').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnDisparar');
+            btn.innerText = "Disparando..."; btn.disabled = true;
+
+            const pub = document.getElementById('notifPublico').value;
+            let alvoFinal = "todos";
+            if(pub !== 'todos') {
+                alvoFinal = document.getElementById('notifAlvoExato').value.trim();
+                if(!alvoFinal) { alert("Preencha o alvo específico."); btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Enviar Notificação Agora`; btn.disabled = false; return; }
+            }
+
+            try {
+                await addDoc(collection(db, "tjp_notificacoes"), {
+                    mensagem: document.getElementById('notifMensagem').value.trim(),
+                    tipo: document.getElementById('notifTipo').value,
+                    destinatario: alvoFinal,
+                    remetente: user.nick,
+                    link: document.getElementById('notifLink').value.trim(),
+                    dataStr: new Date().toLocaleString('pt-BR'),
+                    timestamp: Date.now()
+                });
+                
+                window.showToast("Notificação disparada com sucesso!");
+                document.getElementById('formNotificacao').reset();
+                document.getElementById('boxAlvoEspecifico').classList.add('escondido');
+            } catch (err) {
+                alert("Erro ao disparar: " + err.message);
+            }
+            btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> Enviar Notificação Agora`; btn.disabled = false;
+        });
+
+        // =====================================
+        // LÓGICA DO FEED INTRANET (STORIES)
+        // =====================================
+        window.previewFeedImg = function(url) {
+            const prev = document.getElementById('feedPreview');
+            if(url.match(/\.(jpeg|jpg|gif|png|webp)/) || url.includes('imgur')) {
+                prev.innerHTML = `<img src="${url}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;">`;
+            } else {
+                prev.innerHTML = "Preview da Imagem";
+            }
+        };
+
+        document.getElementById('formFeed').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnPostarFeed');
+            btn.innerText = "Publicando..."; btn.disabled = true;
+
+            try {
+                await addDoc(collection(db, "tjp_feed_intranet"), {
+                    imgUrl: document.getElementById('feedImg').value.trim(),
+                    titulo: document.getElementById('feedTitulo').value.trim(),
+                    autorNick: user.nick,
+                    autorCargo: user.cargo,
+                    dataStr: new Date().toLocaleDateString('pt-BR'),
+                    timestamp: Date.now()
+                });
+                
+                window.showToast("Imagem publicada no Feed!");
+                document.getElementById('formFeed').reset();
+                document.getElementById('feedPreview').innerHTML = "Preview da Imagem";
+            } catch (err) {
+                alert("Erro ao postar no feed: " + err.message);
+            }
+            btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Publicar no Feed`; btn.disabled = false;
+        });
+
+        // RENDERIZAR LISTA DO FEED PARA PODER APAGAR
+        onSnapshot(query(collection(db, "tjp_feed_intranet"), orderBy("timestamp", "desc")), (snap) => {
+            const container = document.getElementById('listaFeedAtivo');
+            if(snap.empty) { container.innerHTML = `<p style="font-size:12px; color:var(--text-muted); text-align:center;">Nenhuma publicação ativa.</p>`; return; }
+
+            let html = "";
+            snap.forEach(d => {
+                const p = d.data();
+                html += `
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px; background:white; border:1px solid var(--stroke); border-radius:8px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <img src="${p.imgUrl}" style="width:40px; height:40px; object-fit:cover; border-radius:4px; border:1px solid #e2e8f0;">
+                            <div>
+                                <strong style="font-size:13px; display:block; color:var(--text-main);">${p.titulo}</strong>
+                                <span style="font-size:10px; color:var(--text-muted);">${p.dataStr} • por ${p.autorNick}</span>
+                            </div>
+                        </div>
+                        <button class="btn-icon delete" onclick="window.apagarPostFeed('${d.id}')" title="Remover do Feed"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        });
+
+        window.apagarPostFeed = async function(id) {
+            if(confirm("Remover esta publicação do Feed da Intranet?")) {
+                await deleteDoc(doc(db, "tjp_feed_intranet", id));
+                window.showToast("Post removido.");
+            }
+        };
+    </script>
+</body>
+</html>

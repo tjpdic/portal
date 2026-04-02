@@ -38,6 +38,7 @@
 
             <nav class="admin-nav">
                 <span class="nav-label">Meus Sistemas</span>
+                <a href="/intranet/"><i class="fa-solid fa-house-user"></i> Início</a>
                 <a href="/intranet/processos"><i class="fa-solid fa-scale-balanced"></i> Sistema Processual</a>
                 <a href="/intranet/monitores" class="active"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
             </nav>
@@ -122,10 +123,12 @@
             document.getElementById("userCargoDisplay").innerText = user.cargo;
             document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
 
-            if (user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+            if (["Presidente", "Admin", "CSJ"].includes(user.nivel_acesso)) {
                 document.getElementById('btnAdminDash').classList.remove('escondido');
             }
-            if (user.nivel_acesso !== "Comum") {
+            
+            const niveisPermitidosBQ = ["Coordenador", "Monitor-Chefe", "Monitor", "Presidente", "Admin", "CSJ"];
+            if (niveisPermitidosBQ.includes(user.nivel_acesso) || niveisPermitidosBQ.includes(user.cargo)) {
                 document.getElementById('abaCriarProva').classList.remove('escondido');
                 document.getElementById('abaTempoReal').classList.remove('escondido');
                 document.getElementById('abaAprendizes').classList.remove('escondido');
@@ -135,13 +138,24 @@
             const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
             const db = getFirestore(app);
 
-            onSnapshot(query(collection(db, 'sabatinas'), where('status', '==', 'avaliada'), orderBy('dataAvaliacao', 'desc')), (snap) => {
+            // CORREÇÃO DO QUERY: Removido orderBy conflitante e filtrando apenas por status
+            onSnapshot(query(collection(db, 'sabatinas'), where('status', '==', 'avaliada')), (snap) => {
                 let htmlH = "";
+                let resultados = [];
+                
                 snap.forEach(d => {
-                    const s = d.data();
-                    let corNota = s.nota >= 7 ? "#16a34a" : "#ef4444";
-                    htmlH += `<tr><td><strong>${s.aprendiz}</strong></td><td>${s.nomeAvaliacao}</td><td><span class="badge" style="background:${corNota}15; color:${corNota}; font-weight:bold;">${s.nota.toFixed(1)}</span></td><td>${s.avaliador}</td><td><small>${s.dataAvaliacao}</small></td></tr>`;
+                    resultados.push(d.data());
                 });
+
+                // Ordenação manual por data/hora (já que estão em string PT-BR)
+                resultados.sort((a, b) => (b.dataAvaliacao || "").localeCompare(a.dataAvaliacao || ""));
+
+                resultados.forEach(s => {
+                    const notaValor = parseFloat(s.nota) || 0;
+                    let corNota = notaValor >= 7 ? "#16a34a" : "#ef4444";
+                    htmlH += `<tr><td><strong>${s.aprendiz}</strong></td><td>${s.nomeAvaliacao}</td><td><span class="badge" style="background:${corNota}15; color:${corNota}; font-weight:bold;">${notaValor.toFixed(1)}</span></td><td>${s.avaliador || '---'}</td><td><small>${s.dataAvaliacao || '---'}</small></td></tr>`;
+                });
+
                 document.getElementById('tabelaHistorico').innerHTML = htmlH || `<tr><td colspan="5" style="text-align:center;">Nenhum registro no histórico pedagógico.</td></tr>`;
             });
 

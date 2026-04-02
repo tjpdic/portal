@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configurações Internas - JusPanel</title>
-    <link rel="icon" href="../assets/img/logo-tjp.png" type="image/png">
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body class="admin-body">
 
@@ -18,7 +18,7 @@
     <div class="admin-layout">
         <aside class="admin-sidebar">
             <div class="admin-brand">
-                <img src="../assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <img src="/assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
                 <div>
                     <h2>JusPanel</h2>
                     <span>Administração Geral</span>
@@ -27,16 +27,16 @@
 
             <nav class="admin-nav">
                 <span class="nav-label">Principal</span>
-                <a href="../admin.html"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
+                <a href="/admin"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
                 
                 <span class="nav-label">Portal Público</span>
-                <a href="publicacoes.html"><i class="fa-solid fa-newspaper"></i> Publicações</a>
-                <a href="dojup.html"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
-                <a href="aparencia.html"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
+                <a href="/admin/publicacoes"><i class="fa-solid fa-newspaper"></i> Publicações</a>
+                <a href="/admin/dojup"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
+                <a href="/admin/aparencia"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
                 
                 <span class="nav-label">Intranet & Sistemas</span>
-                <a href="membros.html"><i class="fa-solid fa-users-gear"></i> Controle da Bancada do TJP</a>
-                <a href="configuracoes.html" class="active"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
+                <a href="/admin/membros"><i class="fa-solid fa-users-gear"></i> Controle da Bancada do TJP</a>
+                <a href="/admin/configuracoes" class="active"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
             </nav>
         </aside>
 
@@ -54,8 +54,8 @@
                     </div>
                     <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
                     <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
-                        <a href="../intranet/processos.html" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
-                        <a href="../index.html" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
+                        <a href="/intranet/processos" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
+                        <a href="/" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
                         <a href="#" onclick="logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
                     </div>
                 </div>
@@ -80,8 +80,8 @@
                             
                             <form id="formCargo" style="background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid var(--stroke); margin-bottom: 20px;">
                                 <div class="form-group">
-                                    <label>Nome da função interna</label>
-                                    <input type="text" id="cargoNome" required placeholder="Ex.: Juiz, Promotor, Defensor, Conselheiro...">
+                                    <label>Nome do Cargo Institucional</label>
+                                    <input type="text" id="cargoNome" required placeholder="Ex.: Juiz, Promotor, Assessor Técnico...">
                                 </div>
                                 <div class="form-group">
                                     <label>Nível de Permissão no Sistema</label>
@@ -91,25 +91,25 @@
                                         <option value="Juiz">Juiz (Pode lançar Sentenças/Pronunciamentos)</option>
                                         <option value="Promotor">Promotor (Pode lançar Denúncias)</option>
                                         <option value="Defensor">Defensor (Pode lançar Apelações)</option>
-                                        <option value="Coordenador">Coordenador (Acesso à Gestão de Ensino Avançada)</option>
-                                        <option value="Monitor-Chefe">Monitor-Chefe (Acesso à Gestão de Ensino)</option>
-                                        <option value="Monitor">Monitor (Acesso ao Painel Pedagógico)</option>
-                                        <option value="Comum">Membro Comum (Apenas Leitura)</option>
+                                        <option value="ADM N3">ADM N3 (Gerenciar Publicações + DOJUP)</option>
+                                        <option value="ADM N2">ADM N2 (Gerenciar Apenas DOJUP)</option>
+                                        <option value="ADM N1">ADM N1 (Gerenciar Apenas Publicações)</option>
+                                        <option value="Comum">Membro Comum (Apenas Leitura de Processos)</option>
                                     </select>
                                 </div>
-                                <button type="submit" class="btn-submit"><i class="fa-solid fa-plus"></i> Adicionar função à hierarquia</button>
+                                <button type="submit" class="btn-submit"><i class="fa-solid fa-plus"></i> Adicionar cargo à hierarquia</button>
                             </form>
 
                             <table class="admin-table">
                                 <thead>
                                     <tr>
-                                        <th>Função Cadastrada</th>
-                                        <th>Nível</th>
+                                        <th>Cargo Cadastrado</th>
+                                        <th>Nível Vinculado</th>
                                         <th>Ação</th>
                                     </tr>
                                 </thead>
                                 <tbody id="listaCargos">
-                                    <tr><td colspan="3" style="text-align:center;">Carregando funções...</td></tr>
+                                    <tr><td colspan="3" style="text-align:center;">Carregando cargos...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -164,18 +164,18 @@
 
         // VERIFICAÇÃO DE SESSÃO
         const sessionData = localStorage.getItem("juspanel_session");
-        if (!sessionData) window.location.href = "../login.html";
+        if (!sessionData) window.location.href = "/login";
         const user = JSON.parse(sessionData);
         
         if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
-            alert("Acesso Negado. Esta área é restrita à Administração Geral."); window.location.href = "../login.html";
+            alert("Acesso Negado. Esta área é restrita à Administração Geral."); window.location.href = "/login";
         }
 
         document.getElementById("userNickDisplay").innerText = user.nick;
         document.getElementById("userCargoDisplay").innerText = user.cargo;
         document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
 
-        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "../login.html"; };
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
         window.showToast = (msg) => { const t = document.getElementById("toast"); document.getElementById("toastMessage").innerText = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 4000); };
 
         const firebaseConfig = {
@@ -205,7 +205,7 @@
                 if(data.nivel === "CSJ" || data.nivel === "Presidente") { corBadge = "#ef4444"; bgBadge = "#fee2e2"; }
                 else if(data.nivel === "Juiz") { corBadge = "#0284c7"; bgBadge = "#e0f2fe"; }
                 else if(data.nivel === "Promotor" || data.nivel === "Defensor") { corBadge = "#f59e0b"; bgBadge = "#fef3c7"; }
-                else if(data.nivel === "Coordenador" || data.nivel === "Monitor-Chefe" || data.nivel === "Monitor") { corBadge = "#16a34a"; bgBadge = "#dcfce7"; }
+                else if(data.nivel.startsWith("ADM")) { corBadge = "#7c3aed"; bgBadge = "#ede9fe"; } // Roxo para ADMs técnicos
 
                 tb.innerHTML += `
                     <tr>
@@ -225,7 +225,7 @@
             if(!nome) return;
             
             await setDoc(doc(db, "tjp_cargos", nome), { nome: nome, nivel: nivel });
-            window.showToast("Função adicionada com sucesso!");
+            window.showToast("Cargo adicionado com sucesso!");
             document.getElementById("formCargo").reset();
         });
 
@@ -233,7 +233,7 @@
             if(id === "CSJ" || id === "Presidente") { alert("Cargos vitais de administração não podem ser deletados."); return; }
             if(confirm(`Tem certeza que deseja deletar a função '${id}'? Membros que a possuam não perderão o acesso, mas a função sumirá das opções de cadastro.`)) {
                 await deleteDoc(doc(db, "tjp_cargos", id));
-                window.showToast("Função removida.");
+                window.showToast("Cargo removido.");
             }
         };
 

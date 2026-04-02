@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerir Portal - JusPanel</title>
-    <link rel="icon" href="../assets/img/logo-tjp.png" type="image/png">
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body class="admin-body">
 
@@ -18,7 +18,7 @@
     <div class="admin-layout">
         <aside class="admin-sidebar">
             <div class="admin-brand">
-                <img src="../assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <img src="/assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
                 <div>
                     <h2>JusPanel</h2>
                     <span>Administração Geral</span>
@@ -27,16 +27,17 @@
 
             <nav class="admin-nav">
                 <span class="nav-label">Principal</span>
-                <a href="../admin.html"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
+                <a href="/admin"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
                 
                 <span class="nav-label">Portal Público</span>
-                <a href="publicacoes.html"><i class="fa-solid fa-newspaper"></i> Publicações</a>
-                <a href="dojup.html"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
-                <a href="aparencia.html" class="active"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
+                <a href="/admin/publicacoes"><i class="fa-solid fa-newspaper"></i> Publicações</a>
+                <a href="/admin/dojup"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
+                <a href="/admin/aparencia" class="active"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
                 
                 <span class="nav-label">Intranet & Sistemas</span>
-                <a href="membros.html"><i class="fa-solid fa-users-gear"></i> Controle da Bancada do TJP</a>
-                <a href="configuracoes.html"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
+                <a href="/admin/membros"><i class="fa-solid fa-users-gear"></i> Controle da Bancada do TJP</a>
+                <a href="/admin/comunicacao"><i class="fa-solid fa-tower-broadcast"></i> Comunicação Interna</a>
+                <a href="/admin/configuracoes"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
             </nav>
         </aside>
 
@@ -53,8 +54,8 @@
                     </div>
                     <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
                     <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
-                        <a href="../intranet/processos.html" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
-                        <a href="../index.html" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
+                        <a href="/intranet/" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
+                        <a href="/" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
                         <a href="#" onclick="logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
                     </div>
                 </div>
@@ -149,13 +150,13 @@
         // VERIFICAÇÃO DE SESSÃO
         const sessionData = localStorage.getItem("juspanel_session");
         if (!sessionData) {
-            window.location.href = "../login.html";
+            window.location.href = "/login";
         } else {
             const user = JSON.parse(sessionData);
             
             if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
                 alert("Acesso Negado. Área restrita.");
-                window.location.href = "../login.html";
+                window.location.href = "/login";
             }
 
             document.getElementById("userNickDisplay").innerText = user.nick;
@@ -165,7 +166,7 @@
 
         window.logoutUser = function() {
             localStorage.removeItem("juspanel_session");
-            window.location.href = "../login.html";
+            window.location.href = "/login";
         };
 
         const app = initializeApp({

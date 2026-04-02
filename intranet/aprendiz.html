@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal do Aprendiz - Intranet DIC</title>
-    <link rel="icon" href="../assets/img/logo-tjp.png" type="image/png">
+    <title>Portal do Aprendiz - Intranet TJP</title>
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
     
     <style id="estiloDinamico">
         /* Variáveis padrão que podem ser sobrescritas pelo Firebase */
@@ -43,10 +43,12 @@
 
             <nav class="admin-nav" style="padding: 20px;">
                 <span class="nav-label" style="color: var(--texto-aprendiz); opacity: 0.6;">Acesso Rápido</span>
-                <a href="sabatina.html" target="_blank" style="background: var(--destaque-aprendiz); color: #fff; justify-content: center; border-radius: 6px; margin-bottom: 15px;"><i class="fa-solid fa-pen-to-square"></i> Prestar Sabatina</a>
                 
-                <div id="botoesDinamicosContainer">
-                    </div>
+                <a href="/intranet/sabatina" style="background: var(--destaque-aprendiz); color: #fff; justify-content: center; border-radius: 6px; margin-bottom: 15px;"><i class="fa-solid fa-pen-to-square"></i> Prestar Sabatina</a>
+                
+                <a href="/" style="justify-content: center; border-radius: 6px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.1);"><i class="fa-solid fa-house"></i> Voltar ao Portal Público</a>
+                
+                <div id="botoesDinamicosContainer"></div>
             </nav>
 
             <div class="admin-sidebar-footer">
@@ -57,7 +59,7 @@
         <main class="admin-main">
             <header class="admin-header" style="background: var(--card-aprendiz);">
                 <div class="brand" style="display: flex; align-items: center; gap: 15px;">
-                    <img src="../assets/img/logo-tjp.png" style="height: 40px;">
+                    <img src="/assets/img/logo-tjp.png" style="height: 40px;">
                     <div><h2 style="font-size: 18px; margin: 0; color: var(--texto-aprendiz);">Portal Acadêmico</h2></div>
                 </div>
             </header>
@@ -90,13 +92,13 @@
 
         // CONTROLE DE SESSÃO
         const sessionData = localStorage.getItem("juspanel_session");
-        if (!sessionData) window.location.href = "../login.html";
+        if (!sessionData) window.location.href = "/login";
         const user = JSON.parse(sessionData);
 
         document.getElementById("apNick").innerText = user.nick;
         document.getElementById("apAvatar").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=3&gesture=sml&size=l&headonly=1`;
 
-        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "../login.html"; };
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
 
         const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
         const db = getFirestore(app);
@@ -132,7 +134,7 @@
             }
             document.getElementById('areaNotas').innerHTML = htmlNotas;
 
-            // 3. Carregar Presenças
+            // 3. Carregar Presenças (COM CORREÇÃO DE FORMATO DE DATA)
             const snapAulas = await getDocs(collection(db, 'aulas')); let htmlPresencas = "";
             if(snapAulas.empty) htmlPresencas = "<div style='padding: 15px; opacity: 0.6; text-align: center; font-size:13px;'>Nenhuma aula registrada.</div>";
             else {
@@ -141,7 +143,15 @@
                     const st = aula.chamada && aula.chamada[user.nick] ? aula.chamada[user.nick] : "-"; 
                     if(st !== "-") { 
                         const cl = st === 'P' ? 'background:var(--destaque-aprendiz);' : 'background:#ef4444;'; 
-                        htmlPresencas += `<div class="linha-aula"><div><strong style="font-size:14px;">${aula.tema}</strong><br><small style="opacity:0.6;"><i class="fa-regular fa-calendar"></i> ${aula.data}</small></div><span class="badge" style="${cl} color:#fff;">${st}</span></div>`; 
+                        
+                        // Conversor de data YYYY-MM-DD para DD/MM/YYYY
+                        let dataFormatada = aula.data || "";
+                        if (dataFormatada.includes("-")) {
+                            let partes = dataFormatada.split("-");
+                            if (partes.length === 3) dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+                        }
+
+                        htmlPresencas += `<div class="linha-aula"><div><strong style="font-size:14px;">${aula.tema}</strong><br><small style="opacity:0.6;"><i class="fa-regular fa-calendar"></i> ${dataFormatada}</small></div><span class="badge" style="${cl} color:#fff;">${st}</span></div>`; 
                     } 
                 });
                 if(htmlPresencas === "") htmlPresencas = "<div style='padding: 15px; opacity: 0.6; text-align: center; font-size:13px;'>Sem registros de frequência para o seu nick.</div>";

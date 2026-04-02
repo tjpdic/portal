@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Início - Intranet TJP</title>
+    <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/css/style.css">
+
+    <style>
+        .escondido { display: none !important; }
+        
+        /* CAIXA DE NOTIFICAÇÕES */
+        .notif-wrapper { position: relative; display: flex; align-items: center; margin-right: 15px; cursor: pointer; }
+        .notif-icon { font-size: 22px; color: var(--text-muted); transition: 0.3s; }
+        .notif-wrapper:hover .notif-icon { color: var(--primary); }
+        .notif-badge { position: absolute; top: -5px; right: -8px; background: #ef4444; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; border: 2px solid #fff; }
+        
+        .notif-dropdown { position: absolute; top: 45px; right: -10px; width: 340px; background: white; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid var(--stroke); z-index: 1000; overflow: hidden; display: none; cursor: default; }
+        .notif-dropdown.active { display: block; animation: slideDown 0.2s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .notif-header { padding: 15px; border-bottom: 1px solid var(--stroke); background: #f8fafc; font-weight: 700; display: flex; justify-content: space-between; align-items: center; color: var(--primary); }
+        .notif-body { max-height: 380px; overflow-y: auto; }
+        .notif-item { padding: 15px; border-bottom: 1px solid var(--stroke); display: flex; gap: 15px; align-items: flex-start; transition: 0.2s; text-decoration: none; color: var(--text-main); }
+        .notif-item:hover { background: #f1f5f9; }
+        .notif-item:last-child { border-bottom: none; }
+        
+        .notif-icon-circle { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; font-size: 14px; }
+        .notif-icon-circle.aviso { background: #f59e0b; }
+        .notif-icon-circle.sistema { background: #0284c7; }
+        .notif-icon-circle.urgente { background: #ef4444; }
+        .notif-icon-circle.noticia { background: var(--accent); }
+        
+        .notif-text { font-size: 12px; line-height: 1.4; }
+        .notif-time { font-size: 10px; color: var(--text-muted); margin-top: 5px; display: block; }
+
+        /* FEED INTRANET (BARRAS / CARDS) */
+        .feed-container { display: flex; gap: 20px; overflow-x: auto; padding: 10px 5px 25px 5px; scroll-behavior: smooth; }
+        .feed-container::-webkit-scrollbar { height: 8px; }
+        .feed-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .feed-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        .feed-post { position: relative; width: 260px; height: 360px; border-radius: 12px; overflow: hidden; flex-shrink: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer; background: #e2e8f0; }
+        .feed-post img.post-bg { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .feed-post:hover img.post-bg { transform: scale(1.08); }
+        
+        .post-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.8) 100%); pointer-events: none; }
+        
+        .post-author { position: absolute; top: 15px; left: 15px; display: flex; align-items: center; gap: 10px; z-index: 2; }
+        .post-author img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--accent); box-shadow: 0 2px 5px rgba(0,0,0,0.3); background: #fff; }
+        .post-author-info { opacity: 0; transition: 0.3s; transform: translateX(-10px); color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+        .feed-post:hover .post-author-info { opacity: 1; transform: translateX(0); }
+        
+        .post-title { position: absolute; bottom: 15px; left: 15px; right: 15px; color: white; z-index: 2; text-shadow: 0 1px 4px rgba(0,0,0,0.9); }
+        .post-title h4 { margin: 0 0 5px 0; font-size: 15px; line-height: 1.2; }
+        .post-title span { font-size: 11px; opacity: 0.8; }
+    </style>
+</head>
+<body class="admin-body">
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <div class="admin-brand">
+                <img src="/assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
+                <div>
+                    <h2 style="margin:0;">Intranet TJP</h2>
+                    <span>Acesso Restrito</span>
+                </div>
+            </div>
+
+            <nav class="admin-nav">
+                <span class="nav-label">Meus Sistemas</span>
+                <a href="/intranet/" class="active"><i class="fa-solid fa-house-user"></i> Início</a>
+                <a href="/intranet/processos"><i class="fa-solid fa-scale-balanced"></i> Sistema Processual</a>
+                <a href="/intranet/monitores" id="btnMenuMonitores" class="escondido"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-search" style="opacity: 0;"></div>
+                
+                <div class="header-user">
+                    
+                    <div class="notif-wrapper" onclick="toggleNotificacoes()">
+                        <i class="fa-solid fa-bell notif-icon"></i>
+                        <span class="notif-badge" id="badgeNotifCount">0</span>
+                        
+                        <div id="dropdownNotificacoes" class="notif-dropdown" onclick="event.stopPropagation()">
+                            <div class="notif-header">
+                                <span>Notificações</span>
+                                <button class="btn-icon" style="font-size:12px; width:24px; height:24px;" title="Marcar todas como lidas" onclick="marcarTudoLido()"><i class="fa-solid fa-check-double"></i></button>
+                            </div>
+                            <div class="notif-body" id="listaNotificacoes">
+                                <div style="padding:20px; text-align:center; color:var(--text-muted); font-size:12px;">Buscando avisos...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-info">
+                        <strong id="userNickDisplay">Carregando...</strong>
+                        <span id="userCargoDisplay">Aguarde...</span>
+                    </div>
+                    <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
+                    <a href="/admin" id="btnAdminDash" class="btn-site escondido" style="background:#e0f2fe; color:#0284c7;" title="Administração"><i class="fa-solid fa-gauge-high"></i></a>
+                    <a href="/" class="btn-site" title="Voltar ao Portal Público"><i class="fa-solid fa-house"></i></a>
+                    <a href="#" onclick="window.logoutUser()" class="btn-logout" title="Sair do Sistema"><i class="fa-solid fa-power-off"></i></a>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="content-header" style="margin-bottom: 30px;">
+                    <div>
+                        <h1 id="textoBoasVindas" style="color: var(--primary);">Bem-vindo à Intranet do TJP</h1>
+                        <p>Fique por dentro das últimas atualizações, decretos e comunicados da presidência.</p>
+                    </div>
+                </div>
+
+                <div class="panel-section" style="background: transparent; box-shadow: none; padding: 0;">
+                    <h3 style="margin-bottom: 15px; color: var(--text-main); font-size: 16px;"><i class="fa-solid fa-images" style="color: var(--accent);"></i> Publicações Internas</h3>
+                    
+                    <div class="feed-container" id="feedIntranetBox">
+                        <div class="feed-post" style="display:flex; justify-content:center; align-items:center; color:var(--text-muted);">
+                            <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // VERIFICAÇÃO DE SESSÃO
+        const sessionData = localStorage.getItem("juspanel_session");
+        if (!sessionData) window.location.href = "/login";
+        const user = JSON.parse(sessionData);
+
+        const nivelAtivo = (user.nivel_acesso || "").trim().toLowerCase();
+        const cargoAtivo = (user.cargo || "").trim().toLowerCase();
+
+        // Bloqueio de Aprendiz (Eles têm o próprio painel)
+        if (nivelAtivo === "aprendiz" || cargoAtivo === "aprendiz") window.location.href = "/intranet/aprendiz"; 
+
+        document.getElementById("userNickDisplay").innerText = user.nick;
+        document.getElementById("userCargoDisplay").innerText = user.cargo;
+        document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
+        document.getElementById("textoBoasVindas").innerText = `Bem-vindo ${user.nick} à Intranet do Tribunal de Justiça Policial`;
+
+        // Permissões Visuais
+        const admins = ["presidente", "admin", "csj"];
+        if(admins.includes(nivelAtivo) || admins.includes(cargoAtivo) || cargoAtivo.includes("presidente")) {
+            document.getElementById('btnAdminDash').classList.remove('escondido');
+        }
+
+        const monitores = ["coordenador", "monitor-chefe", "monitor chefe", "monitor"];
+        if(monitores.includes(nivelAtivo) || monitores.includes(cargoAtivo) || admins.includes(nivelAtivo)) {
+            document.getElementById('btnMenuMonitores').classList.remove('escondido');
+        }
+
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
+
+        window.toggleNotificacoes = function() {
+            document.getElementById('dropdownNotificacoes').classList.toggle('active');
+        };
+
+        // Fecha o modal ao clicar fora
+        document.addEventListener('click', (e) => {
+            const wrapper = document.querySelector('.notif-wrapper');
+            if(wrapper && !wrapper.contains(e.target)) {
+                document.getElementById('dropdownNotificacoes').classList.remove('active');
+            }
+        });
+
+        window.marcarTudoLido = function() {
+            document.getElementById('badgeNotifCount').innerText = "0";
+            document.getElementById('badgeNotifCount').style.display = "none";
+            // Lógica futura para atualizar no DB se desejado
+        };
+
+        const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
+        const db = getFirestore(app);
+
+        // 1. CARREGAR NOTIFICAÇÕES DA INTRANET
+        onSnapshot(query(collection(db, "tjp_notificacoes"), orderBy("timestamp", "desc")), (snap) => {
+            let htmlNotifs = "";
+            let countNaoLidas = 0;
+
+            snap.forEach(d => {
+                const n = d.data();
+                // Filtra para mostrar apenas se for para todos, ou para o nick específico, ou para o cargo específico
+                if(n.destinatario === 'todos' || n.destinatario.toLowerCase() === user.nick.toLowerCase() || n.destinatario.toLowerCase() === user.cargo.toLowerCase()) {
+                    
+                    // Definição de Ícone e Cor baseada no tipo (aviso, sistema, urgente, noticia)
+                    let iconClass = "fa-solid fa-bell";
+                    let circleClass = "sistema";
+                    
+                    if(n.tipo === 'urgente') { iconClass = "fa-solid fa-triangle-exclamation"; circleClass = "urgente"; }
+                    if(n.tipo === 'aviso') { iconClass = "fa-solid fa-bullhorn"; circleClass = "aviso"; }
+                    if(n.tipo === 'noticia') { iconClass = "fa-solid fa-newspaper"; circleClass = "noticia"; }
+
+                    countNaoLidas++; // Simulação simples. Em sistema real cruza com array de visualizadores.
+
+                    htmlNotifs += `
+                        <a href="${n.link || '#'}" class="notif-item">
+                            <div class="notif-icon-circle ${circleClass}"><i class="${iconClass}"></i></div>
+                            <div>
+                                <div class="notif-text"><strong>${n.remetente}:</strong> ${n.mensagem}</div>
+                                <span class="notif-time">${n.dataStr}</span>
+                            </div>
+                        </a>
+                    `;
+                }
+            });
+
+            document.getElementById('listaNotificacoes').innerHTML = htmlNotifs || `<div style="padding:20px; text-align:center; color:var(--text-muted); font-size:12px;">Você não tem novas notificações.</div>`;
+            
+            const badge = document.getElementById('badgeNotifCount');
+            if(countNaoLidas > 0) {
+                badge.innerText = countNaoLidas;
+                badge.style.display = "block";
+            } else {
+                badge.style.display = "none";
+            }
+        });
+
+        // 2. CARREGAR FEED DA INTRANET (STORIES)
+        onSnapshot(query(collection(db, "tjp_feed_intranet"), orderBy("timestamp", "desc")), (snap) => {
+            let htmlFeed = "";
+
+            snap.forEach(d => {
+                const post = d.data();
+                const avatarUrl = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${post.autorNick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
+                
+                htmlFeed += `
+                    <div class="feed-post" onclick="window.open('${post.imgUrl}', '_blank')">
+                        <img src="${post.imgUrl}" class="post-bg" alt="Publicação">
+                        <div class="post-overlay"></div>
+                        
+                        <div class="post-author">
+                            <img src="${avatarUrl}" alt="${post.autorNick}">
+                            <div class="post-author-info">
+                                <span style="font-size:11px; font-weight:700; display:block;">${post.autorNick}</span>
+                                <span style="font-size:9px; opacity:0.8;">${post.autorCargo}</span>
+                            </div>
+                        </div>
+
+                        <div class="post-title">
+                            <h4>${post.titulo || 'Comunicado Interno'}</h4>
+                            <span>${post.dataStr}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('feedIntranetBox').innerHTML = htmlFeed || `<div style="padding:30px; width:100%; text-align:center; color:var(--text-muted); font-size:13px; background:#f8fafc; border-radius:12px; border:1px dashed var(--stroke);">Nenhuma publicação interna no momento.</div>`;
+        });
+    </script>
+</body>
+</html>
