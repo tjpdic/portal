@@ -5,51 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal TJP | Tribunal de Justiça Policial DIC</title>
     <link rel="icon" href="assets/img/logo-tjp.png" type="image/png">
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
-    <div class="top-bar">
-        <div class="container top-bar-content">
-            <div class="top-links" id="dynamicTopLinks">
-                </div>
-            <div class="top-actions">
-                <span>Bem-vindo ao Portal do TJP</span>
-            </div>
-        </div>
-    </div>
-
-    <header class="header">
-        <div class="container header-content">
-            <div class="brand">
-                <div class="logo">
-                    <img src="assets/img/logo-tjp.png" alt="Logo TJP" style="height: 55px;">
-                </div>
-                <div>
-                    <h1>Tribunal de Justiça Policial</h1>
-                    <small>Departamento de Investigação Criminal&reg;</small>
-                </div>
-            </div>
-
-            <nav class="main-nav">
-                <ul id="dynamicMenu">
-                    </ul>
-            </nav>
-        </div>
-    </header>
+    <div id="global-header"></div>
 
     <div class="container">
-        
         <div class="portal-cover" id="carouselContainer">
-            <div class="carousel-track" id="carouselTrack">
-                <div class="carousel-slide"><img src="assets/img/capa-portal.png" alt="Capa TJP"></div>
-            </div>
+            <div class="carousel-track" id="carouselTrack"></div>
             <div class="carousel-dots" id="carouselDots"></div>
         </div>
 
@@ -59,7 +27,6 @@
                     <div class="section-title">
                         <h2><i class="fa-solid fa-newspaper"></i> Últimas Publicações</h2>
                     </div>
-                    
                     <div class="news-grid" id="portalFeed"></div>
                 </section>
             </main>
@@ -95,170 +62,31 @@
         </div>
     </div>
 
-    <footer class="footer">
-        <div class="container footer-content">
-            <div class="footer-col brand-col">
-                <img src="assets/img/logo-tjp.png" alt="Logo TJP" style="height: 100px; margin-bottom: 15px;">
-                <strong style="display: block; color: var(--primary); font-size: 16px;">Tribunal de Justiça Policial</strong>
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Departamento de Investigação Criminal&reg;</p>
-                <p style="font-size: 13px; color: var(--text-main); font-weight: 700;">NÃO HÁ ORDEM SEM JUSTIÇA!</p>
-                <div class="social-links">
-                    <a href="https://www.facebook.com/tjp.dic" target="_blank" class="social-btn"><i class="fa-brands fa-facebook-f"></i></a>
-                </div>
-            </div>
-            
-            <div id="dynamicFooterColumns" style="display: contents;"></div>
-            
-        </div>
-        
-        <div class="container footer-system-middle">
-            <a href="https://dic.systemhb.net/" target="_blank" title="Acessar o System DIC">
-                <img src="assets/img/logo-dic.png" alt="System Polícia DIC" style="height: 80px;">
-            </a>
-        </div>
-
-        <div class="footer-bottom">
-            <div class="container">
-                <p>&copy; 2026 Polícia DIC. Todos os direitos reservados.</p>
-            </div>
-        </div>
-    </footer>
+    <div id="global-footer"></div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, doc, collection, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        // Importa o layout (que constrói a tela instantaneamente) e a conexão do banco
+        import { db } from "./assets/js/layout.js";
+        import { doc, collection, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs",
-            authDomain: "monitores-sisap.firebaseapp.com",
-            projectId: "monitores-sisap",
-            storageBucket: "monitores-sisap.firebasestorage.app",
-            messagingSenderId: "489679893157",
-            appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        const defaultMenus = [
-            { id: "r1", nome: "O TJP", link: "#", sub: [
-                { id: "r1s1", nome: "Institucional", link: "#", sub: [
-                    { id: "r1s1a", nome: "Regimento Interno", link: "#" },
-                    { id: "r1s1b", nome: "Código de Processo Militar", link: "#" },
-                    { id: "r1s1c", nome: "Rito de Sessão", link: "#" },
-                    { id: "r1s1d", nome: "SISAP", link: "#", sub: [{ id: "r1s1d1", nome: "Regimento dos Aprendizes", link: "#" }] }
-                ]},
-                { id: "r1s2", nome: "História do TJP", link: "#" },
-                { id: "r1s3", nome: "Bancada do TJP", link: "#" }
-            ]},
-            { id: "r2", nome: "CSJ", link: "#" },
-            { id: "r3", nome: "Diário Oficial", link: "diario-oficial.html", sub: [
-                { id: "r3s1", nome: "DOJUP - Diário Oficial da Justiça Policial", link: "diario-oficial.html" },
-                { id: "r3s2", nome: "Decretos", link: "#" },
-                { id: "r3s3", nome: "Portarias", link: "#" },
-                { id: "r3s4", nome: "Relatórios de Transparência", link: "#" }
-            ]},
-            { id: "r4", nome: "Legislações", link: "#", sub: [
-                { id: "r4s1", nome: "Legislação", link: "#" },
-                { id: "r4s2", nome: "Regulamento Disciplinar", link: "#" },
-                { id: "r4s3", nome: "Emenda dos Cargos Executivos", link: "#" },
-                { id: "r4s4", nome: "Modus Operandis", link: "#" },
-                { id: "r4s5", nome: "Regulamento dos Uniformes", link: "#" },
-                { id: "r4s6", nome: "Regimento dos Distintivos", link: "#" }
-            ]}
-        ];
-
-        // 1. TOP LINKS 
-        onSnapshot(doc(db, "tjp_config", "toplinks"), (snap) => {
-            const container = document.getElementById("dynamicTopLinks");
-            container.innerHTML = `<a href="#">Ouvidoria TJP</a>`; 
-            
-            let links = [];
-            if(snap.exists() && snap.data().lista && snap.data().lista.length > 0) {
-                links = snap.data().lista;
-            } else {
-                links = [
-                    { titulo: "System DIC", icone: "assets/img/emblema-dic.png", url: "https://dic.systemhb.net/" },
-                    { titulo: "", icone: "fa-brands fa-facebook-f", url: "https://www.facebook.com/tjp.dic" }
-                ];
-            }
-
-            links.forEach(lk => {
-                const icn = lk.icone.includes('http') || lk.icone.includes('assets') ? `<img src="${lk.icone}" style="height: 16px;">` : `<i class="${lk.icone}"></i>`;
-                const cls = lk.titulo ? "system-btn-top" : "icon-only-top"; 
-                const titleHtml = lk.titulo ? ` ${lk.titulo}` : "";
-                container.innerHTML += `<a href="${lk.url}" target="_blank" class="${cls}" title="${lk.titulo || 'Link'}">${icn}${titleHtml}</a>`;
-            });
-        });
-
-        // 2. MENUS E RODAPÉ
-        const buildMenuHtml = (items) => {
-            let html = "";
-            items.forEach(item => {
-                let icon = "";
-                if(item.nome === "O TJP") icon = '<i class="fa-solid fa-building-columns"></i> ';
-                else if(item.nome === "CSJ") icon = '<i class="fa-solid fa-users-gear"></i> ';
-                else if(item.nome === "Diário Oficial") icon = '<i class="fa-solid fa-book-open"></i> ';
-                else if(item.nome === "Legislações") icon = '<i class="fa-solid fa-scale-balanced"></i> ';
-
-                if(item.sub && item.sub.length > 0) {
-                    html += `<li class="dropdown"><a href="${item.link || '#'}">${icon}${item.nome} <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i></a><div class="dropdown-content">`;
-                    item.sub.forEach(subItem => {
-                        if(subItem.sub && subItem.sub.length > 0) {
-                            html += `<div class="dropdown dropdown-submenu"><a href="${subItem.link || '#'}">${subItem.nome} <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i></a><div class="dropdown-content">`;
-                            subItem.sub.forEach(sub2 => { html += `<a href="${sub2.link || '#'}">${sub2.nome}</a>`; });
-                            html += `</div></div>`;
-                        } else {
-                            html += `<a href="${subItem.link || '#'}">${subItem.nome}</a>`;
-                        }
-                    });
-                    html += `</div></li>`;
-                } else {
-                    html += `<li><a href="${item.link || '#'}">${icon}${item.nome}</a></li>`;
-                }
-            });
-            return html;
-        };
-
-        onSnapshot(doc(db, "tjp_config", "menus"), (snap) => {
-            let menus = defaultMenus;
-            if(snap.exists() && snap.data().lista && snap.data().lista.length > 0) {
-                menus = snap.data().lista;
-            }
-            
-            document.getElementById("dynamicMenu").innerHTML = `
-                <li><a href="index.html" class="active"><i class="fa-solid fa-house"></i> Início</a></li>
-                ${buildMenuHtml(menus)}
-                <li><a href="login.html" class="btn-login"><i class="fa-solid fa-right-to-bracket"></i> Acesso Restrito</a></li>
-            `;
-
-            let footerHtml = '';
-            menus.forEach(rootItem => {
-                if(rootItem.sub && rootItem.sub.length > 0 && rootItem.nome !== "CSJ") {
-                    footerHtml += `<div class="footer-col"><h4>${rootItem.nome}</h4><ul>`;
-                    rootItem.sub.forEach(subItem => {
-                        footerHtml += `<li><a href="${subItem.link || '#'}">${subItem.nome}</a></li>`;
-                    });
-                    footerHtml += `</ul></div>`;
-                }
-            });
-            document.getElementById("dynamicFooterColumns").innerHTML = footerHtml;
-        });
-
-        // 3. CARROSSEL DE BANNERS 
+        // LÓGICA EXCLUSIVA DA PÁGINA INICIAL
         let carouselInterval;
         onSnapshot(doc(db, "tjp_config", "banners"), (snap) => {
             const track = document.getElementById("carouselTrack");
             const dots = document.getElementById("carouselDots");
             clearInterval(carouselInterval);
             
-            let banners = ["assets/img/capa-portal.png"];
-            if(snap.exists() && snap.data().lista && snap.data().lista.length > 0) {
-                banners = snap.data().lista;
-            }
+            let banners = [];
+            if(snap.exists() && snap.data().lista) banners = snap.data().lista;
             
             track.innerHTML = ""; dots.innerHTML = "";
             
+            if(banners.length === 0) {
+                document.getElementById("carouselContainer").style.display = "none";
+                return;
+            }
+            document.getElementById("carouselContainer").style.display = "block";
+
             banners.forEach((url, i) => {
                 track.innerHTML += `<div class="carousel-slide"><img src="${url}"></div>`;
                 if(banners.length > 1) {
@@ -289,22 +117,17 @@
             }
         });
 
-        // 4. FEED DE PUBLICAÇÕES
         const portalFeed = document.getElementById("portalFeed");
         onSnapshot(query(collection(db, "tjp_publicacoes"), orderBy("dataCriacao", "desc"), limit(10)), (snapshot) => {
             portalFeed.innerHTML = "";
-            if(snapshot.empty) {
-                return;
-            }
+            if(snapshot.empty) return;
 
-            snapshot.forEach((doc) => {
-                const data = doc.data(); 
-                const id = doc.id;
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data(); 
+                const id = docSnap.id;
                 
                 let dataFormatada = "Hoje";
-                if(data.dataCriacao) {
-                    dataFormatada = data.dataCriacao.toDate().toLocaleDateString('pt-BR');
-                }
+                if(data.dataCriacao) dataFormatada = data.dataCriacao.toDate().toLocaleDateString('pt-BR');
 
                 const bClass = data.categoria === 'Informativo' ? 'info' : '';
                 const cClass = data.capa ? 'has-cover' : '';

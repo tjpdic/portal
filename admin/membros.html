@@ -84,7 +84,7 @@
                                 <tr>
                                     <th>Membro</th>
                                     <th>Cargo (TJP)</th>
-                                    <th>Função (SISAP)</th>
+                                    <th>Tag Interna / CSJ</th>
                                     <th>Nível de Sistema</th>
                                     <th>Status</th>
                                     <th>Ações</th>
@@ -121,13 +121,8 @@
                     </div>
                     
                     <div class="form-group" style="flex: 1;">
-                        <label>Função SISAP (Monitoria)</label>
-                        <select id="memFuncaoSisap">
-                            <option value="Nenhuma">Nenhuma</option>
-                            <option value="Monitor">Monitor</option>
-                            <option value="Monitor-Chefe">Monitor-Chefe</option>
-                            <option value="Coordenador">Coordenador</option>
-                        </select>
+                        <label>Tag Interna / Ordem CSJ</label>
+                        <input type="text" id="memTagInterna" placeholder="Ex: CSJ-1, Monitor, etc.">
                     </div>
                 </div>
 
@@ -211,7 +206,7 @@
             document.getElementById("memNick").value = data.nick;
             document.getElementById("memNick").disabled = true; 
             document.getElementById("memCargo").value = data.cargo;
-            document.getElementById("memFuncaoSisap").value = data.funcao_sisap || "Nenhuma";
+            document.getElementById("memTagInterna").value = data.tagInterna || "";
             document.getElementById("memStatus").value = data.status;
             
             modal.classList.add("active");
@@ -234,7 +229,7 @@
             const nick = document.getElementById("memNick").value.trim();
             const docId = nick.toLowerCase(); 
             const cargoSelecionado = document.getElementById("memCargo").value;
-            const funcaoSelecionada = document.getElementById("memFuncaoSisap").value;
+            const tagSelecionada = document.getElementById("memTagInterna").value.trim();
             const statusSelecionado = document.getElementById("memStatus").value;
 
             // O Nível de Acesso primário é o do cargo, mas se for Coordenador/Monitor ele "sobrescreve" no backend de visualização de painel
@@ -243,7 +238,7 @@
             const dadosMembro = {
                 nick: nick,
                 cargo: cargoSelecionado,
-                funcao_sisap: funcaoSelecionada,
+                tagInterna: tagSelecionada,
                 nivel_acesso: nivelMapeado,
                 status: statusSelecionado
             };
@@ -252,11 +247,11 @@
                 if(editIdAtivo) {
                     await updateDoc(doc(db, "tjp_membros", editIdAtivo), dadosMembro);
                     try { 
-                        // Atualiza a tabela de login com a nova estrutura dupla
+                        // Atualiza a tabela de login
                         await updateDoc(doc(db, "tjp_usuarios", editIdAtivo), { 
                             cargo: cargoSelecionado, 
                             nivel_acesso: nivelMapeado,
-                            funcao_sisap: funcaoSelecionada
+                            tagInterna: tagSelecionada
                         }); 
                     } catch(e) {}
                     
@@ -330,8 +325,8 @@
                 else if(nivelStr === "Promotor" || nivelStr === "Defensor") { corBadgeNivel = "#f59e0b"; bgBadgeNivel = "#fef3c7"; }
                 else if(nivelStr.startsWith("ADM")) { corBadgeNivel = "#7c3aed"; bgBadgeNivel = "#ede9fe"; }
                 
-                let funcaoStr = data.funcao_sisap || "Nenhuma";
-                let badgeFuncao = funcaoStr === "Nenhuma" ? `<span style="opacity:0.5; font-size:12px;">-</span>` : `<span class="badge" style="background:#dcfce7; color:#16a34a; font-weight:600;"><i class="fa-solid fa-graduation-cap"></i> ${funcaoStr}</span>`;
+                let tagStr = data.tagInterna && data.tagInterna !== "" ? data.tagInterna : "-";
+                let badgeTag = tagStr === "-" ? `<span style="opacity:0.5; font-size:12px;">-</span>` : `<span class="badge" style="background:#dcfce7; color:#16a34a; font-weight:600;"><i class="fa-solid fa-tag"></i> ${tagStr}</span>`;
 
                 const avatarImg = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${data.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
 
@@ -344,7 +339,7 @@
                             </div>
                         </td>
                         <td><strong>${data.cargo}</strong></td>
-                        <td>${badgeFuncao}</td>
+                        <td>${badgeTag}</td>
                         <td><span class="badge" style="background:${bgBadgeNivel}; color:${corBadgeNivel}; font-weight:700;">${nivelStr}</span></td>
                         <td><span style="font-size: 11px; font-weight: 700; color: ${corStatus}; background: ${bgStatus}; padding: 4px 10px; border-radius: 4px;">${data.status}</span></td>
                         <td>

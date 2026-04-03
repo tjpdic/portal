@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bancada do TJP | Tribunal de Justiça Policial</title>
+    <link rel="icon" href="assets/img/logo-tjp.png" type="image/png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <style>
+        .bancada-header-page { text-align: center; margin: 40px 0; }
+        .bancada-header-page h1 { font-size: 32px; color: var(--primary); text-transform: uppercase; font-weight: 900; margin-bottom: 5px; letter-spacing: 1px; }
+        .bancada-header-page p { color: var(--text-muted); font-size: 15px; }
+
+        .hierarchy-section { margin-bottom: 50px; }
+        .hierarchy-title { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 30px; }
+        .hierarchy-title::before, .hierarchy-title::after { content: ""; height: 2px; background: var(--stroke); flex: 1; max-width: 150px; }
+        .hierarchy-title h2 { font-size: 20px; color: var(--text-main); font-weight: 800; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+
+        .bancada-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 25px; }
+
+        /* CARD DINÂMICO USANDO CSS VARIABLES */
+        .member-card {
+            background: #fff;
+            border: 1px solid var(--c-borda, var(--stroke));
+            border-radius: 12px;
+            width: 220px;
+            padding: 30px 15px 25px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .member-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+            border-color: var(--c-borda, var(--primary));
+        }
+        
+        .member-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--c-borda, var(--stroke));
+            transition: background 0.3s;
+        }
+
+        .member-avatar-container { position: relative; margin-bottom: 15px; height: 120px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+        .member-avatar { height: 110px; object-fit: contain; position: relative; z-index: 2; }
+        .avatar-shadow { width: 60px; height: 12px; background: radial-gradient(ellipse at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 70%); border-radius: 50%; margin-top: -8px; z-index: 1; }
+
+        .member-role {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            /* CORES DINÂMICAS INJETADAS NO CARD */
+            background: var(--c-fundo, #f1f5f9);
+            color: var(--c-texto, var(--text-muted));
+            border: 1px solid var(--c-borda, var(--stroke));
+        }
+        
+        .member-nick { font-size: 18px; font-weight: 800; color: var(--text-main); margin: 0; }
+        
+        .police-rank {
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--c-borda, var(--text-muted));
+        }
+    </style>
+</head>
+<body>
+
+    <div id="global-header"></div>
+
+    <div class="container" style="min-height: 50vh;">
+        <div class="bancada-header-page">
+            <h1>A Bancada</h1>
+            <p>Conheça os magistrados e membros oficiais que compõem o TJP.</p>
+        </div>
+        <div id="bancadaContainer"></div>
+    </div>
+
+    <div id="global-footer"></div>
+
+    <script type="module">
+        import { db } from "./assets/js/layout.js";
+        import { doc, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        // Organização das sessões por cargo
+        const hierarquias = [
+            { id: "presidencia", titulo: "Presidência do Tribunal", cargos: ["Presidente"] },
+            { id: "magistratura", titulo: "Magistratura", cargos: ["Juiz"] },
+            { id: "ministerio_publico", titulo: "Ministério Público", cargos: ["Promotor"] },
+            { id: "defensoria", titulo: "Defensoria Pública", cargos: ["Defensor"] }
+        ];
+
+        const containerBancada = document.getElementById("bancadaContainer");
+        let patentesPolicia = {};
+        let membrosCache = [];
+        let configCargos = {}; // Armazena as cores vindas do painel admin
+
+        function renderizarBancada() {
+            if (membrosCache.length === 0) return;
+            
+            let HTMLFinal = "";
+
+            hierarquias.forEach(h => {
+                const membrosDestaSessao = membrosCache.filter(m => h.cargos.includes(m.cargo));
+                
+                if(membrosDestaSessao.length > 0) {
+                    membrosDestaSessao.sort((a, b) => a.nick.localeCompare(b.nick));
+
+                    let cardsHTML = "";
+                    membrosDestaSessao.forEach(membro => {
+                        const avatarUrl = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${membro.nick}&action=std&direction=2&head_direction=3&gesture=sml&size=l`;
+                        const patenteOficial = patentesPolicia[membro.nick] || "Membro";
+                        
+                        // Resgata as cores personalizadas do banco ou aplica cinza padrão
+                        const config = configCargos[membro.cargo] || {};
+                        const corBorda = config.corBorda || "#cbd5e1";
+                        const corFundo = config.corFundoTag || "#f1f5f9";
+                        const corTexto = config.corTextoTag || "#64748b";
+                        
+                        // Injeta as variáveis de CSS direto na div do card
+                        cardsHTML += `
+                            <div class="member-card" style="--c-borda: ${corBorda}; --c-fundo: ${corFundo}; --c-texto: ${corTexto};">
+                                <div class="member-avatar-container">
+                                    <img src="${avatarUrl}" alt="${membro.nick}" class="member-avatar">
+                                    <div class="avatar-shadow"></div>
+                                </div>
+                                <span class="member-role">${membro.cargo}</span>
+                                <h4 class="member-nick">${membro.nick}</h4>
+                                <div class="police-rank">${patenteOficial}</div>
+                            </div>
+                        `;
+                    });
+
+                    HTMLFinal += `
+                        <div class="hierarchy-section">
+                            <div class="hierarchy-title">
+                                <h2>${h.titulo}</h2>
+                            </div>
+                            <div class="bancada-grid">
+                                ${cardsHTML}
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            containerBancada.innerHTML = HTMLFinal;
+        }
+
+        // Listener 1: Cores dos Cargos (Definidas no Admin)
+        onSnapshot(collection(db, "tjp_cargos"), (snap) => {
+            configCargos = {};
+            snap.forEach(doc => { configCargos[doc.id] = doc.data(); });
+            renderizarBancada();
+        });
+
+        // Listener 2: Patentes da Polícia
+        onSnapshot(doc(db, "configuracoes", "cargos"), (snap) => {
+            if(snap.exists() && snap.data().dados) {
+                try { patentesPolicia = JSON.parse(snap.data().dados); } catch(e) {}
+            }
+            renderizarBancada();
+        });
+
+        // Listener 3: Membros
+        onSnapshot(query(collection(db, "tjp_membros")), (snapshot) => {
+            membrosCache = [];
+            snapshot.forEach(doc => { membrosCache.push(doc.data()); });
+            renderizarBancada();
+        });
+    </script>
+</body>
+</html>

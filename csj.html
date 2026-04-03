@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSJ - Conselho Superior de Justiça | TJP</title>
+    <link rel="icon" href="assets/img/logo-tjp.png" type="image/png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <style>
+        .bancada-header-page { text-align: center; margin: 40px 0; }
+        
+        /* Regras estritas de proporção e dimensão para o banner */
+        .csj-brasao { 
+            display: block; 
+            margin: 30px auto; 
+            width: 100%; 
+            max-width: 1305px; 
+            aspect-ratio: 1305 / 338;
+            object-fit: contain;
+            border-radius: 10px; 
+        }
+        
+        .bancada-header-page p { color: #64748b; font-size: 13px; max-width: 850px; margin: 0 auto; line-height: 1.6; }
+
+        .csj-grid { display: flex; flex-direction: column; align-items: center; gap: 50px; margin-bottom: 80px; }
+        .csj-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 25px; width: 100%; }
+
+        /* CARD DINÂMICO USANDO CSS VARIABLES DO BANCO DE DADOS */
+        .csj-card {
+            background: #fff;
+            border: 1px solid var(--c-borda, #166534);
+            border-radius: 12px;
+            width: 220px;
+            padding: 30px 15px 25px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .csj-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+            border-color: var(--c-borda, #166534);
+        }
+        
+        .csj-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--c-borda, #166534);
+            transition: background 0.3s;
+        }
+
+        .member-avatar-container { position: relative; margin-bottom: 15px; height: 120px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+        .member-avatar { height: 110px; object-fit: contain; position: relative; z-index: 2; }
+        .avatar-shadow { width: 60px; height: 12px; background: radial-gradient(ellipse at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 70%); border-radius: 50%; margin-top: -8px; z-index: 1; }
+
+        .member-role {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            /* INJEÇÃO DAS CORES DINÂMICAS */
+            background: var(--c-fundo, #166534);
+            color: var(--c-texto, #dcfce7);
+            border: 1px solid var(--c-borda, #14532d);
+        }
+        .member-nick { font-size: 18px; font-weight: 800; margin: 0; }
+        .police-rank {
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--c-borda, #166534);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="global-header"></div>
+
+    <div class="container" style="min-height: 50vh;">
+        <div class="bancada-header-page">
+            <img src="assets/img/csj.png" alt="Banner CSJ" class="csj-brasao">
+            <p>Órgão jurisdicional de último grau de recurso, responsável por revisar as punições aplicadas pelo Tribunal de Justiça Policial e a fazer cumprir seu Regimento Interno. É dotado de competência exclusiva para o julgamento da alta cúpula da Instituição, compreendendo o Presidente do TJP, Ministros, Comandantes-Gerais e membros da Chancelaria em suas infrações penais e administrativas.</p>
+        </div>
+        <div id="csjContainer" class="csj-grid"></div>
+    </div>
+
+    <div id="global-footer"></div>
+
+    <script type="module">
+        import { db } from "./assets/js/layout.js";
+        import { doc, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+        const containerCSJ = document.getElementById("csjContainer");
+        let patentesPolicia = {};
+        let ministrosAtivos = [];
+        let configCargos = {}; // Cores do painel Admin
+
+        function renderizarCSJ() {
+            if(ministrosAtivos.length === 0) return;
+
+            let topRowMembros = [];
+            let bottomRowMembros = [];
+            let presidente = null;
+
+            ministrosAtivos.forEach(m => {
+                let tag = m.tagInterna ? m.tagInterna.toUpperCase().trim() : "";
+                if(m.cargo === "Presidente") {
+                    presidente = m;
+                } else if(tag === "CSJ-1") {
+                    topRowMembros.push(m);
+                } else {
+                    bottomRowMembros.push(m);
+                }
+            });
+
+            topRowMembros.sort((a,b) => a.nick.localeCompare(b.nick));
+            bottomRowMembros.sort((a, b) => {
+                let tagA = a.tagInterna ? a.tagInterna.toUpperCase().trim() : "";
+                let tagB = b.tagInterna ? b.tagInterna.toUpperCase().trim() : "";
+                let valA = tagA.startsWith('CSJ-') ? parseInt(tagA.replace('CSJ-', '')) || 999 : 999;
+                let valB = tagB.startsWith('CSJ-') ? parseInt(tagB.replace('CSJ-', '')) || 999 : 999;
+                if (valA !== valB) return valA - valB;
+                return a.nick.localeCompare(b.nick);
+            });
+
+            if(presidente) bottomRowMembros.push(presidente);
+
+            const gerarHTMLCard = (m) => {
+                const avatarUrl = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${m.nick}&action=std&direction=2&head_direction=3&gesture=sml&size=l`;
+                const isPres = m.cargo === "Presidente";
+                const tituloApresentacao = isPres ? "Presidente do Tribunal" : "Ministro";
+                const patenteOficial = patentesPolicia[m.nick] || "Membro";
+
+                // Puxa as cores do banco (com fallback para as antigas verdes se ainda não tiver salvo no admin)
+                const config = configCargos[m.cargo] || {};
+                const corBorda = config.corBorda || (isPres ? "#22c55e" : "#166534");
+                const corFundo = config.corFundoTag || (isPres ? "#dcfce7" : "#166534");
+                const corTexto = config.corTextoTag || (isPres ? "#15803d" : "#dcfce7");
+
+                return `
+                    <div class="csj-card" style="--c-borda: ${corBorda}; --c-fundo: ${corFundo}; --c-texto: ${corTexto};">
+                        <div class="member-avatar-container">
+                            <img src="${avatarUrl}" alt="${m.nick}" class="member-avatar">
+                            <div class="avatar-shadow"></div>
+                        </div>
+                        <span class="member-role">${tituloApresentacao}</span>
+                        <h4 class="member-nick">${m.nick}</h4>
+                        <div class="police-rank">${patenteOficial}</div>
+                    </div>
+                `;
+            };
+
+            let htmlFinal = "";
+            if(topRowMembros.length > 0) htmlFinal += `<div class="csj-row">${topRowMembros.map(gerarHTMLCard).join("")}</div>`;
+            if(bottomRowMembros.length > 0) htmlFinal += `<div class="csj-row">${bottomRowMembros.map(gerarHTMLCard).join("")}</div>`;
+
+            containerCSJ.innerHTML = htmlFinal;
+        }
+
+        // Listener 1: Cores dos Cargos
+        onSnapshot(collection(db, "tjp_cargos"), (snap) => {
+            configCargos = {};
+            snap.forEach(doc => { configCargos[doc.id] = doc.data(); });
+            renderizarCSJ();
+        });
+
+        onSnapshot(doc(db, "configuracoes", "cargos"), (snap) => {
+            if(snap.exists() && snap.data().dados) {
+                try { patentesPolicia = JSON.parse(snap.data().dados); } catch(e) {}
+            }
+            renderizarCSJ();
+        });
+
+        onSnapshot(query(collection(db, "tjp_membros")), (snapshot) => {
+            ministrosAtivos = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if(data.cargo === "Ministro" || data.cargo === "Presidente") ministrosAtivos.push(data);
+            });
+            renderizarCSJ();
+        });
+    </script>
+</body>
+</html>

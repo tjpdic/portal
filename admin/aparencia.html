@@ -12,20 +12,15 @@
     <link rel="stylesheet" href="/assets/css/style.css">
 
     <style>
-        .escondido { display: none !important; }
-        
-        /* ESTILOS DO CONSTRUTOR VISUAL DE MENUS */
-        .builder-cat { background: #fff; border: 1px solid var(--stroke); border-radius: 8px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .builder-cat-header { background: #f8fafc; padding: 15px; border-bottom: 1px solid var(--stroke); display: flex; gap: 10px; align-items: center; }
+        .builder-cat { background: #fff; border: 1px solid var(--primary); border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .builder-cat-header { background: #f8fafc; padding: 15px; border-bottom: 1px solid var(--stroke); display: flex; gap: 10px; align-items: flex-end; border-radius: 8px 8px 0 0; }
         .builder-cat-body { padding: 15px; }
-        
-        .builder-link { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin-bottom: 15px; position: relative; }
+        .builder-link { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px; margin-bottom: 15px; }
         .builder-link-header { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 10px; }
-        
         .builder-sub { background: #fff; border: 1px dashed #cbd5e1; border-radius: 4px; padding: 10px; margin-top: 10px; display: flex; gap: 10px; align-items: flex-end; }
-        
         .btn-add-mini { font-size: 11px; padding: 5px 10px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; }
         .btn-del-mini { background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; height: 38px; }
+        .link-tipo, .sub-tipo, .cat-tipo { border: 1px solid #cbd5e1; border-radius: 4px; background: #fff; }
     </style>
 </head>
 <body class="admin-body">
@@ -36,21 +31,15 @@
         <aside class="admin-sidebar">
             <div class="admin-brand">
                 <img src="/assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
-                <div>
-                    <h2>JusPanel</h2>
-                    <span>Administração Geral</span>
-                </div>
+                <div><h2>JusPanel</h2><span>Administração Geral</span></div>
             </div>
-
             <nav class="admin-nav">
                 <span class="nav-label">Principal</span>
                 <a href="/admin/index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
-                
                 <span class="nav-label">Portal Público</span>
                 <a href="/admin/publicacoes.html"><i class="fa-solid fa-newspaper"></i> Publicações</a>
                 <a href="/admin/dojup.html"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
                 <a href="/admin/aparencia.html" class="active"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
-                
                 <span class="nav-label">Intranet & Sistemas</span>
                 <a href="/admin/documentos.html"><i class="fa-solid fa-file-signature"></i> Gestão de Documentos</a>
                 <a href="/admin/canvas.html"><i class="fa-solid fa-object-group"></i> Gestão de Canvas</a>
@@ -62,15 +51,9 @@
 
         <main class="admin-main">
             <header class="admin-header">
-                <div class="header-search">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" placeholder="Buscar no painel...">
-                </div>
+                <div class="header-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="Buscar no painel..."></div>
                 <div class="header-user">
-                    <div class="user-info">
-                        <strong id="userNickDisplay">Carregando...</strong>
-                        <span id="userCargoDisplay">Aguarde...</span>
-                    </div>
+                    <div class="user-info"><strong id="userNickDisplay">Carregando...</strong><span id="userCargoDisplay">Aguarde...</span></div>
                     <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
                     <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
                         <a href="/intranet/index.html" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
@@ -82,10 +65,7 @@
 
             <div class="admin-content">
                 <div class="content-header">
-                    <div>
-                        <h1>Gerir Portal & Intranet</h1>
-                        <p>Controle os banners e a estrutura de menus dinâmicos da plataforma.</p>
-                    </div>
+                    <div><h1>Gerir Portal & Intranet</h1><p>Controle os banners e a estrutura de menus dinâmicos da plataforma.</p></div>
                 </div>
 
                 <div class="panel-section">
@@ -107,16 +87,11 @@
                         <h3><i class="fa-solid fa-globe"></i> Construtor de Menu (Portal Público)</h3>
                         <div style="display: flex; gap: 10px;">
                             <button class="btn-outline btn-pequeno" onclick="adicionarCategoria('containerPortal')"><i class="fa-solid fa-folder-plus"></i> Adicionar Categoria</button>
-                            <button class="btn-submit btn-pequeno" onclick="salvarMenus('containerPortal', 'menus_portal')"><i class="fa-solid fa-floppy-disk"></i> Salvar Estrutura Pública</button>
+                            <button class="btn-submit btn-pequeno" onclick="salvarMenus(this, 'containerPortal', 'menus')"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
                         </div>
                     </div>
                     <div class="panel-body" style="background: #f8fafc;">
-                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
-                            Estrutura principal do site externo (TJP, CSJ, Diário Oficial, etc.). Totalmente editável.
-                        </p>
-                        <div id="containerPortal">
-                            <div style="text-align: center; color: var(--text-muted); padding: 30px;">Carregando estrutura...</div>
-                        </div>
+                        <div id="containerPortal"><div style="text-align: center; color: var(--text-muted); padding: 30px;">Carregando estrutura...</div></div>
                     </div>
                 </div>
 
@@ -125,35 +100,25 @@
                         <h3><i class="fa-solid fa-sitemap"></i> Construtor de Menu Lateral (Intranet)</h3>
                         <div style="display: flex; gap: 10px;">
                             <button class="btn-outline btn-pequeno" onclick="adicionarCategoria('containerIntranet')"><i class="fa-solid fa-folder-plus"></i> Adicionar Categoria</button>
-                            <button class="btn-submit btn-pequeno" onclick="salvarMenus('containerIntranet', 'menus_lateral')"><i class="fa-solid fa-floppy-disk"></i> Salvar Estrutura Intranet</button>
+                            <button class="btn-submit btn-pequeno" onclick="salvarMenus(this, 'containerIntranet', 'menus_lateral')"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
                         </div>
                     </div>
                     <div class="panel-body" style="background: #f8fafc;">
-                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
-                            Blocos do menu lateral direito dentro da Intranet. Suporta links diretos e sanfonas (submenus).
-                        </p>
-                        <div id="containerIntranet">
-                            <div style="text-align: center; color: var(--text-muted); padding: 30px;">Carregando estrutura...</div>
-                        </div>
+                        <div id="containerIntranet"><div style="text-align: center; color: var(--text-muted); padding: 30px;">Carregando estrutura...</div></div>
                     </div>
                 </div>
-
             </div>
         </main>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, getDocs, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
         const sessionData = localStorage.getItem("juspanel_session");
         if (!sessionData) { window.location.href = "/login.html"; } 
         else {
             const user = JSON.parse(sessionData);
-            if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
-                alert("Acesso Negado. Área restrita.");
-                window.location.href = "/login.html";
-            }
             document.getElementById("userNickDisplay").innerText = user.nick;
             document.getElementById("userCargoDisplay").innerText = user.cargo;
             document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
@@ -182,79 +147,165 @@
         };
         window.delBanner = async (i) => { bannersArr.splice(i, 1); await setDoc(doc(db, "tjp_config", "banners"), { lista: bannersArr }); showToast("Removido!"); };
 
-        // CONSTRUTOR GENÉRICO DE MENUS
+
+        // LÓGICA DE CONSTRUTOR DE MENUS
+        window.docsList = []; window.canvasList = [];
+
+        function getTipoByUrl(url) {
+            if(!url || url === "#") return 'url';
+            if(url.startsWith('/documento/')) return 'doc';
+            if(url.startsWith('/canvas/')) return 'canvas';
+            if(url === '/bancada.html') return 'bancada';
+            if(url === '/csj.html') return 'csj';
+            return 'url';
+        }
+
+        window.mudarTipoLink = function(selectEl, selectedUrl = "", inputClass = "cat-url") {
+            const val = selectEl.value;
+            const container = selectEl.parentElement.nextElementSibling.querySelector('.link-input-container');
+            
+            if (val === 'doc') {
+                let options = `<option value="">-- Selecione o Documento --</option>`;
+                window.docsList.forEach(d => {
+                    let url = `/documento/${d.id}`;
+                    let sel = (url === selectedUrl) ? 'selected' : '';
+                    options += `<option value="${url}" ${sel}>${d.titulo}</option>`;
+                });
+                container.innerHTML = `<select class="${inputClass}" style="margin:0; font-size:12px; padding:6px; width:100%; border:1px solid #cbd5e1; border-radius:4px;">${options}</select>`;
+            } else if (val === 'canvas') {
+                let options = `<option value="">-- Selecione o Canvas --</option>`;
+                window.canvasList.forEach(c => {
+                    let url = `/canvas/${c.id}`;
+                    let sel = (url === selectedUrl) ? 'selected' : '';
+                    options += `<option value="${url}" ${sel}>${c.titulo}</option>`;
+                });
+                container.innerHTML = `<select class="${inputClass}" style="margin:0; font-size:12px; padding:6px; width:100%; border:1px solid #cbd5e1; border-radius:4px;">${options}</select>`;
+            } else if (val === 'bancada') {
+                container.innerHTML = `<input type="text" class="${inputClass}" value="/bancada.html" readonly style="margin:0; font-size:12px; padding:6px; background:#e2e8f0; width:100%; border:1px solid #cbd5e1; border-radius:4px;">`;
+            } else if (val === 'csj') {
+                container.innerHTML = `<input type="text" class="${inputClass}" value="/csj.html" readonly style="margin:0; font-size:12px; padding:6px; background:#e2e8f0; width:100%; border:1px solid #cbd5e1; border-radius:4px;">`;
+            } else {
+                container.innerHTML = `<input type="text" class="${inputClass}" placeholder="https://... ou #" value="${selectedUrl}" style="margin:0; font-size:12px; padding:6px; width:100%; border:1px solid #cbd5e1; border-radius:4px;">`;
+            }
+        }
+
         window.removerBloco = function(btnElement) { btnElement.closest('.rm-block').remove(); }
 
-        window.adicionarCategoria = function(containerId, nome = "", prioridade = 0) {
+        window.adicionarCategoria = function(containerId, nome = "", url = "#", prioridade = 0) {
+            const tipo = getTipoByUrl(url);
             const html = `
                 <div class="builder-cat rm-block cat-box">
                     <div class="builder-cat-header">
-                        <input type="text" class="cat-nome" placeholder="Nome da Categoria (Ex: O TJP)" value="${nome}" style="flex: 2; margin: 0; font-weight: bold;">
-                        <input type="number" class="cat-pri" placeholder="Ordem" value="${prioridade}" style="flex: 1; margin: 0;">
-                        <button class="btn-del-mini" onclick="window.removerBloco(this)" title="Apagar Categoria"><i class="fa-solid fa-trash"></i></button>
+                        <div style="flex: 2;"><label style="font-size:11px; font-weight:600;">Título da Categoria</label><input type="text" class="cat-nome" placeholder="Ex: O TJP" value="${nome}" style="margin:0; font-weight: bold;"></div>
+                        <div style="flex: 1;">
+                            <label style="font-size:11px; font-weight:600;">Direcionamento</label>
+                            <select class="cat-tipo" onchange="window.mudarTipoLink(this, '', 'cat-url')" style="margin:0; font-size:12px; padding:6px; width:100%;">
+                                <option value="url" ${tipo==='url'?'selected':''}>Livre / Vazio (#)</option>
+                                <option value="doc" ${tipo==='doc'?'selected':''}>Documento</option>
+                                <option value="canvas" ${tipo==='canvas'?'selected':''}>Canvas</option>
+                                <option value="bancada" ${tipo==='bancada'?'selected':''}>Bancada</option>
+                                <option value="csj" ${tipo==='csj'?'selected':''}>CSJ</option>
+                            </select>
+                        </div>
+                        <div style="flex: 2;">
+                            <label style="font-size:11px; font-weight:600;">Destino da Categoria</label>
+                            <div class="link-input-container"></div>
+                        </div>
+                        <div style="flex: 0.5;"><label style="font-size:11px; font-weight:600;">Ordem</label><input type="number" class="cat-pri" value="${prioridade}" style="margin:0;"></div>
+                        <button class="btn-del-mini" onclick="window.removerBloco(this)" title="Apagar"><i class="fa-solid fa-trash"></i></button>
                     </div>
                     <div class="builder-cat-body">
                         <div class="links-container"></div>
-                        <button class="btn-add-mini" onclick="window.adicionarLink(this)" style="margin-top: 10px;"><i class="fa-solid fa-link"></i> Adicionar Link Principal</button>
+                        <button class="btn-add-mini" onclick="window.adicionarLink(this)" style="margin-top: 10px;"><i class="fa-solid fa-link"></i> Adicionar Sub-link</button>
                     </div>
                 </div>
             `;
             document.getElementById(containerId).insertAdjacentHTML('beforeend', html);
-            return document.getElementById(containerId).lastElementChild.querySelector('.btn-add-mini');
+            const newCatBox = document.getElementById(containerId).lastElementChild;
+            window.mudarTipoLink(newCatBox.querySelector('.cat-tipo'), url, 'cat-url');
+            return newCatBox.querySelector('.btn-add-mini');
         }
 
         window.adicionarLink = function(btnElement, nome = "", icone = "fa-solid fa-link", url = "") {
             const catBody = btnElement.previousElementSibling; 
+            const tipo = getTipoByUrl(url);
             const html = `
                 <div class="builder-link rm-block link-box">
                     <div class="builder-link-header">
-                        <div style="flex: 1;"><label style="font-size:11px; font-weight:600;">Ícone</label><input type="text" class="link-icone" placeholder="fa-solid fa-book" value="${icone}" style="margin:0;"></div>
-                        <div style="flex: 2;"><label style="font-size:11px; font-weight:600;">Nome do Link</label><input type="text" class="link-nome" placeholder="Ex: Regimento" value="${nome}" style="margin:0;"></div>
-                        <div style="flex: 2;"><label style="font-size:11px; font-weight:600;">URL / Destino</label><input type="text" class="link-url" placeholder="https://..." value="${url}" style="margin:0;"></div>
+                        <div style="flex: 1;"><label style="font-size:11px; font-weight:600;">Ícone</label><input type="text" class="link-icone" value="${icone}" style="margin:0;"></div>
+                        <div style="flex: 2;"><label style="font-size:11px; font-weight:600;">Nome</label><input type="text" class="link-nome" value="${nome}" style="margin:0;"></div>
+                        <div style="flex: 1;">
+                            <label style="font-size:11px; font-weight:600;">Tipo</label>
+                            <select class="link-tipo" onchange="window.mudarTipoLink(this, '', 'link-url')" style="margin:0; font-size:12px; padding:6px; width:100%;">
+                                <option value="url" ${tipo==='url'?'selected':''}>Livre / Vazio (#)</option>
+                                <option value="doc" ${tipo==='doc'?'selected':''}>Documento</option>
+                                <option value="canvas" ${tipo==='canvas'?'selected':''}>Canvas</option>
+                                <option value="bancada" ${tipo==='bancada'?'selected':''}>Bancada</option>
+                                <option value="csj" ${tipo==='csj'?'selected':''}>CSJ</option>
+                            </select>
+                        </div>
+                        <div style="flex: 2;">
+                            <label style="font-size:11px; font-weight:600;">Destino</label>
+                            <div class="link-input-container"></div>
+                        </div>
                         <button class="btn-del-mini" onclick="window.removerBloco(this)"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                     <div class="subs-container"></div>
-                    <button class="btn-add-mini" onclick="window.adicionarSubmenu(this)" style="background: #0284c7; margin-top: 5px;"><i class="fa-solid fa-sitemap"></i> + Submenu</button>
+                    <button class="btn-add-mini" onclick="window.adicionarSubmenu(this)" style="background: #0284c7; margin-top: 5px;"><i class="fa-solid fa-sitemap"></i> + Submenu Interno</button>
                 </div>
             `;
             catBody.insertAdjacentHTML('beforeend', html);
-            return catBody.lastElementChild.querySelector('.btn-add-mini');
+            const newLinkBox = catBody.lastElementChild;
+            window.mudarTipoLink(newLinkBox.querySelector('.link-tipo'), url, 'link-url');
+            return newLinkBox.querySelector('.btn-add-mini');
         }
 
         window.adicionarSubmenu = function(btnElement, nome = "", icone = "fa-solid fa-circle-notch", url = "") {
             const subBody = btnElement.previousElementSibling; 
+            const tipo = getTipoByUrl(url);
             const html = `
                 <div class="builder-sub rm-block sub-box">
                     <div style="flex: 1;"><label style="font-size:10px; font-weight:600; color:var(--text-muted);">Ícone</label><input type="text" class="sub-icone" value="${icone}" style="margin:0; font-size:12px; padding:6px;"></div>
-                    <div style="flex: 2;"><label style="font-size:10px; font-weight:600; color:var(--text-muted);">Nome</label><input type="text" class="sub-nome" placeholder="Sub-item" value="${nome}" style="margin:0; font-size:12px; padding:6px;"></div>
-                    <div style="flex: 2;"><label style="font-size:10px; font-weight:600; color:var(--text-muted);">URL</label><input type="text" class="sub-url" placeholder="URL" value="${url}" style="margin:0; font-size:12px; padding:6px;"></div>
+                    <div style="flex: 2;"><label style="font-size:10px; font-weight:600; color:var(--text-muted);">Nome</label><input type="text" class="sub-nome" value="${nome}" style="margin:0; font-size:12px; padding:6px;"></div>
+                    <div style="flex: 1;">
+                        <label style="font-size:10px; font-weight:600; color:var(--text-muted);">Tipo</label>
+                        <select class="sub-tipo" onchange="window.mudarTipoLink(this, '', 'sub-url')" style="margin:0; font-size:12px; padding:6px; width:100%;">
+                            <option value="url" ${tipo==='url'?'selected':''}>Livre / Vazio (#)</option>
+                            <option value="doc" ${tipo==='doc'?'selected':''}>Documento</option>
+                            <option value="canvas" ${tipo==='canvas'?'selected':''}>Canvas</option>
+                            <option value="bancada" ${tipo==='bancada'?'selected':''}>Bancada</option>
+                            <option value="csj" ${tipo==='csj'?'selected':''}>CSJ</option>
+                        </select>
+                    </div>
+                    <div style="flex: 2;">
+                        <label style="font-size:10px; font-weight:600; color:var(--text-muted);">Destino</label>
+                        <div class="link-input-container"></div>
+                    </div>
                     <button class="btn-del-mini" onclick="window.removerBloco(this)" style="height:32px; padding: 4px 10px;"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             `;
             subBody.insertAdjacentHTML('beforeend', html);
+            const newSubBox = subBody.lastElementChild;
+            window.mudarTipoLink(newSubBox.querySelector('.sub-tipo'), url, 'sub-url');
         }
 
-        // INIT DADOS
-        async function initMenuData(containerId, docName, defaultDataArray) {
+        async function initMenuData(containerId, docName) {
             const docRef = doc(db, "tjp_config", docName);
             const snap = await getDoc(docRef);
             document.getElementById(containerId).innerHTML = "";
 
             let dados = [];
-            if(!snap.exists() || !snap.data().lista || snap.data().lista.length === 0) {
-                dados = defaultDataArray; // Carrega os originais caso não exista
-            } else {
-                dados = snap.data().lista;
-            }
+            if(snap.exists() && snap.data().lista) { dados = snap.data().lista; } 
+            else { document.getElementById(containerId).innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 30px;">Banco vazio.</div>`; return; }
 
-            dados.sort((a,b) => a.prioridade - b.prioridade).forEach(cat => {
-                const btnAddLink = window.adicionarCategoria(containerId, cat.nome, cat.prioridade);
-                if(cat.links) {
-                    cat.links.forEach(link => {
-                        const btnAddSub = window.adicionarLink(btnAddLink, link.nome, link.icone, link.url);
-                        if(link.submenus) {
-                            link.submenus.forEach(sub => {
-                                window.adicionarSubmenu(btnAddSub, sub.nome, sub.icone, sub.url);
+            dados.sort((a,b) => (a.prioridade || 0) - (b.prioridade || 0)).forEach(cat => {
+                const btnAddLink = window.adicionarCategoria(containerId, cat.nome, cat.link || "#", cat.prioridade || 0);
+                if(cat.sub && cat.sub.length > 0) {
+                    cat.sub.forEach(link => {
+                        const btnAddSub = window.adicionarLink(btnAddLink, link.nome, link.icone || "fa-solid fa-link", link.link || "");
+                        if(link.sub && link.sub.length > 0) {
+                            link.sub.forEach(sub => {
+                                window.adicionarSubmenu(btnAddSub, sub.nome, sub.icone || "fa-solid fa-circle-notch", sub.link || "");
                             });
                         }
                     });
@@ -262,62 +313,48 @@
             });
         }
 
-        // DADOS PADRÕES (Caso banco esteja vazio)
-        const defaultPortal = [
-            { nome: "O TJP", prioridade: 1, links: [
-                { nome: "Institucional", icone: "fa-solid fa-building-columns", url: "", submenus: [
-                    { nome: "Regimento Interno", icone: "fa-solid fa-book", url: "/documento.html?id=regimento" },
-                    { nome: "Código de Processo Militar", icone: "fa-solid fa-scale-balanced", url: "/documento.html?id=cpm" }
-                ]},
-                { nome: "História do TJP", icone: "fa-solid fa-clock-rotate-left", url: "#", submenus: [] },
-                { nome: "Bancada do TJP", icone: "fa-solid fa-users-viewfinder", url: "#", submenus: [] }
-            ]},
-            { nome: "CSJ", prioridade: 2, links: [ { nome: "Gabinete dos Ministros", icone: "fa-solid fa-gavel", url: "#", submenus: [] } ]},
-            { nome: "Diário Oficial", prioridade: 3, links: [
-                { nome: "DOJUP - Publicações", icone: "fa-solid fa-file-contract", url: "/diario-oficial.html", submenus: [] },
-                { nome: "Decretos", icone: "fa-solid fa-file-signature", url: "#", submenus: [] }
-            ]},
-            { nome: "Legislações", prioridade: 4, links: [
-                { nome: "Regulamento Disciplinar", icone: "fa-solid fa-book-open", url: "#", submenus: [] }
-            ]}
-        ];
+        async function carregarDadosCompletos() {
+            try {
+                const snapDocs = await getDocs(collection(db, "tjp_documentos"));
+                snapDocs.forEach(d => window.docsList.push({id: d.id, titulo: d.data().titulo}));
+                
+                const snapCanvas = await getDocs(collection(db, "tjp_canvas"));
+                snapCanvas.forEach(c => window.canvasList.push({id: c.id, titulo: c.data().titulo}));
+            } catch(e) { console.error("Erro banco: ", e); }
 
-        const defaultIntranet = [
-            { nome: "Menu Rápido", prioridade: 1, links: [
-                { nome: "Início", icone: "fa-solid fa-house", url: "/intranet/index.html", submenus: [] },
-                { nome: "Sistema Processual", icone: "fa-solid fa-scale-balanced", url: "/intranet/processos", submenus: [] }
-            ]}
-        ];
+            initMenuData('containerPortal', 'menus');
+            initMenuData('containerIntranet', 'menus_lateral');
+        }
+        carregarDadosCompletos();
 
-        // Executa ao carregar
-        initMenuData('containerPortal', 'menus_portal', defaultPortal);
-        initMenuData('containerIntranet', 'menus_lateral', defaultIntranet);
-
-        // SALVAR
-        window.salvarMenus = async function(containerId, docName) {
+        window.salvarMenus = async function(btnContext, containerId, docName) {
             const container = document.getElementById(containerId);
             let estruturaFinal = [];
 
             container.querySelectorAll('.cat-box').forEach(catEl => {
                 let nomeCat = catEl.querySelector('.cat-nome').value.trim();
                 let priCat = parseInt(catEl.querySelector('.cat-pri').value) || 0;
+                let urlCatEl = catEl.querySelector('.cat-url');
+                let urlCat = urlCatEl && urlCatEl.value ? urlCatEl.value.trim() : "#";
                 
                 if(nomeCat) {
-                    let objCat = { nome: nomeCat, prioridade: priCat, links: [] };
+                    let objCat = { nome: nomeCat, prioridade: priCat, link: urlCat, sub: [] };
                     catEl.querySelectorAll('.link-box').forEach(linkEl => {
                         let nomeLink = linkEl.querySelector('.link-nome').value.trim();
                         let iconeLink = linkEl.querySelector('.link-icone').value.trim();
-                        let urlLink = linkEl.querySelector('.link-url').value.trim();
+                        let urlElement = linkEl.querySelector('.link-url');
+                        let urlLink = urlElement && urlElement.value ? urlElement.value.trim() : "#";
                         
                         if(nomeLink) {
-                            let objLink = { nome: nomeLink, icone: iconeLink, url: urlLink, submenus: [] };
+                            let objLink = { nome: nomeLink, icone: iconeLink, link: urlLink, sub: [] };
                             linkEl.querySelectorAll('.sub-box').forEach(subEl => {
                                 let nomeSub = subEl.querySelector('.sub-nome').value.trim();
                                 let iconeSub = subEl.querySelector('.sub-icone').value.trim();
-                                let urlSub = subEl.querySelector('.sub-url').value.trim();
-                                if(nomeSub) objLink.submenus.push({ nome: nomeSub, icone: iconeSub, url: urlSub });
+                                let urlSubElement = subEl.querySelector('.sub-url');
+                                let urlSub = urlSubElement && urlSubElement.value ? urlSubElement.value.trim() : "#";
+                                if(nomeSub) objLink.sub.push({ nome: nomeSub, icone: iconeSub, link: urlSub });
                             });
-                            objCat.links.push(objLink);
+                            objCat.sub.push(objLink);
                         }
                     });
                     estruturaFinal.push(objCat);
@@ -325,8 +362,11 @@
             });
 
             try {
+                const oldText = btnContext.innerHTML;
+                btnContext.innerHTML = "Salvando..."; btnContext.disabled = true;
                 await setDoc(doc(db, "tjp_config", docName), { lista: estruturaFinal });
                 window.showToast("Estrutura atualizada com sucesso!");
+                btnContext.innerHTML = oldText; btnContext.disabled = false;
             } catch(e) { alert("Erro ao salvar: " + e.message); }
         }
     </script>

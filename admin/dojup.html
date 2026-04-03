@@ -3,287 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diário Oficial - JusPanel</title>
+    <title>Gestor DOJUP - JusPanel</title>
     <link rel="icon" href="/assets/img/logo-tjp.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="/assets/css/style.css">
+    
+    <script src="https://cdn.ckeditor.com/4.22.1/full-all/ckeditor.js"></script>
+
+    <style>
+        .dojup-card-admin {
+            background: #fff; border: 1px solid var(--stroke); border-radius: 8px; padding: 20px;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+            transition: 0.2s;
+        }
+        .dojup-card-admin:hover { border-color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .badge-dojup {
+            background: #e2e8f0; color: #475569; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+        }
+        #btnCarregarMais {
+            display: block; width: 100%; max-width: 300px; margin: 20px auto; padding: 12px;
+            background: #fff; border: 1px solid var(--stroke); border-radius: 6px;
+            font-weight: 700; color: var(--primary); cursor: pointer; transition: 0.2s; text-align: center;
+        }
+        #btnCarregarMais:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+    </style>
 </head>
 <body class="admin-body">
 
-    <div id="toast" class="toast">
-        <i class="fa-solid fa-circle-check"></i> <span id="toastMessage">Sucesso!</span>
-    </div>
+    <div id="toast" class="toast"><i class="fa-solid fa-circle-check"></i> <span id="toastMessage">Sucesso!</span></div>
 
     <div class="admin-layout">
         <aside class="admin-sidebar">
             <div class="admin-brand">
                 <img src="/assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
-                <div>
-                    <h2>JusPanel</h2>
-                    <span>Administração Geral</span>
-                </div>
+                <div><h2>JusPanel</h2><span>Administração Geral</span></div>
             </div>
-
             <nav class="admin-nav">
                 <span class="nav-label">Principal</span>
-                <a href="/admin"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
-                
+                <a href="/admin/index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
                 <span class="nav-label">Portal Público</span>
-                <a href="/admin/publicacoes"><i class="fa-solid fa-newspaper"></i> Publicações</a>
-                <a href="/admin/dojup" class="active"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
-                <a href="/admin/aparencia"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
-                
-                <span class="nav-label">Intranet & Sistemas</span>
-                <a href="/admin/membros"><i class="fa-solid fa-users-gear"></i> Controle da Bancada do TJP</a>
-                <a href="/admin/comunicacao"><i class="fa-solid fa-tower-broadcast"></i> Comunicação Interna</a>
-                <a href="/admin/configuracoes"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
+                <a href="/admin/publicacoes.html"><i class="fa-solid fa-newspaper"></i> Publicações</a>
+                <a href="/admin/dojup.html" class="active"><i class="fa-solid fa-file-contract"></i> Publicar no DOJUP</a>
+                <a href="/admin/configuracoes.html"><i class="fa-solid fa-sliders"></i> Configurações</a>
             </nav>
         </aside>
 
         <main class="admin-main">
             <header class="admin-header">
-                <div class="header-search">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" placeholder="Buscar no painel...">
-                </div>
-                
                 <div class="header-user">
-                    <div class="user-info">
-                        <strong id="userNickDisplay">Carregando...</strong>
-                        <span id="userCargoDisplay">Aguarde...</span>
-                    </div>
-                    <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
-                    <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
-                        <a href="/intranet/" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
-                        <a href="/" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
-                        <a href="#" onclick="logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
-                    </div>
+                    <div class="user-info"><strong id="userNickDisplay">...</strong><span id="userCargoDisplay">...</span></div>
+                    <img src="" id="userAvatarDisplay" class="user-avatar">
                 </div>
             </header>
 
             <div class="admin-content">
                 <div class="content-header">
                     <div>
-                        <h1>Diário Oficial (DOJUP)</h1>
-                        <p>Gerenciador do Diário Oficial do TJP.</p>
+                        <h1>Gestor do Diário Oficial</h1>
+                        <p>Apenas publique documentos específicos do TJP aqui. Portarias e Decretos vêm do System DIC.</p>
                     </div>
-                    <div class="header-actions">
-                        <button class="btn-solid" onclick="abrirModalNova()"><i class="fa-solid fa-plus"></i> Novo Documento</button>
-                    </div>
+                    <button class="btn-solid" onclick="abrirModalPublicar()"><i class="fa-solid fa-plus"></i> Nova Publicação</button>
                 </div>
 
-                <div class="panel-section">
-                    <div class="panel-header">
-                        <h3>Documentos Lançados</h3>
-                    </div>
-                    <div class="panel-body p-0">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Edição / ID</th>
-                                    <th>Título do Ato</th>
-                                    <th>Tipo</th>
-                                    <th>Data</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabelaDocumentos">
-                                <tr><td colspan="5" style="text-align:center;">Carregando banco de dados...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <div id="listaPublicacoes"></div>
+                <button id="btnCarregarMais" style="display:none;" onclick="carregarMaisDojup()">Carregar Publicações Antigas</button>
             </div>
         </main>
     </div>
 
-    <div id="modalDoc" class="modal">
-        <div class="modal-content">
+    <div id="modalPublicar" class="modal" style="z-index: 10000;">
+        <div class="modal-content large" style="max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
-                <h2 id="modalTitle"><i class="fa-solid fa-file-circle-plus"></i> Lançar Documento</h2>
-                <span class="close-modal" id="fecharModal">&times;</span>
+                <h2 id="modalTitle"><i class="fa-solid fa-pen"></i> Editar Publicação</h2>
+                <span class="close-modal" onclick="document.getElementById('modalPublicar').classList.remove('active')">&times;</span>
             </div>
-            <form id="formDoc">
-                <div class="form-group">
-                    <label>Título do Documento</label>
-                    <input type="text" id="docTitulo" required placeholder="Ex: Portaria Presidencial nº 12/2026">
+            <form id="formDojup">
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label>Categoria (Documento do TJP)</label>
+                        <select id="dojupCategoria" required>
+                            <option value="Edital">Edital</option>
+                            <option value="Ofício Circular">Ofício Circular</option>
+                            <option value="Resolução">Resolução</option>
+                            <option value="Ato Administrativo">Ato Administrativo</option>
+                            <option value="Convocação">Convocação / Intimação</option>
+                            <option value="Outros">Outros Documentos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Órgão Emissor</label>
+                        <input type="text" id="dojupOrgao" required placeholder="Ex: Tribunal de Justiça Policial">
+                    </div>
+                    <div class="form-group">
+                        <label>Data Retroativa (Opcional)</label>
+                        <input type="date" id="dojupData">
+                    </div>
                 </div>
+                
                 <div class="form-group">
-                    <label>Categoria / Tipo</label>
-                    <select id="docTipo" required>
-                        <option value="Decreto">Decreto</option>
-                        <option value="Portaria">Portaria</option>
-                        <option value="Relatório de Transparência">Relatório de Transparência</option>
-                        <option value="Pauta">Pauta de Julgamento</option>
-                    </select>
+                    <label>Título da Publicação</label>
+                    <input type="text" id="dojupTitulo" required placeholder="Ex: EDITAL DE CONVOCAÇÃO Nº 01/2026">
                 </div>
+                
                 <div class="form-group">
-                    <label>Resumo Breve do Ato</label>
-                    <textarea id="docResumo" required placeholder="Ex: Nomeação de novos membros para a bancada..."></textarea>
+                    <label>Ementa / Resumo</label>
+                    <textarea id="dojupEmenta" rows="2" placeholder="Ex: Dispõe sobre a abertura de vagas para o curso de Promotores..."></textarea>
                 </div>
+                
                 <div class="form-group">
-                    <label>Link do PDF / Documento Oficial</label>
-                    <input type="url" id="docLink" required placeholder="https://...">
+                    <label>Conteúdo Completo do Ato</label>
+                    <textarea id="dojupConteudo" name="dojupConteudo"></textarea>
                 </div>
-                <button type="submit" class="btn-submit" id="btnSalvarDoc" style="margin-top: 15px;"><i class="fa-solid fa-cloud-arrow-up"></i> Publicar no DOJUP</button>
+                
+                <button type="submit" class="btn-submit" id="btnSalvarDojup" style="margin-top: 15px;"><i class="fa-solid fa-cloud-arrow-up"></i> Salvar Documento</button>
             </form>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, updateDoc, getDocs, query, orderBy, limit, startAfter, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-        // VERIFICAÇÃO DE SESSÃO
-        const sessionData = localStorage.getItem("juspanel_session");
-        if (!sessionData) {
-            window.location.href = "/login";
-        } else {
-            const user = JSON.parse(sessionData);
-            
-            if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
-                alert("Acesso Negado. Área restrita.");
-                window.location.href = "/login";
-            }
-
-            document.getElementById("userNickDisplay").innerText = user.nick;
-            document.getElementById("userCargoDisplay").innerText = user.cargo;
-            document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
-        }
-
-        window.logoutUser = function() {
-            localStorage.removeItem("juspanel_session");
-            window.location.href = "/login";
-        };
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs",
-            authDomain: "monitores-sisap.firebaseapp.com",
-            projectId: "monitores-sisap",
-            storageBucket: "monitores-sisap.firebasestorage.app",
-            messagingSenderId: "489679893157",
-            appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c"
-        };
-        const app = initializeApp(firebaseConfig);
+        const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
         const db = getFirestore(app);
 
-        const modal = document.getElementById("modalDoc");
-        const formDoc = document.getElementById("formDoc");
-        const tabelaDocs = document.getElementById("tabelaDocumentos");
-        let editIdAtivo = null;
-        window.docsAdmin = {};
+        CKEDITOR.replace('dojupConteudo', {
+            versionCheck: false, height: 350, allowedContent: true, pasteFilter: null, 
+            extraPlugins: 'colorbutton,font,justify,image2,table', removeButtons: 'Save,ExportPdf,Preview,Print',
+            removeDialogTabs: 'image:Upload'
+        });
 
-        window.showToast = function(msg) {
+        // Função de Alerta Visual (Toast)
+        window.showToast = (mensagem) => {
             const toast = document.getElementById("toast");
-            document.getElementById("toastMessage").innerText = msg;
-            toast.classList.add("show");
-            setTimeout(() => { toast.classList.remove("show"); }, 4000);
+            document.getElementById("toastMessage").innerText = mensagem;
+            toast.classList.add("active");
+            setTimeout(() => {
+                toast.classList.remove("active");
+            }, 3000);
         };
-        document.getElementById("fecharModal").onclick = () => modal.classList.remove("active");
 
-        window.abrirModalNova = function() {
+        let editIdAtivo = null;
+        window.publicacoesMemoria = {};
+        
+        let ultimoDocumentoAdmin = null;
+        const itensPorPaginaAdmin = 20;
+
+        const sessionData = JSON.parse(localStorage.getItem("juspanel_session"));
+        document.getElementById("userNickDisplay").innerText = sessionData.nick;
+        document.getElementById("userCargoDisplay").innerText = sessionData.cargo;
+        document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${sessionData.nick}&size=m`;
+
+        window.abrirModalPublicar = () => {
             editIdAtivo = null;
-            document.getElementById("modalTitle").innerHTML = `<i class="fa-solid fa-file-circle-plus"></i> Lançar Documento`;
-            document.getElementById("btnSalvarDoc").innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Publicar no DOJUP`;
-            formDoc.reset();
-            modal.classList.add("active");
+            document.getElementById("formDojup").reset();
+            document.getElementById("modalTitle").innerHTML = `<i class="fa-solid fa-file-circle-plus"></i> Nova Publicação`;
+            CKEDITOR.instances['dojupConteudo'].setData('');
+            document.getElementById("dojupData").valueAsDate = new Date();
+            document.getElementById("modalPublicar").classList.add("active");
         };
 
-        window.abrirModalEditar = function(id) {
-            const data = window.docsAdmin[id];
+        window.editarDojup = (id) => {
+            const data = window.publicacoesMemoria[id];
             if(!data) return;
             editIdAtivo = id;
-            document.getElementById("modalTitle").innerHTML = `<i class="fa-solid fa-pen"></i> Editando Documento #${id}`;
-            document.getElementById("btnSalvarDoc").innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações`;
-            document.getElementById("docTitulo").value = data.titulo;
-            document.getElementById("docTipo").value = data.tipo;
-            document.getElementById("docResumo").value = data.resumo;
-            document.getElementById("docLink").value = data.link_pdf;
-            modal.classList.add("active");
+            document.getElementById("modalTitle").innerHTML = `<i class="fa-solid fa-pen"></i> Editando Publicação`;
+            
+            // Tratamento caso a categoria original não exista mais no select do HTML
+            const selCategoria = document.getElementById("dojupCategoria");
+            let optionExists = Array.from(selCategoria.options).some(opt => opt.value === data.categoria);
+            if(!optionExists) {
+                selCategoria.add(new Option(data.categoria, data.categoria));
+            }
+
+            selCategoria.value = data.categoria;
+            document.getElementById("dojupOrgao").value = data.orgao;
+            document.getElementById("dojupTitulo").value = data.titulo;
+            document.getElementById("dojupEmenta").value = data.ementa || "";
+            
+            if(data.dataIso) {
+                document.getElementById("dojupData").value = data.dataIso;
+            }
+            
+            CKEDITOR.instances['dojupConteudo'].setData(data.conteudo);
+            document.getElementById("modalPublicar").classList.add("active");
         };
 
-        window.deletarDoc = async function(id) {
-            if(confirm("Tem certeza que deseja apagar o documento #" + id + "?")) {
-                await deleteDoc(doc(db, "tjp_dojup", String(id)));
-                window.showToast("Documento deletado!");
+        window.deletarDojup = async (id) => {
+            if(confirm("Apagar permanentemente esta publicação do Diário Oficial?")) {
+                await deleteDoc(doc(db, "tjp_dojup_publicacoes", id));
+                const cardElement = document.getElementById('card-' + id);
+                if(cardElement) cardElement.remove();
+                window.showToast("Publicação apagada.");
             }
         };
 
-        formDoc.addEventListener("submit", async (e) => {
+        document.getElementById("formDojup").addEventListener("submit", async (e) => {
             e.preventDefault();
-            const btnSalvar = document.getElementById("btnSalvarDoc");
-            btnSalvar.innerText = "Salvando...";
+            const btn = document.getElementById("btnSalvarDojup");
+            btn.disabled = true; btn.innerText = "Salvando...";
+
+            const dataInput = document.getElementById("dojupData").value;
+            const timestampData = dataInput ? new Date(dataInput + 'T12:00:00').getTime() : Date.now();
+
             const dados = {
-                titulo: document.getElementById("docTitulo").value,
-                tipo: document.getElementById("docTipo").value,
-                resumo: document.getElementById("docResumo").value,
-                link_pdf: document.getElementById("docLink").value
+                categoria: document.getElementById("dojupCategoria").value,
+                orgao: document.getElementById("dojupOrgao").value.trim(),
+                titulo: document.getElementById("dojupTitulo").value.trim(),
+                ementa: document.getElementById("dojupEmenta").value.trim(),
+                conteudo: CKEDITOR.instances['dojupConteudo'].getData(),
+                dataIso: dataInput, 
+                timestampDate: timestampData,
+                autor: sessionData.nick
             };
 
             try {
                 if(editIdAtivo) {
-                    await updateDoc(doc(db, "tjp_dojup", String(editIdAtivo)), dados);
-                    window.showToast("Alterações salvas com sucesso!");
+                    dados.dataAtualizacao = serverTimestamp();
+                    await updateDoc(doc(db, "tjp_dojup_publicacoes", editIdAtivo), dados);
+                    window.showToast("Publicação atualizada!");
                 } else {
-                    const qId = query(collection(db, "tjp_dojup"), orderBy("id_doc", "desc"), limit(1));
-                    const snapId = await getDocs(qId);
-                    let novoId = 1;
-                    if (!snapId.empty) {
-                        const ultimo = snapId.docs[0].data();
-                        if (ultimo.id_doc) novoId = ultimo.id_doc + 1;
-                    }
-                    dados.id_doc = novoId;
                     dados.dataCriacao = serverTimestamp();
-                    await setDoc(doc(db, "tjp_dojup", novoId.toString()), dados);
-                    window.showToast("Documento publicado no DOJUP!");
+                    const newId = "dojup_tjp_" + Date.now();
+                    await setDoc(doc(db, "tjp_dojup_publicacoes", newId), dados);
+                    window.showToast("Documento publicado no Diário!");
                 }
-                modal.classList.remove("active");
-            } catch (error) {
-                window.showToast("Erro ao salvar no banco de dados.");
+                document.getElementById("modalPublicar").classList.remove("active");
+                carregarDadosDojup(true);
+            } catch(err) {
+                alert("Erro ao salvar: " + err.message);
             }
-            btnSalvar.innerHTML = editIdAtivo ? `<i class="fa-solid fa-floppy-disk"></i> Salvar Alterações` : `<i class="fa-solid fa-cloud-arrow-up"></i> Publicar no DOJUP`;
+            btn.disabled = false; btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Salvar Documento`;
         });
 
-        const q = query(collection(db, "tjp_dojup"), orderBy("dataCriacao", "desc"));
-        onSnapshot(q, (snapshot) => {
-            tabelaDocs.innerHTML = "";
-            window.docsAdmin = {}; 
-            if(snapshot.empty) {
-                tabelaDocs.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum documento encontrado.</td></tr>`;
+        window.carregarDadosDojup = async (reset = false) => {
+            const list = document.getElementById("listaPublicacoes");
+            const btnMais = document.getElementById("btnCarregarMais");
+
+            if (reset) {
+                list.innerHTML = '<div style="text-align:center; padding: 40px; color: gray;"><i class="fa-solid fa-spinner fa-spin"></i> Carregando registros...</div>';
+                ultimoDocumentoAdmin = null;
+                window.publicacoesMemoria = {};
+            }
+
+            let q = query(collection(db, "tjp_dojup_publicacoes"), orderBy("timestampDate", "desc"), limit(itensPorPaginaAdmin));
+            
+            if (ultimoDocumentoAdmin && !reset) {
+                q = query(collection(db, "tjp_dojup_publicacoes"), orderBy("timestampDate", "desc"), startAfter(ultimoDocumentoAdmin), limit(itensPorPaginaAdmin));
+            }
+
+            const snapshot = await getDocs(q);
+
+            if (reset) list.innerHTML = "";
+
+            if (snapshot.empty && reset) {
+                list.innerHTML = `<div style="text-align:center; padding: 40px; color: gray;">Nenhuma publicação registrada.</div>`;
+                btnMais.style.display = "none";
                 return;
             }
-            snapshot.forEach((docSnap) => {
-                const data = docSnap.data();
-                const id = docSnap.id;
-                window.docsAdmin[id] = data;
-                let dataFormatada = "Agora";
-                if(data.dataCriacao) dataFormatada = data.dataCriacao.toDate().toLocaleDateString('pt-BR');
-                
-                let corBadge = "var(--text-main)";
-                if(data.tipo === "Decreto") corBadge = "#0284c7";
-                if(data.tipo === "Portaria") corBadge = "#f59e0b";
-                if(data.tipo === "Relatório de Transparência") corBadge = "var(--accent)";
 
-                tabelaDocs.innerHTML += `
-                    <tr>
-                        <td><strong>#${id}</strong></td>
-                        <td><strong>${data.titulo}</strong></td>
-                        <td><span style="font-size: 11px; font-weight: 700; color: ${corBadge}; background: rgba(0,0,0,0.05); padding: 4px 8px; border-radius: 4px;">${data.tipo}</span></td>
-                        <td>${dataFormatada}</td>
-                        <td>
-                            <div class="action-btns">
-                                <a href="${data.link_pdf}" target="_blank" class="btn-icon edit" title="Ver Arquivo" style="background:#e0f2fe; color:#0284c7; display:inline-flex; align-items:center; justify-content:center; text-decoration:none;"><i class="fa-solid fa-eye"></i></a>
-                                <button type="button" class="btn-icon edit" onclick="abrirModalEditar('${id}')" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                                <button type="button" class="btn-icon delete" onclick="deletarDoc('${id}')" title="Excluir"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+            snapshot.forEach(d => {
+                const data = d.data();
+                window.publicacoesMemoria[d.id] = data; 
+                
+                let dataFormatada = data.dataIso ? new Date(data.dataIso + 'T12:00:00').toLocaleDateString('pt-BR') : "Data indefinida";
+
+                list.innerHTML += `
+                    <div class="dojup-card-admin" id="card-${d.id}">
+                        <div style="flex:1;">
+                            <span class="badge-dojup">${data.categoria}</span> <span style="font-size:12px; color:gray; margin-left:10px;"><i class="fa-solid fa-calendar"></i> ${dataFormatada}</span>
+                            <h3 style="margin: 8px 0 5px; font-size: 15px; color: var(--text-main);">${data.titulo}</h3>
+                            <p style="margin:0; font-size:12px; color:var(--text-muted);">${data.orgao}</p>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <button type="button" onclick="editarDojup('${d.id}')" class="btn-icon edit"><i class="fa-solid fa-pen"></i></button>
+                            <button type="button" onclick="deletarDojup('${d.id}')" class="btn-icon delete"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>`;
             });
-        });
+
+            ultimoDocumentoAdmin = snapshot.docs[snapshot.docs.length - 1];
+            btnMais.style.display = snapshot.docs.length === itensPorPaginaAdmin ? "block" : "none";
+        };
+
+        window.carregarMaisDojup = () => carregarDadosDojup();
+
+        carregarDadosDojup(true);
+
     </script>
 </body>
 </html>

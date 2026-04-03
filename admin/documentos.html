@@ -12,6 +12,93 @@
     <link rel="stylesheet" href="/assets/css/style.css">
     
     <script src="https://cdn.ckeditor.com/4.22.1/full-all/ckeditor.js"></script>
+
+    <style>
+        .editor-toolbar {
+            display: flex; gap: 8px; flex-wrap: wrap; background: #f8fafc; padding: 10px; 
+            border: 1px solid var(--stroke); border-radius: 6px 6px 0 0; border-bottom: none;
+            align-items: center; justify-content: space-between;
+        }
+        .toolbar-group { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+        .btn-bloco {
+            background: #fff; border: 1px solid var(--stroke); color: var(--text-main);
+            padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; display: flex; align-items: center; gap: 5px;
+        }
+        .btn-bloco:hover { background: #e0f2fe; border-color: #0284c7; color: #0284c7; }
+        
+        .btn-converter {
+            background: #fef08a; border: 1px solid #facc15; color: #854d0e;
+            padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; gap: 5px; transition: all 0.2s;
+        }
+        .btn-converter:hover { background: #fde047; }
+
+        .btn-fonte {
+            background: #dcfce7; border: 1px solid #86efac; color: #166534;
+            padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; gap: 5px; transition: all 0.2s;
+        }
+        .btn-fonte:hover { background: #bbf7d0; }
+
+        .blocos-container {
+            border: 1px solid var(--stroke); background: #f1f5f9; padding: 15px;
+            border-radius: 0 0 6px 6px; min-height: 300px; max-height: 600px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        
+        .bloco-item {
+            background: #fff; border: 1px solid #cbd5e1; border-left: 4px solid var(--primary);
+            border-radius: 4px; display: flex; gap: 10px; padding: 10px; position: relative;
+        }
+        
+        /* Cores dos Blocos */
+        .bloco-item.tipo-titulo { border-left-color: #1e293b; background: #f8fafc; }
+        .bloco-item.tipo-capitulo { border-left-color: #334155; }
+        .bloco-item.tipo-secao { border-left-color: #475569; }
+        .bloco-item.tipo-artigo { border-left-color: #0284c7; }
+        .bloco-item.tipo-paragrafo { border-left-color: #059669; margin-left: 20px; }
+        .bloco-item.tipo-inciso { border-left-color: #d97706; margin-left: 40px; }
+        .bloco-item.tipo-alinea { border-left-color: #7c3aed; margin-left: 60px; }
+        .bloco-item.tipo-livre { border-left-color: #94a3b8; background: #f8fafc; }
+        .bloco-item.tipo-linha { border-left-color: #cbd5e1; background: #e2e8f0; align-items: center; justify-content: center; padding: 5px 10px; }
+        
+        .bloco-item:focus-within { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2); }
+
+        .bloco-label {
+            font-size: 13px; font-weight: 800; color: var(--text-main); white-space: nowrap;
+            min-width: 90px; padding-top: 6px; user-select: none;
+        }
+        
+        .bloco-input {
+            flex: 1; border: none; background: transparent; font-family: inherit; font-size: 14px;
+            color: var(--text-main); min-height: 30px; outline: none; line-height: 1.5;
+            padding-top: 5px; word-break: break-word;
+        }
+        
+        .bloco-input[contenteditable]:empty:before {
+            content: attr(placeholder);
+            color: #94a3b8;
+            pointer-events: none;
+            display: block;
+        }
+
+        .bloco-input img { cursor: pointer; transition: all 0.2s ease; }
+        .bloco-input img:hover { outline: 2px dashed var(--primary); outline-offset: 2px; opacity: 0.9; }
+        
+        .bloco-actions-wrapper { display: flex; gap: 8px; }
+        .bloco-format { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; border-right: 1px solid var(--stroke); padding-right: 8px; }
+        .bloco-controls { display: flex; flex-direction: column; gap: 3px; }
+        
+        .btn-ctrl {
+            background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 3px; width: 26px; height: 26px;
+            display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; color: #64748b;
+        }
+        .btn-ctrl:hover { background: #e2e8f0; color: #0f172a; }
+        .btn-ctrl.del:hover { background: #fee2e2; color: #ef4444; border-color: #fecaca; }
+        
+        .empty-blocos { text-align: center; color: var(--text-muted); font-size: 13px; padding: 40px 0; }
+    </style>
 </head>
 <body class="admin-body">
 
@@ -84,13 +171,14 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Título do Documento</th>
-                                    <th>Permissão de Acesso</th>
+                                    <th>Formato</th>
+                                    <th>Permissão</th>
                                     <th>Status</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="tabelaDocumentos">
-                                <tr><td colspan="5" style="text-align:center;">Carregando banco de dados...</td></tr>
+                                <tr><td colspan="6" style="text-align:center;">Carregando banco de dados...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -138,11 +226,53 @@
                             <option value="Oculto">Oculto (Rascunho)</option>
                         </select>
                     </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Formato do Editor</label>
+                        <select id="docTipoEditor" required onchange="alternarEditor()">
+                            <option value="livre">Texto Livre (Padrão)</option>
+                            <option value="estruturado">Legislação Estruturada (Híbrido)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Cópia do Texto</label>
+                        <select id="docPermitirCopia" required>
+                            <option value="Sim">Permitir (Padrão)</option>
+                            <option value="Nao">Bloquear Cópia</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Conteúdo</label>
+                <div class="form-group" id="wrapper-texto-livre">
+                    <label>Conteúdo (Texto Livre)</label>
                     <textarea id="editor-doc-container" name="conteudo"></textarea>
+                </div>
+
+                <div class="form-group" id="wrapper-estruturado" style="display: none;">
+                    <label>Construtor de Legislação</label>
+                    <div class="editor-toolbar">
+                        <div class="toolbar-group">
+                            <button type="button" class="btn-bloco" onclick="adicionarBloco('titulo')"><i class="fa-solid fa-heading"></i> Título</button>
+                            <button type="button" class="btn-bloco" onclick="adicionarBloco('capitulo')"><i class="fa-solid fa-bookmark"></i> Capítulo</button>
+                            <button type="button" class="btn-bloco" onclick="adicionarBloco('secao')"><i class="fa-solid fa-list-ul"></i> Seção</button>
+                            <button type="button" class="btn-bloco" onclick="adicionarBloco('artigo')" style="background: #e0f2fe; border-color: #0284c7;"><i class="fa-solid fa-paragraph"></i> Artigo</button>
+                            <button type="button" class="btn-bloco" onclick="adicionarBloco('paragrafo')"><i class="fa-solid fa-indent"></i> Parágrafo</button>
+                            <button type="button" class="btn-bloco" onclick="adicionarBloco('inciso')"><i class="fa-solid fa-list-ol"></i> Inciso</button>
+                            <button type="button" class="btn-bloco" onclick="adicionarBloco('alinea')"><i class="fa-solid fa-a"></i> Alínea</button>
+                            
+                            <div style="width: 1px; height: 20px; background: var(--stroke); margin: 0 5px;"></div>
+
+                            <button type="button" class="btn-bloco" onclick="adicionarBloco('linha')" style="background: #f8fafc;"><i class="fa-solid fa-minus"></i> Linha</button>
+                            <button type="button" class="btn-bloco" onclick="adicionarBloco('livre')" style="background: #f1f5f9; border-color: #cbd5e1;"><i class="fa-solid fa-layer-group"></i> Bloco Livre</button>
+                        </div>
+                        <div class="toolbar-group">
+                            <button type="button" class="btn-converter" onclick="converterTextoParaEstruturado('ckeditor')" title="Tentar converter o que estiver no modo Texto Livre"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto</button>
+                            <button type="button" class="btn-fonte" onclick="abrirModalCodigoFonte()"><i class="fa-solid fa-code"></i> Fonte HTML</button>
+                        </div>
+                    </div>
+                    <div class="blocos-container" id="blocosContainer">
+                        <div class="empty-blocos">Adicione blocos acima para começar a estruturar o documento.</div>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 5px; text-align: right;">Dica: <b>Enter</b> cria um novo bloco. <b>Shift+Enter</b> quebra linha. <b>Duplo-clique</b> nas imagens para redimensionar.</div>
                 </div>
 
                 <button type="submit" class="btn-submit" id="btnSalvarDoc" style="margin-top: 15px;"><i class="fa-solid fa-cloud-arrow-up"></i> Salvar Documento</button>
@@ -150,11 +280,23 @@
         </div>
     </div>
 
+    <div id="modalCodigoFonte" class="modal" style="z-index: 10000;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-code"></i> Inserir HTML Fonte</h2>
+                <span class="close-modal" onclick="document.getElementById('modalCodigoFonte').classList.remove('active')">&times;</span>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Cole o código HTML bruto do seu documento. O sistema converterá as tags de quebra de linha (&lt;hr&gt;), imagens, tabelas e parágrafos estruturados automaticamente.</p>
+            <textarea id="rawHtmlInput" style="width: 100%; height: 250px; padding: 10px; border: 1px solid var(--stroke); border-radius: 4px; font-family: monospace; font-size: 12px; resize: vertical;"></textarea>
+            <button type="button" class="btn-submit" style="margin-top: 15px;" onclick="converterTextoParaEstruturado('fonte')">Converter para Blocos</button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-        // SESSÃO
+        // SESSÃO E CARREGAMENTO
         const sessionData = localStorage.getItem("juspanel_session");
         if (!sessionData) { window.location.href = "/login.html"; } 
         else {
@@ -173,107 +315,541 @@
         const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
         const db = getFirestore(app);
 
-        // INICIALIZAÇÃO CKEDITOR 4
         CKEDITOR.replace('editor-doc-container', {
-            versionCheck: false,
-            height: 450,
-            allowedContent: true, 
-            pasteFilter: null, 
-            extraAllowedContent: '*(*)[*]{*}', 
-            removeButtons: 'Save,NewPage,ExportPdf,Preview,Print',
-            extraPlugins: 'colorbutton,font,justify,image2,sourcearea', 
-            removePlugins: 'image', 
-            removeDialogTabs: 'image:Upload'
+            versionCheck: false, height: 450, allowedContent: true, pasteFilter: null, 
+            extraAllowedContent: '*(*)[*]{*}', removeButtons: 'Save,NewPage,ExportPdf,Preview,Print',
+            extraPlugins: 'colorbutton,font,justify,image2,sourcearea', removePlugins: 'image', removeDialogTabs: 'image:Upload'
         });
 
-        // LÓGICA DO CRUD DE DOCUMENTOS
+        // ==========================================
+        // LÓGICA DO EDITOR HÍBRIDO E CONVERSOR
+        // ==========================================
+        window.docBlocos = [];
+        window.lastFocusedBlockIdx = null;
+
+        window.alternarEditor = function() {
+            const tipo = document.getElementById("docTipoEditor").value;
+            if(tipo === "livre") {
+                document.getElementById("wrapper-texto-livre").style.display = "block";
+                document.getElementById("wrapper-estruturado").style.display = "none";
+            } else {
+                document.getElementById("wrapper-texto-livre").style.display = "none";
+                document.getElementById("wrapper-estruturado").style.display = "block";
+                renderizarBlocos();
+            }
+        }
+
+        function toRoman(num) {
+            const roman = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1};
+            let str = '';
+            for (let i of Object.keys(roman)) { let q = Math.floor(num / roman[i]); num -= q * roman[i]; str += i.repeat(q); }
+            return str;
+        }
+        function toOrdinal(num) { return num <= 9 ? num + "º" : num; }
+        function toLetter(num) { return String.fromCharCode(96 + num); }
+        
+        function isParagrafoUnico(currentIndex) {
+            let count = 0;
+            for(let i = currentIndex; i < window.docBlocos.length; i++) {
+                if(window.docBlocos[i].tipo === 'artigo') break;
+                if(window.docBlocos[i].tipo === 'paragrafo') count++;
+                if(count > 1) return false;
+            }
+            return count === 1;
+        }
+
+        window.adicionarBloco = function(tipo) {
+            let newIdx = window.docBlocos.length;
+            if (window.lastFocusedBlockIdx !== null && window.lastFocusedBlockIdx >= 0 && window.lastFocusedBlockIdx < window.docBlocos.length) {
+                newIdx = window.lastFocusedBlockIdx + 1;
+                window.docBlocos.splice(newIdx, 0, { tipo: tipo, texto: '' });
+                window.lastFocusedBlockIdx = null; 
+            } else {
+                window.docBlocos.push({ tipo: tipo, texto: '' });
+            }
+            renderizarBlocos();
+            setTimeout(() => {
+                const el = document.getElementById('bloco-input-' + newIdx);
+                if(el) el.focus();
+            }, 50);
+        }
+
+        window.setFocusBloco = function(idx) { window.lastFocusedBlockIdx = idx; }
+
+        window.handleBlockKeydown = function(e, idx, tipo) {
+            if(e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                let nextType = tipo;
+                if(tipo === 'titulo') nextType = 'capitulo';
+                else if(tipo === 'capitulo') nextType = 'artigo';
+                else if(tipo === 'livre') nextType = 'livre';
+                
+                window.docBlocos.splice(idx + 1, 0, { tipo: nextType, texto: '' });
+                renderizarBlocos();
+                setTimeout(() => {
+                    const el = document.getElementById('bloco-input-' + (idx+1));
+                    if(el) el.focus();
+                }, 50);
+            }
+        }
+
+        window.inserirFormatacao = function(idx, command) {
+            const el = document.getElementById(`bloco-input-${idx}`);
+            el.focus();
+            document.execCommand(command, false, null);
+            window.atualizarTextoBloco(idx, el.innerHTML);
+        }
+
+        window.inserirLink = function(idx) {
+            const url = prompt("Cole o link de destino (URL):");
+            if(!url) return;
+            const el = document.getElementById(`bloco-input-${idx}`);
+            el.focus();
+            const selection = window.getSelection();
+            const selectedText = selection.toString() || "Texto do Link";
+            const replacement = `<a href="${url}" target="_blank" style="color:var(--primary); text-decoration:underline; font-weight:bold;">${selectedText}</a>`;
+            document.execCommand('insertHTML', false, replacement);
+            window.atualizarTextoBloco(idx, el.innerHTML);
+        }
+
+        window.inserirImagem = function(idx) {
+            const url = prompt("Cole o link direto da imagem:");
+            if(!url) return;
+            const el = document.getElementById(`bloco-input-${idx}`);
+            el.focus();
+            const replacement = `<img src="${url}" style="max-width:100%; height:auto; border-radius:6px; margin: 10px 0; display:block;">`;
+            document.execCommand('insertHTML', false, replacement);
+            window.atualizarTextoBloco(idx, el.innerHTML);
+        }
+
+        window.inserirTabela = function(idx) {
+            const el = document.getElementById(`bloco-input-${idx}`);
+            el.focus();
+            const replacement = `<br><table border="1" style="width:100%; border-collapse: collapse; text-align:center; margin: 15px 0;"><tbody><tr><th>TÍTULO 1</th><th>TÍTULO 2</th></tr><tr><td>Linha 1</td><td>Linha 1</td></tr></tbody></table><br>`;
+            document.execCommand('insertHTML', false, replacement);
+            window.atualizarTextoBloco(idx, el.innerHTML);
+        }
+
+        document.getElementById('blocosContainer').addEventListener('dblclick', function(e) {
+            if (e.target.tagName === 'IMG') {
+                let currentWidth = e.target.style.width || "100%";
+                let newWidth = prompt("Redimensionar imagem.\nDigite a nova largura (ex: 100%, 300px, 150px):", currentWidth);
+                if(newWidth) {
+                    e.target.style.width = newWidth;
+                    e.target.style.maxWidth = 'none';
+                    let blocoInput = e.target.closest('.bloco-input');
+                    if(blocoInput) {
+                        let idx = blocoInput.id.replace('bloco-input-', '');
+                        window.atualizarTextoBloco(idx, blocoInput.innerHTML);
+                    }
+                }
+            }
+        });
+
+        window.moverBloco = function(idx, direcao) {
+            if(direcao === -1 && idx > 0) {
+                let temp = window.docBlocos[idx]; window.docBlocos[idx] = window.docBlocos[idx-1]; window.docBlocos[idx-1] = temp;
+            } else if(direcao === 1 && idx < window.docBlocos.length - 1) {
+                let temp = window.docBlocos[idx]; window.docBlocos[idx] = window.docBlocos[idx+1]; window.docBlocos[idx+1] = temp;
+            }
+            renderizarBlocos();
+        }
+
+        window.deletarBloco = function(idx) { window.docBlocos.splice(idx, 1); renderizarBlocos(); }
+        window.atualizarTextoBloco = function(idx, val) { window.docBlocos[idx].texto = val; }
+
+        window.abrirModalCodigoFonte = function() {
+            document.getElementById('rawHtmlInput').value = "";
+            document.getElementById('modalCodigoFonte').classList.add('active');
+        }
+
+        // CONVERSOR 3.0 (SUPER INTELIGÊNCIA DE QUEBRA E LEITURA BRUTA)
+        window.converterTextoParaEstruturado = function(origem) {
+            if(window.docBlocos.length > 0) {
+                if(!confirm("Aviso: Isso irá substituir os blocos atuais pelo código convertido. Deseja continuar?")) return;
+            }
+            
+            let htmlOriginal = "";
+            let containerParaLeitura = document.createElement('div');
+
+            if (origem === 'fonte') {
+                let rawText = document.getElementById('rawHtmlInput').value;
+                document.getElementById('modalCodigoFonte').classList.remove('active');
+                if(!rawText.includes('<p') && !rawText.includes('<div') && !rawText.includes('<br')) {
+                    rawText = rawText.split('\n').map(l => `<p>${l}</p>`).join('');
+                }
+                containerParaLeitura.innerHTML = rawText;
+            } else {
+                containerParaLeitura.innerHTML = CKEDITOR.instances['editor-doc-container'].getData();
+            }
+
+            if(!containerParaLeitura.innerHTML.trim()) { alert("O texto base está vazio!"); return; }
+
+            const elementos = containerParaLeitura.querySelectorAll('p, h1, h2, h3, li, div, img, table, hr');
+            window.docBlocos = [];
+
+            elementos.forEach(el => {
+                if(el.tagName === 'HR') { window.docBlocos.push({ tipo: 'linha', texto: '' }); return; }
+                if(el.tagName === 'IMG' || el.tagName === 'TABLE') { window.docBlocos.push({ tipo: 'livre', texto: el.outerHTML }); return; }
+                if(el.tagName === 'DIV' && el.querySelector('p, h1, h2, img, table, hr')) return;
+                
+                let textoInterno = el.innerHTML.replace(/<br\s*[\/]?>/gi, '\n');
+                let limpaHtml = document.createElement('span');
+                limpaHtml.innerHTML = textoInterno;
+                let textoLimpo = limpaHtml.innerText.trim();
+
+                if(!textoLimpo) return;
+
+                const linhas = textoLimpo.split('\n').map(p => p.trim().replace(/\u00A0/g, ' ')).filter(p => p !== '');
+                
+                linhas.forEach(linha => {
+                    let combinedText = linha;
+                    let type = 'livre'; 
+
+                    if (combinedText.match(/^T[IÍ]TULO\s+/i)) {
+                        type = 'titulo'; 
+                        combinedText = combinedText.replace(/^T[IÍ]TULO\s+([IVXLCDM]+|\d+|[ÚU]NICO)?\s*[\.\-–—]*\s*/i, '').trim();
+                    }
+                    else if (combinedText.match(/^CAP[IÍ]TULO\s+/i)) {
+                        type = 'capitulo'; 
+                        combinedText = combinedText.replace(/^CAP[IÍ]TULO\s+([IVXLCDM]+|\d+|[ÚU]NICO)?\s*[\.\-–—]*\s*/i, '').trim();
+                    }
+                    else if (combinedText.match(/^SE[ÇC][ÃA]O\s+/i)) {
+                        type = 'secao'; 
+                        combinedText = combinedText.replace(/^SE[ÇC][ÃA]O\s+([IVXLCDM]+|\d+|[ÚU]NICO)?\s*[\.\-–—]*\s*/i, '').trim();
+                    }
+                    else if (combinedText.match(/^(Art\.|Artigo)\s+/i)) {
+                        type = 'artigo'; 
+                        combinedText = combinedText.replace(/^(Art\.|Artigo)\s*\d+[-a-zA-Zº°\.]*\s*/i, '').trim();
+                    }
+                    else if (combinedText.match(/^(§\s*\d|Par[áa]grafo\s+([úu]nico|\d+))/i)) {
+                        type = 'paragrafo'; 
+                        combinedText = combinedText.replace(/^(§\s*\d+[-a-zA-Zº°\.]*|Par[áa]grafo\s+([úu]nico|\d+)[º°\.]?)\s*[\.\-–—]*\s*/i, '').trim();
+                    }
+                    else if (combinedText.match(/^[IVXLCDM]+\s*[\.\-–—]\s*/i)) {
+                        type = 'inciso'; 
+                        combinedText = combinedText.replace(/^[IVXLCDM]+\s*[\.\-–—]\s*/i, '').trim();
+                    }
+                    else if (combinedText.match(/^[a-z]\)\s+/i)) {
+                        type = 'alinea'; 
+                        combinedText = combinedText.replace(/^[a-z]\)\s*/i, '').trim();
+                    }
+
+                    if (type === 'livre' && window.docBlocos.length > 0) {
+                        let ultimoBloco = window.docBlocos[window.docBlocos.length - 1];
+                        if (['titulo', 'capitulo', 'secao'].includes(ultimoBloco.tipo) && ultimoBloco.texto === '') {
+                            ultimoBloco.texto = combinedText;
+                            return; 
+                        }
+                    }
+
+                    if(!combinedText.includes("TODOS OS DIREITOS RESERVADOS") && !combinedText.includes("DEPARTAMENTO DE INVESTIGAÇÃO CRIMINAL")) {
+                        if (type !== 'livre' || combinedText !== '') {
+                            window.docBlocos.push({ tipo: type, texto: combinedText });
+                        }
+                    }
+                });
+            });
+            
+            renderizarBlocos();
+            window.showToast("Conversão concluída! Revise a legislação gerada.");
+        }
+
+        function renderizarBlocos() {
+            const container = document.getElementById("blocosContainer");
+            if(window.docBlocos.length === 0) {
+                container.innerHTML = `<div class="empty-blocos">Adicione blocos acima para começar a estruturar o documento.</div>`;
+                return;
+            }
+
+            let html = "";
+            let cTit=0, cCap=0, cSec=0, cArt=0, cPar=0, cInc=0, cAli=0;
+
+            window.docBlocos.forEach((b, i) => {
+                if(b.tipo === 'linha') {
+                    html += `
+                        <div class="bloco-item tipo-linha" onclick="setFocusBloco(${i})">
+                            <div style="flex:1; text-align:center; color:#94a3b8; font-size:12px; font-weight:700; letter-spacing:2px;">— LINHA DE SEPARAÇÃO —</div>
+                            <div class="bloco-controls" style="flex-direction:row;">
+                                <button type="button" class="btn-ctrl" onclick="moverBloco(${i}, -1)" title="Subir"><i class="fa-solid fa-chevron-up"></i></button>
+                                <button type="button" class="btn-ctrl" onclick="moverBloco(${i}, 1)" title="Descer"><i class="fa-solid fa-chevron-down"></i></button>
+                                <button type="button" class="btn-ctrl del" onclick="deletarBloco(${i})" title="Remover"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>`;
+                    return;
+                }
+
+                let label = ""; let placeholder = "";
+                if(b.tipo === 'titulo') { cTit++; cCap=0; cSec=0; label = `TÍTULO ${toRoman(cTit)}`; placeholder="Nome do Título"; }
+                else if(b.tipo === 'capitulo') { cCap++; cSec=0; label = `CAPÍTULO ${toRoman(cCap)}`; placeholder="Nome do Capítulo"; }
+                else if(b.tipo === 'secao') { cSec++; label = `Seção ${toRoman(cSec)}`; placeholder="Nome da Seção"; }
+                else if(b.tipo === 'artigo') { cArt++; cPar=0; cInc=0; cAli=0; label = `Art. ${toOrdinal(cArt)}.`; placeholder="Texto do artigo..."; }
+                else if(b.tipo === 'paragrafo') { cPar++; cInc=0; cAli=0; label = (cPar === 1 && isParagrafoUnico(i)) ? `Parágrafo único.` : `§ ${toOrdinal(cPar)}`; placeholder="Texto do parágrafo..."; }
+                else if(b.tipo === 'inciso') { cInc++; cAli=0; label = `${toRoman(cInc)} -`; placeholder="Texto do inciso..."; }
+                else if(b.tipo === 'alinea') { cAli++; label = `${toLetter(cAli)})`; placeholder="Texto da alínea..."; }
+                else if(b.tipo === 'livre') { label = `LIVRE`; placeholder = "Insira código HTML ou texto livre..."; }
+
+                html += `
+                    <div class="bloco-item tipo-${b.tipo}" onclick="setFocusBloco(${i})">
+                        <div class="bloco-label">${label}</div>
+                        <div id="bloco-input-${i}" class="bloco-input" contenteditable="true" placeholder="${placeholder}" onkeydown="handleBlockKeydown(event, ${i}, '${b.tipo}')" oninput="atualizarTextoBloco(${i}, this.innerHTML)" onfocus="setFocusBloco(${i})">${b.texto}</div>
+                        <div class="bloco-actions-wrapper">
+                            <div class="bloco-format">
+                                <button type="button" class="btn-ctrl" onmousedown="event.preventDefault();" onclick="inserirFormatacao(${i}, 'bold')" title="Negrito"><b>B</b></button>
+                                <button type="button" class="btn-ctrl" onmousedown="event.preventDefault();" onclick="inserirFormatacao(${i}, 'italic')" title="Itálico"><i>I</i></button>
+                                <button type="button" class="btn-ctrl" onmousedown="event.preventDefault();" onclick="inserirFormatacao(${i}, 'underline')" title="Sublinhado"><u>U</u></button>
+                                <button type="button" class="btn-ctrl" onmousedown="event.preventDefault();" onclick="inserirLink(${i})" title="Inserir Link"><i class="fa-solid fa-link"></i></button>
+                                <button type="button" class="btn-ctrl" onmousedown="event.preventDefault();" onclick="inserirImagem(${i})" title="Inserir Imagem"><i class="fa-solid fa-image"></i></button>
+                                <button type="button" class="btn-ctrl" onmousedown="event.preventDefault();" onclick="inserirFormatacao(${i}, 'justifyLeft')" title="Esquerda"><i class="fa-solid fa-align-left"></i></button>
+                                <button type="button" class="btn-ctrl" onmousedown="event.preventDefault();" onclick="inserirFormatacao(${i}, 'justifyCenter')" title="Centro"><i class="fa-solid fa-align-center"></i></button>
+                                <button type="button" class="btn-ctrl" onmousedown="event.preventDefault();" onclick="inserirFormatacao(${i}, 'justifyRight')" title="Direita"><i class="fa-solid fa-align-right"></i></button>
+                                <button type="button" class="btn-ctrl" onmousedown="event.preventDefault();" onclick="inserirFormatacao(${i}, 'justifyFull')" title="Justificar"><i class="fa-solid fa-align-justify"></i></button>
+                                <button type="button" class="btn-ctrl" onmousedown="event.preventDefault();" onclick="inserirTabela(${i})" title="Inserir Tabela"><i class="fa-solid fa-table"></i></button>
+                            </div>
+                            <div class="bloco-controls">
+                                <button type="button" class="btn-ctrl" onmousedown="event.preventDefault();" onclick="moverBloco(${i}, -1)" title="Subir"><i class="fa-solid fa-chevron-up"></i></button>
+                                <button type="button" class="btn-ctrl" onmousedown="event.preventDefault();" onclick="moverBloco(${i}, 1)" title="Descer"><i class="fa-solid fa-chevron-down"></i></button>
+                                <button type="button" class="btn-ctrl del" onmousedown="event.preventDefault();" onclick="deletarBloco(${i})" title="Remover"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function compilarHTMLEstruturado() {
+            let html = `<div class="doc-estruturado">`;
+            let cTit=0, cCap=0, cSec=0, cArt=0, cPar=0, cInc=0, cAli=0;
+            
+            window.docBlocos.forEach((b, i) => {
+                if(b.tipo === 'linha') { html += `<hr style="border:none; border-top:1px solid #ccc; margin:25px 0;">`; return; }
+
+                let textFinal = b.texto; 
+                let label = "";
+                
+                if(b.tipo === 'titulo') { cTit++; cCap=0; cSec=0; label = `TÍTULO ${toRoman(cTit)}`; html += `<p style="text-align:center"><span style="font-size:11pt"><span style="font-family:Arial,sans-serif"><strong>${label}</strong><br><strong>${textFinal.toUpperCase()}</strong></span></span></p>`; }
+                else if(b.tipo === 'capitulo') { cCap++; cSec=0; label = `CAPÍTULO ${toRoman(cCap)}`; html += `<p style="text-align:center; margin-top:20px;"><span style="font-size:11pt"><span style="font-family:Arial,sans-serif"><strong>${label}</strong><br><strong>${textFinal.toUpperCase()}</strong></span></span></p>`; }
+                else if(b.tipo === 'secao') { cSec++; label = `SEÇÃO ${toRoman(cSec)}`; html += `<p style="text-align:center; margin-top:15px;"><span style="font-size:11pt"><span style="font-family:Arial,sans-serif"><strong>${label}</strong><br><strong>${textFinal.toUpperCase()}</strong></span></span></p>`; }
+                else if(b.tipo === 'artigo') { cArt++; cPar=0; cInc=0; cAli=0; label = `Art. ${toOrdinal(cArt)}.`; html += `<p style="text-align:justify; margin-top:15px;"><span style="font-size:11pt"><span style="font-family:Arial,sans-serif"><strong>${label}</strong> ${textFinal}</span></span></p>`; }
+                else if(b.tipo === 'paragrafo') { 
+                    cPar++; cInc=0; cAli=0; label = (cPar === 1 && isParagrafoUnico(i)) ? `Parágrafo único.` : `§ ${toOrdinal(cPar)}.`;
+                    html += `<p style="margin-left:40px; text-align:justify; margin-top:8px;"><span style="font-size:11pt"><span style="font-family:Arial,sans-serif"><strong>${label}</strong> ${textFinal}</span></span></p>`; 
+                }
+                else if(b.tipo === 'inciso') { cInc++; cAli=0; label = `${toRoman(cInc)}.`; html += `<p style="margin-left:40px; text-align:justify; margin-top:5px;"><span style="font-size:11pt"><span style="font-family:Arial,sans-serif"><strong>${label}</strong> ${textFinal}</span></span></p>`; }
+                else if(b.tipo === 'alinea') { cAli++; label = `${toLetter(cAli)})`; html += `<p style="margin-left:60px; text-align:justify; margin-top:5px;"><span style="font-size:11pt"><span style="font-family:Arial,sans-serif">${label} ${textFinal}</span></span></p>`; }
+                else if(b.tipo === 'livre') { html += `<div style="margin: 15px 0; width: 100%; overflow-x: auto;">${textFinal}</div>`; }
+            });
+            html += `</div>`;
+            return html;
+        }
+
+        // ==========================================
+        // LÓGICA DE SALVAMENTO COM FATIAMENTO (CHUNKING)
+        // ==========================================
         let editIdAtivo = null;
         window.docsMemoria = {};
-
         const modal = document.getElementById("modalDocumento");
+
         document.getElementById("fecharModalDoc").onclick = () => modal.classList.remove("active");
 
+        // FUNÇÃO DE ABRIR MODAL (CRIAR NOVO)
         window.abrirModalDocNovo = function() {
             editIdAtivo = null;
+            document.getElementById("formDocumento").style.opacity = "1";
+            document.getElementById("formDocumento").style.pointerEvents = "auto";
             document.getElementById("modalTitleDoc").innerHTML = `<i class="fa-solid fa-file-circle-plus"></i> Novo Documento`;
             document.getElementById("formDocumento").reset();
+            document.getElementById("docTipoEditor").value = "livre";
+            document.getElementById("docPermitirCopia").value = "Sim";
+            window.docBlocos = [];
+            window.lastFocusedBlockIdx = null;
+            alternarEditor();
             CKEDITOR.instances['editor-doc-container'].setData('');
             modal.classList.add("active");
         }
 
-        window.editarDoc = function(id) {
+        // Lógica para Abrir Modal em Modo de Edição e baixar fatias
+        window.editarDoc = async function(id) {
             const data = window.docsMemoria[id];
             if(!data) return;
+            
             editIdAtivo = id;
-            document.getElementById("modalTitleDoc").innerHTML = `<i class="fa-solid fa-pen"></i> Editando Documento #${id}`;
+            
+            document.getElementById("modalTitleDoc").innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Baixando documento (Aguarde)...`;
+            document.getElementById("formDocumento").style.opacity = "0.5";
+            document.getElementById("formDocumento").style.pointerEvents = "none";
+            modal.classList.add("active");
+
+            let conteudoFinal = data.conteudo || "";
+            let blocosFinal = data.blocosEstruturados || null;
+
+            if (data.temPartes) {
+                try {
+                    const partesRef = collection(db, "tjp_documentos", id, "partes");
+                    const q = query(partesRef, orderBy("index", "asc"));
+                    const partesSnap = await getDocs(q);
+                    
+                    let htmlParts = [];
+                    let blocoParts = [];
+                    
+                    partesSnap.forEach(p => {
+                        const pd = p.data();
+                        if(pd.tipo === "html") htmlParts[pd.index] = pd.texto;
+                        if(pd.tipo === "blocos") blocoParts[pd.index] = pd.texto;
+                    });
+                    
+                    conteudoFinal = htmlParts.join("");
+                    if (blocoParts.length > 0) blocosFinal = blocoParts.join("");
+                } catch(e) {
+                    console.error("Erro ao baixar partes:", e);
+                    window.showToast("Falha ao reconstruir documento fatiado.");
+                }
+            }
+
+            document.getElementById("formDocumento").style.opacity = "1";
+            document.getElementById("formDocumento").style.pointerEvents = "auto";
+            document.getElementById("modalTitleDoc").innerHTML = `<i class="fa-solid fa-pen"></i> Editando Documento #${id.substring(0,8)}`;
+            
             document.getElementById("docTitulo").value = data.titulo;
             document.getElementById("docDataManual").value = data.dataManual || "";
             document.getElementById("docPermissao").value = data.permissao || "Todos";
             document.getElementById("docStatus").value = data.status || "Ativado";
-            CKEDITOR.instances['editor-doc-container'].setData(data.conteudo);
-            modal.classList.add("active");
+            document.getElementById("docPermitirCopia").value = data.permitirCopia || "Sim";
+            
+            if(data.tipoEditor === "estruturado") {
+                document.getElementById("docTipoEditor").value = "estruturado";
+                window.docBlocos = blocosFinal ? JSON.parse(blocosFinal) : [];
+                window.lastFocusedBlockIdx = null;
+            } else {
+                document.getElementById("docTipoEditor").value = "livre";
+                window.docBlocos = [];
+                CKEDITOR.instances['editor-doc-container'].setData(conteudoFinal);
+            }
+            
+            alternarEditor();
         }
 
         window.deletarDoc = async function(id) {
             if(confirm("Tem certeza que deseja apagar permanentemente este documento?")) {
+                const docInfo = window.docsMemoria[id];
+                
+                if (docInfo && docInfo.temPartes) {
+                    const partesRef = collection(db, "tjp_documentos", id, "partes");
+                    const partesSnap = await getDocs(partesRef);
+                    for (const pt of partesSnap.docs) {
+                        await deleteDoc(pt.ref);
+                    }
+                }
+                
                 await deleteDoc(doc(db, "tjp_documentos", id));
                 window.showToast("Documento deletado.");
             }
         }
 
         window.copiarUrl = function(id) {
-            const urlCompleta = window.location.origin + "/documento/" + id;
+            const urlCompleta = window.location.origin + "/documento?id=" + id;
             navigator.clipboard.writeText(urlCompleta).then(() => window.showToast("URL copiada!"));
         }
 
         document.getElementById("formDocumento").addEventListener("submit", async (e) => {
             e.preventDefault();
             const btn = document.getElementById("btnSalvarDoc");
-            btn.innerText = "Salvando..."; btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Salvando Documento...`; 
+            btn.disabled = true;
 
-            const conteudoHTML = CKEDITOR.instances['editor-doc-container'].getData();
+            const tipoEditor = document.getElementById("docTipoEditor").value;
+            let conteudoFinalHTML = "";
+            let jsonEstruturado = null;
 
-            const dados = {
+            if(tipoEditor === "livre") {
+                conteudoFinalHTML = CKEDITOR.instances['editor-doc-container'].getData();
+            } else {
+                jsonEstruturado = JSON.stringify(window.docBlocos);
+                conteudoFinalHTML = compilarHTMLEstruturado(); 
+            }
+
+            const MAX_CHUNK_SIZE = 400000; 
+            const precisaFatiarHTML = conteudoFinalHTML.length > MAX_CHUNK_SIZE;
+            const precisaFatiarJSON = jsonEstruturado && jsonEstruturado.length > MAX_CHUNK_SIZE;
+            const temPartes = precisaFatiarHTML || precisaFatiarJSON;
+
+            const dadosBase = {
                 titulo: document.getElementById("docTitulo").value.trim(),
                 dataManual: document.getElementById("docDataManual").value.trim(),
                 permissao: document.getElementById("docPermissao").value,
                 status: document.getElementById("docStatus").value,
-                conteudo: conteudoHTML,
+                tipoEditor: tipoEditor,
+                permitirCopia: document.getElementById("docPermitirCopia").value,
                 atualizadoPor: JSON.parse(sessionData).nick,
-                dataAtualizacao: serverTimestamp()
+                dataAtualizacao: serverTimestamp(),
+                temPartes: temPartes,
+                conteudo: temPartes ? "" : conteudoFinalHTML,
+                blocosEstruturados: temPartes ? null : jsonEstruturado
             };
 
             try {
-                if(editIdAtivo) {
-                    await updateDoc(doc(db, "tjp_documentos", editIdAtivo), dados);
-                    window.showToast("Documento atualizado!");
-                } else {
-                    let slugId = dados.titulo.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+                let finalId = editIdAtivo;
+                
+                if(!finalId) {
+                    let slugId = dadosBase.titulo.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
                     const docCheck = await getDocs(query(collection(db, "tjp_documentos")));
                     let suffix = 1;
-                    let finalId = slugId;
+                    finalId = slugId;
                     while(docCheck.docs.some(d => d.id === finalId)) {
                         finalId = `${slugId}-${suffix}`; suffix++;
                     }
-                    dados.dataCriacao = serverTimestamp();
-                    await setDoc(doc(db, "tjp_documentos", finalId), dados);
-                    window.showToast("Documento criado!");
+                    dadosBase.dataCriacao = serverTimestamp();
                 }
+
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Salvando Documento...`;
+                await setDoc(doc(db, "tjp_documentos", finalId), dadosBase, { merge: true });
+
+                if (temPartes) {
+                    const colPartes = collection(db, "tjp_documentos", finalId, "partes");
+                    
+                    const antigasSnap = await getDocs(colPartes);
+                    for (const pt of antigasSnap.docs) {
+                        await deleteDoc(pt.ref);
+                    }
+
+                    if (conteudoFinalHTML) {
+                        for(let i = 0; i < conteudoFinalHTML.length; i += MAX_CHUNK_SIZE) {
+                            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Salvando Documento...`;
+                            await setDoc(doc(colPartes, "html_" + (i / MAX_CHUNK_SIZE)), {
+                                tipo: "html",
+                                index: (i / MAX_CHUNK_SIZE),
+                                texto: conteudoFinalHTML.substring(i, i + MAX_CHUNK_SIZE)
+                            });
+                        }
+                    }
+                    
+                    if (jsonEstruturado) {
+                        for(let i = 0; i < jsonEstruturado.length; i += MAX_CHUNK_SIZE) {
+                            await setDoc(doc(colPartes, "blocos_" + (i / MAX_CHUNK_SIZE)), {
+                                tipo: "blocos",
+                                index: (i / MAX_CHUNK_SIZE),
+                                texto: jsonEstruturado.substring(i, i + MAX_CHUNK_SIZE)
+                            });
+                        }
+                    }
+                }
+
+                window.showToast("Documento salvo com sucesso!");
                 modal.classList.remove("active");
             } catch(err) {
-                alert("Erro ao salvar: " + err.message);
+                alert("Erro ao salvar documento: " + err.message);
+                console.error(err);
             }
             btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Salvar Documento`; btn.disabled = false;
         });
 
-        // RENDERIZAR TABELA
         onSnapshot(query(collection(db, "tjp_documentos"), orderBy("dataAtualizacao", "desc")), (snap) => {
             const tb = document.getElementById("tabelaDocumentos");
             tb.innerHTML = "";
             window.docsMemoria = {};
 
             if(snap.empty) {
-                tb.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum documento criado.</td></tr>`;
+                tb.innerHTML = `<tr><td colspan="6" style="text-align:center;">Nenhum documento criado.</td></tr>`;
                 return;
             }
 
@@ -282,11 +858,19 @@
                 window.docsMemoria[d.id] = data;
 
                 let statusBadge = data.status === "Ativado" ? "var(--accent)" : "#ef4444";
+                let formatoBadge = data.tipoEditor === "estruturado" 
+                    ? '<span style="background:#e0f2fe; color:#0284c7; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;"><i class="fa-solid fa-layer-group"></i> Estruturado</span>' 
+                    : '<span style="background:#f1f5f9; color:#64748b; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:700;"><i class="fa-solid fa-align-left"></i> Livre</span>';
+
+                let tamanhoBadge = data.temPartes 
+                    ? '<span style="margin-left: 5px; background:#fef08a; color:#a16207; padding:2px 5px; border-radius:4px; font-size:9px; font-weight:800;" title="Documento Gigante Fatiado">PESADO</span>' 
+                    : '';
 
                 tb.innerHTML += `
                     <tr>
                         <td><strong>#${d.id.substring(0,8)}...</strong></td>
-                        <td><strong>${data.titulo}</strong><br><small style="color:var(--text-muted)">/documento/${d.id}</small></td>
+                        <td><strong>${data.titulo} ${tamanhoBadge}</strong><br><small style="color:var(--text-muted)">/documento?id=${d.id}</small></td>
+                        <td>${formatoBadge}</td>
                         <td>${data.permissao}</td>
                         <td><span style="color: ${statusBadge}; font-weight:700;">${data.status}</span></td>
                         <td>

@@ -69,6 +69,14 @@
         .doc-restricted i { font-size: 60px; color: #ef4444; margin-bottom: 20px; }
         .doc-restricted h2 { color: var(--text-main); margin-bottom: 10px; }
         .doc-restricted p { color: var(--text-muted); margin-bottom: 20px; }
+
+        /* CLASSE DE BLOQUEIO DE CÓPIA */
+        .no-copy {
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+        }
     </style>
 </head>
 <body style="background: #f1f5f9;">
@@ -85,17 +93,12 @@
     </div>
 
     <div class="container">
-        <div class="doc-container" id="boxDocumento">
-            <div style="text-align: center; padding: 50px; color: var(--text-muted);">
-                <i class="fa-solid fa-circle-notch fa-spin fa-2x"></i>
-                <p style="margin-top: 15px;">Localizando documento...</p>
-            </div>
-        </div>
+        <div class="doc-container" id="boxDocumento"></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
         const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
         const db = getFirestore(app);
@@ -147,7 +150,22 @@
                     if(bloqueado) return renderError("fa-solid fa-shield-halved", "Acesso Negado", "Seu cargo atual não possui os privilégios necessários para ler este documento oficial.");
                 }
 
-                // LÓGICA DA DATA (Usa a manual, se existir. Senão, usa a automática)
+                let conteudoFinal = dados.conteudo || "";
+                
+                if (dados.temPartes) {
+                    const partesRef = collection(db, "tjp_documentos", docId, "partes");
+                    const q = query(partesRef, orderBy("index", "asc"));
+                    const partesSnap = await getDocs(q);
+                    
+                    let htmlParts = [];
+                    partesSnap.forEach(p => {
+                        const pd = p.data();
+                        if(pd.tipo === "html") htmlParts[pd.index] = pd.texto;
+                    });
+                    
+                    conteudoFinal = htmlParts.join("");
+                }
+
                 let dataAtt = "Recente";
                 if(dados.dataManual && dados.dataManual.trim() !== "") {
                     dataAtt = dados.dataManual;
@@ -158,7 +176,6 @@
 
                 document.title = `${dados.titulo} - Oficial TJP`;
 
-                // LOGO REMOVIDA AQUI
                 box.innerHTML = `
                     <div class="doc-header">
                         <h1 class="doc-title">${dados.titulo}</h1>
@@ -168,9 +185,20 @@
                         </div>
                     </div>
                     <div class="doc-content">
-                        ${dados.conteudo}
+                        ${conteudoFinal}
                     </div>
                 `;
+
+                if (dados.permitirCopia === "Nao") {
+                    const docContentEl = box.querySelector('.doc-content');
+                    if (docContentEl) {
+                        docContentEl.classList.add('no-copy');
+                        docContentEl.addEventListener('contextmenu', e => e.preventDefault());
+                        docContentEl.addEventListener('copy', e => e.preventDefault());
+                        docContentEl.addEventListener('cut', e => e.preventDefault());
+                        docContentEl.addEventListener('dragstart', e => e.preventDefault());
+                    }
+                }
 
             } catch (error) {
                 console.error(error);

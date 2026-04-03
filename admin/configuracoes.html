@@ -73,10 +73,10 @@
                     
                     <div class="panel-section">
                         <div class="panel-header">
-                            <h3><i class="fa-solid fa-scale-balanced"></i> Níveis de Acesso</h3>
+                            <h3><i class="fa-solid fa-scale-balanced"></i> Níveis e Estilos de Acesso</h3>
                         </div>
                         <div class="panel-body">
-                            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Cadastre as funções que aparecerão no Controle da Bancada e defina o nível de sistema de cada uma.</p>
+                            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Cadastre as funções que aparecerão no Controle da Bancada e defina as cores exclusivas que serão exibidas nos portais públicos (CSJ e Bancada).</p>
                             
                             <form id="formCargo" style="background: #f8fafc; padding: 15px; border-radius: 6px; border: 1px solid var(--stroke); margin-bottom: 20px;">
                                 <div class="form-group">
@@ -97,19 +97,37 @@
                                         <option value="Comum">Membro Comum (Apenas Leitura de Processos)</option>
                                     </select>
                                 </div>
+
+                                <label style="display: block; font-size: 11px; font-weight: 600; color: var(--text-main); margin-bottom: 5px;">Personalização do Card do Cargo</label>
+                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px;">
+                                    <div class="form-group" style="margin: 0;">
+                                        <label style="font-size: 10px;">Borda / Destaque</label>
+                                        <input type="color" id="corBorda" value="#166534" style="height: 35px; width: 100%; padding: 2px; cursor: pointer; border: 1px solid var(--stroke); border-radius: 4px;">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label style="font-size: 10px;">Fundo da Tag</label>
+                                        <input type="color" id="corFundoTag" value="#dcfce7" style="height: 35px; width: 100%; padding: 2px; cursor: pointer; border: 1px solid var(--stroke); border-radius: 4px;">
+                                    </div>
+                                    <div class="form-group" style="margin: 0;">
+                                        <label style="font-size: 10px;">Texto da Tag</label>
+                                        <input type="color" id="corTextoTag" value="#15803d" style="height: 35px; width: 100%; padding: 2px; cursor: pointer; border: 1px solid var(--stroke); border-radius: 4px;">
+                                    </div>
+                                </div>
+
                                 <button type="submit" class="btn-submit"><i class="fa-solid fa-plus"></i> Adicionar cargo à hierarquia</button>
                             </form>
 
                             <table class="admin-table">
                                 <thead>
                                     <tr>
-                                        <th>Cargo Cadastrado</th>
-                                        <th>Nível Vinculado</th>
+                                        <th>Cargo</th>
+                                        <th>Nível</th>
+                                        <th>Cores (Borda/Fundo/Texto)</th>
                                         <th>Ação</th>
                                     </tr>
                                 </thead>
                                 <tbody id="listaCargos">
-                                    <tr><td colspan="3" style="text-align:center;">Carregando cargos...</td></tr>
+                                    <tr><td colspan="4" style="text-align:center;">Carregando cargos...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -123,10 +141,10 @@
                             <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">Ajuste as cores e links da interface usada pelos aprendizes.</p>
                             
                             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 15px;">
-                                <div class="form-group"><label>Fundo da Página</label><input type="color" id="corFundo" value="#f8fafc" style="height: 40px; padding: 5px; cursor: pointer;"></div>
-                                <div class="form-group"><label>Cartões (Painéis)</label><input type="color" id="corCards" value="#ffffff" style="height: 40px; padding: 5px; cursor: pointer;"></div>
-                                <div class="form-group"><label>Cor de Destaque</label><input type="color" id="corDestaque" value="#009c3b" style="height: 40px; padding: 5px; cursor: pointer;"></div>
-                                <div class="form-group"><label>Cor do Texto</label><input type="color" id="corTexto" value="#1f2937" style="height: 40px; padding: 5px; cursor: pointer;"></div>
+                                <div class="form-group"><label>Fundo da Página</label><input type="color" id="corFundo" value="#f8fafc" style="height: 40px; padding: 5px; cursor: pointer; width: 100%;"></div>
+                                <div class="form-group"><label>Cartões (Painéis)</label><input type="color" id="corCards" value="#ffffff" style="height: 40px; padding: 5px; cursor: pointer; width: 100%;"></div>
+                                <div class="form-group"><label>Cor de Destaque</label><input type="color" id="corDestaque" value="#009c3b" style="height: 40px; padding: 5px; cursor: pointer; width: 100%;"></div>
+                                <div class="form-group"><label>Cor do Texto</label><input type="color" id="corTexto" value="#1f2937" style="height: 40px; padding: 5px; cursor: pointer; width: 100%;"></div>
                             </div>
                             <div class="form-group">
                                 <label>URL de Imagem de Fundo (Opcional)</label>
@@ -194,23 +212,33 @@
         // ==========================================
         onSnapshot(collection(db, "tjp_cargos"), (snap) => {
             const tb = document.getElementById("listaCargos"); tb.innerHTML = "";
-            if(snap.empty) { tb.innerHTML = `<tr><td colspan="3" style="text-align:center;">Nenhuma função cadastrada.</td></tr>`; return; }
+            if(snap.empty) { tb.innerHTML = `<tr><td colspan="4" style="text-align:center;">Nenhuma função cadastrada.</td></tr>`; return; }
             
             snap.forEach((docSnap) => {
                 const data = docSnap.data();
                 const id = docSnap.id;
                 
-                // Mapeamento de Cores para os Níveis
                 let corBadge = "var(--text-main)"; let bgBadge = "#f1f5f9";
                 if(data.nivel === "CSJ" || data.nivel === "Presidente") { corBadge = "#ef4444"; bgBadge = "#fee2e2"; }
                 else if(data.nivel === "Juiz") { corBadge = "#0284c7"; bgBadge = "#e0f2fe"; }
                 else if(data.nivel === "Promotor" || data.nivel === "Defensor") { corBadge = "#f59e0b"; bgBadge = "#fef3c7"; }
-                else if(data.nivel.startsWith("ADM")) { corBadge = "#7c3aed"; bgBadge = "#ede9fe"; } // Roxo para ADMs técnicos
+                else if(data.nivel.startsWith("ADM")) { corBadge = "#7c3aed"; bgBadge = "#ede9fe"; }
+
+                const cb = data.corBorda || "#166534";
+                const cf = data.corFundoTag || "#dcfce7";
+                const ct = data.corTextoTag || "#15803d";
 
                 tb.innerHTML += `
                     <tr>
                         <td><strong>${data.nome}</strong></td>
                         <td><span class="badge" style="background:${bgBadge}; color:${corBadge}; font-weight:700;">${data.nivel}</span></td>
+                        <td>
+                            <div style="display:flex; gap:4px; align-items:center;">
+                                <div style="width:16px; height:16px; background:${cb}; border-radius:3px; border:1px solid #ccc;" title="Borda: ${cb}"></div>
+                                <div style="width:16px; height:16px; background:${cf}; border-radius:3px; border:1px solid #ccc;" title="Fundo Tag: ${cf}"></div>
+                                <div style="width:16px; height:16px; background:${ct}; border-radius:3px; border:1px solid #ccc;" title="Texto Tag: ${ct}"></div>
+                            </div>
+                        </td>
                         <td><button type="button" class="btn-icon delete" onclick="deletarCargo('${id}')" title="Excluir Função"><i class="fa-solid fa-trash"></i></button></td>
                     </tr>
                 `;
@@ -222,10 +250,20 @@
             const nome = document.getElementById("cargoNome").value.trim();
             const nivel = document.getElementById("cargoNivel").value;
             
+            const corBorda = document.getElementById("corBorda").value;
+            const corFundoTag = document.getElementById("corFundoTag").value;
+            const corTextoTag = document.getElementById("corTextoTag").value;
+            
             if(!nome) return;
             
-            await setDoc(doc(db, "tjp_cargos", nome), { nome: nome, nivel: nivel });
-            window.showToast("Cargo adicionado com sucesso!");
+            await setDoc(doc(db, "tjp_cargos", nome), { 
+                nome: nome, 
+                nivel: nivel,
+                corBorda: corBorda,
+                corFundoTag: corFundoTag,
+                corTextoTag: corTextoTag
+            });
+            window.showToast("Cargo e cores salvos com sucesso!");
             document.getElementById("formCargo").reset();
         });
 
@@ -267,7 +305,6 @@
             
             let iconeFinal = iconeRaw;
             
-            // Filtro Inteligente de Ícones
             if (iconeRaw && !iconeRaw.includes('http') && !iconeRaw.includes('assets') && !iconeRaw.includes('fa-')) {
                 const brands = ['facebook', 'twitter', 'instagram', 'youtube', 'tiktok', 'discord', 'github', 'whatsapp', 'telegram', 'spotify', 'x-twitter', 'twitch'];
                 if (brands.includes(iconeRaw.toLowerCase())) {
