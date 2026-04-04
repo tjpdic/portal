@@ -127,9 +127,9 @@ onSnapshot(doc(db, "tjp_config", "menus"), (snap) => {
     const navMenu = document.getElementById("dynamicMenu");
     if(navMenu) {
         navMenu.innerHTML = `
-            <li><a href="index.html"><i class="fa-solid fa-house"></i> Início</a></li>
+            <li><a href="/index.html"><i class="fa-solid fa-house"></i> Início</a></li>
             ${buildMenuHtml(menus)}
-            <li><a href="login.html" class="btn-login"><i class="fa-solid fa-right-to-bracket"></i> Acesso Restrito</a></li>
+            <li><a href="/login.html" class="btn-login"><i class="fa-solid fa-right-to-bracket"></i> Acesso Restrito</a></li>
         `;
     }
 
@@ -138,15 +138,32 @@ onSnapshot(doc(db, "tjp_config", "menus"), (snap) => {
         let footerHtml = '';
         menus.forEach(rootItem => {
             let catChildren = rootItem.sub || [];
+            // Alterado para renderizar colunas do footer mesmo se houver sub-níveis aninhados
             if(catChildren.length > 0 && rootItem.nome !== "CSJ") {
-                footerHtml += `<div class="footer-col"><h4>${rootItem.nome}</h4><ul>`;
+                footerHtml += `<div class="footer-col"><h4>${rootItem.nome}</h4><ul class="footer-links">`;
                 catChildren.forEach(subItem => {
                     let subUrl = subItem.link && subItem.link !== "" ? subItem.link : '#';
                     footerHtml += `<li><a href="${subUrl}">${subItem.nome}</a></li>`;
                 });
                 footerHtml += `</ul></div>`;
+            } else if (rootItem.nome !== "CSJ" && rootItem.nome !== "O TJP") {
+                // Caso existam links diretos que não tenham submenus, mas devam aparecer no footer
+                let rootUrl = rootItem.link && rootItem.link !== "" ? rootItem.link : '#';
+                footerHtml += `<div class="footer-col"><h4><a href="${rootUrl}" style="color: inherit; text-decoration: none;">${rootItem.nome}</a></h4></div>`;
             }
         });
         footerCols.innerHTML = footerHtml;
+    }
+});
+
+// Ativador Inteligente para dropdowns mobile (Se aplicável no seu CSS)
+document.addEventListener('click', function(e) {
+    const toggleBtn = e.target.closest('.footer-col h4');
+    if (toggleBtn && window.innerWidth <= 768) {
+        const menuList = toggleBtn.nextElementSibling;
+        if (menuList && menuList.tagName === 'UL') {
+            e.preventDefault();
+            menuList.style.display = menuList.style.display === 'block' ? 'none' : 'block';
+        }
     }
 });

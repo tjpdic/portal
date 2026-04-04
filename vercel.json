@@ -4,11 +4,11 @@
   "rewrites": [
     {
       "source": "/documento/:id",
-      "destination": "/documento.html"
+      "destination": "/documento.html?id=:id"
     },
     {
       "source": "/canvas/:id",
-      "destination": "/canvas.html"
+      "destination": "/canvas.html?id=:id"
     }
   ]
 }
