@@ -11,11 +11,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="/assets/css/style.css">
     <style>
-        .toggle-auth { margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+        .toggle-auth { margin-top: 20px; font-size: 13px; color: var(--text-muted); text-align: center; }
         .toggle-auth a { color: var(--primary); font-weight: 700; cursor: pointer; text-decoration: none; }
         .toggle-auth a:hover { color: var(--accent); text-decoration: underline; }
-        #registerSection { display: none; }
-        #loaderAPI { display: none; margin-top: 15px; font-size: 13px; color: var(--primary); font-weight: 600; }
+        #registerSection, #resetSection { display: none; }
+        #loaderAPI, #loaderResetAPI { display: none; margin-top: 15px; font-size: 13px; color: var(--primary); font-weight: 600; }
         .error-msg { color: #ef4444; font-size: 12px; margin-top: 10px; font-weight: 600; display: none; }
     </style>
 
@@ -40,7 +40,6 @@
     <div class="top-bar">
         <div class="container top-bar-content">
             <div class="top-links" id="dynamicTopLinks">
-                <a href="#">Ouvidoria TJP</a>
             </div>
             <div class="top-actions">
                 <span>Intranet Unificada Tribunal de Justiça</span>
@@ -71,7 +70,7 @@
             <div class="login-card" id="loginSection">
                 <img src="/assets/img/logo-tjp.png" alt="Emblema TJP" style="height: 60px; width: auto; margin-bottom: 15px;">
                 <h2>Intranet TJP</h2>
-                <p>Acesso restrito ao corpo de Oficiais, Monitores e Aprendizes.</p>
+                <p>Acesso restrito aos Membros e Aprendizes do Tribunal de Justiça Policial.</p>
                 
                 <form id="formLogin">
                     <div class="form-group">
@@ -84,6 +83,10 @@
                     </div>
                     <p id="loginError" class="error-msg">Usuário ou senha incorretos.</p>
                     <button type="submit" class="btn-submit" id="btnLoginBtn" style="margin-top: 10px;"><i class="fa-solid fa-fingerprint"></i> Autenticar Credenciais</button>
+                    
+                    <div style="text-align: center; margin-top: 15px; font-size: 13px;">
+                        <a onclick="toggleAuth('reset')" style="color: var(--primary); font-weight: 600; cursor: pointer; text-decoration: none; transition: 0.2s;">Esqueceu a senha? Clique aqui para redefinir</a>
+                    </div>
                 </form>
 
                 <div class="toggle-auth">
@@ -117,12 +120,46 @@
                 </div>
             </div>
 
+            <div class="login-card" id="resetSection">
+                <img src="/assets/img/logo-tjp.png" alt="Emblema TJP" style="height: 60px; width: auto; margin-bottom: 15px;">
+                <h2>Redefinir Senha</h2>
+                <p style="margin-bottom: 15px;">Preencha os dados e valide sua identidade no Habbo.</p>
+                
+                <div id="resetStep1">
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-user"></i> Nick Habbo</label>
+                        <input type="text" id="resNick" placeholder="Seu usuário..." required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-key"></i> Nova Senha</label>
+                        <input type="password" id="resNovaSenha" placeholder="Crie uma nova senha" required minlength="6">
+                    </div>
+                    <p id="resError1" class="error-msg"></p>
+                    <button type="button" class="btn-submit" id="btnGerarCodigo" style="margin-top: 10px; background: var(--accent);"><i class="fa-solid fa-qrcode"></i> Gerar Código de Validação</button>
+                </div>
+
+                <div id="resetStep2" style="display: none;">
+                    <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; border: 1px dashed var(--stroke); margin-bottom: 15px; text-align: center;">
+                        <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 5px;">Cole este código na sua Missão do Habbo:</span>
+                        <strong id="codigoGerado" style="font-size: 20px; color: var(--primary); letter-spacing: 2px;"></strong>
+                    </div>
+                    <div id="loaderResetAPI"><i class="fa-solid fa-circle-notch fa-spin"></i> Verificando missão no Habbo...</div>
+                    <p id="resError2" class="error-msg"></p>
+                    <button type="button" class="btn-submit" id="btnValidarMotto" style="margin-top: 10px;"><i class="fa-solid fa-check-double"></i> Validar Missão e Logar</button>
+                    <button type="button" class="btn-outline" onclick="cancelarReset()" style="margin-top: 10px; width: 100%;">Cancelar</button>
+                </div>
+
+                <div class="toggle-auth">
+                    Lembrou a senha? <a onclick="toggleAuth('login')">Fazer Login</a>
+                </div>
+            </div>
+
         </main>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs",
@@ -149,14 +186,32 @@
             setTimeout(() => t.classList.remove("show"), 4000);
         };
 
+        let codConfirmacao = "";
+
+        window.cancelarReset = () => {
+            document.getElementById("resetStep1").style.display = "block";
+            document.getElementById("resetStep2").style.display = "none";
+            document.getElementById("resNick").value = "";
+            document.getElementById("resNovaSenha").value = "";
+            codConfirmacao = "";
+        };
+
         window.toggleAuth = (type) => {
             document.getElementById("loginError").style.display = "none";
             document.getElementById("regError").style.display = "none";
+            document.getElementById("resError1").style.display = "none";
+            document.getElementById("resError2").style.display = "none";
+            
+            document.getElementById("loginSection").style.display = "none";
+            document.getElementById("registerSection").style.display = "none";
+            document.getElementById("resetSection").style.display = "none";
+            
             if(type === 'register') {
-                document.getElementById("loginSection").style.display = "none";
                 document.getElementById("registerSection").style.display = "block";
+            } else if (type === 'reset') {
+                document.getElementById("resetSection").style.display = "block";
+                window.cancelarReset();
             } else {
-                document.getElementById("registerSection").style.display = "none";
                 document.getElementById("loginSection").style.display = "block";
             }
         };
@@ -178,6 +233,93 @@
             return await res.json();
         }
 
+        // ==========================================
+        // FLUXO DE REDEFINIÇÃO DE SENHA COM LOGIN AUTOMÁTICO
+        // ==========================================
+        document.getElementById("btnGerarCodigo").addEventListener("click", () => {
+            const nick = document.getElementById("resNick").value.trim();
+            const novaSenha = document.getElementById("resNovaSenha").value;
+            const err = document.getElementById("resError1");
+            
+            if(!nick || !novaSenha) {
+                err.innerText = "Preencha o Nick Habbo e a Nova Senha.";
+                err.style.display = "block";
+                return;
+            }
+            if(novaSenha.length < 6) {
+                err.innerText = "A nova senha deve ter no mínimo 6 caracteres.";
+                err.style.display = "block";
+                return;
+            }
+
+            err.style.display = "none";
+            // Gera um código de 6 caracteres aleatórios
+            codConfirmacao = "TJP-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+            
+            document.getElementById("codigoGerado").innerText = codConfirmacao;
+            document.getElementById("resetStep1").style.display = "none";
+            document.getElementById("resetStep2").style.display = "block";
+        });
+
+        document.getElementById("btnValidarMotto").addEventListener("click", async () => {
+            const nick = document.getElementById("resNick").value.trim();
+            const novaSenha = document.getElementById("resNovaSenha").value;
+            const docId = nick.toLowerCase();
+            
+            const btn = document.getElementById("btnValidarMotto");
+            const loader = document.getElementById("loaderResetAPI");
+            const err = document.getElementById("resError2");
+            
+            err.style.display = "none";
+            btn.disabled = true; btn.style.opacity = "0.5"; loader.style.display = "block";
+
+            try {
+                // Verifica se conta existe
+                const userDoc = await getDoc(doc(db, "tjp_usuarios", docId));
+                if (!userDoc.exists()) throw new Error("Conta não encontrada. Você precisa se cadastrar primeiro.");
+
+                // Checa a missão pública
+                const userData = await fetchHabboAPI(`https://www.habbo.com.br/api/public/users?name=${nick}`);
+                if (!userData || !userData.motto) throw new Error("Perfil offline, bloqueado ou sem missão visível.");
+                
+                if (!userData.motto.includes(codConfirmacao)) {
+                    throw new Error("O código não está na sua missão! Coloque no Habbo e tente novamente.");
+                }
+
+                // Identidade validada! Altera a senha.
+                const senhaHash = await hashPassword(novaSenha);
+                await updateDoc(doc(db, "tjp_usuarios", docId), { senha: senhaHash });
+
+                // Login Automático
+                const dbData = userDoc.data();
+                let nivelFinal = dbData.nivel_acesso || dbData.cargo;
+
+                localStorage.setItem("juspanel_session", JSON.stringify({ 
+                    nick: dbData.nick, 
+                    cargo: dbData.cargo,
+                    nivel_acesso: nivelFinal 
+                }));
+
+                window.showToast("Senha alterada! Acessando sistema...");
+                
+                setTimeout(() => { 
+                    if(nivelFinal === 'Aprendiz' || dbData.cargo === 'Aprendiz') {
+                        window.location.href = "/intranet/aprendiz";
+                    } else {
+                        window.location.href = "/intranet/";
+                    }
+                }, 1500);
+
+            } catch(e) {
+                err.innerText = e.message || "Erro durante a verificação.";
+                err.style.display = "block";
+                loader.style.display = "none"; btn.disabled = false; btn.style.opacity = "1";
+            }
+        });
+
+        // ==========================================
+        // FLUXO DE CADASTRO COM LOGIN AUTOMÁTICO
+        // ==========================================
         document.getElementById("formRegister").addEventListener("submit", async (e) => {
             e.preventDefault();
             const btn = document.getElementById("btnRegisterBtn");
@@ -231,14 +373,32 @@
                     dataCadastro: new Date().toISOString() 
                 });
 
-                window.showToast("Cadastro aprovado com sucesso!");
-                setTimeout(() => { toggleAuth('login'); }, 2000);
+                // Login Automático
+                localStorage.setItem("juspanel_session", JSON.stringify({ 
+                    nick: userData.name, 
+                    cargo: cargoFinal,
+                    nivel_acesso: nivelFinal 
+                }));
+
+                window.showToast("Cadastro aprovado! Acessando sistema...");
+                
+                setTimeout(() => { 
+                    if(nivelFinal === 'Aprendiz' || cargoFinal === 'Aprendiz') {
+                        window.location.href = "/intranet/aprendiz";
+                    } else {
+                        window.location.href = "/intranet/";
+                    }
+                }, 1500);
 
             } catch (err) {
                 errorMsg.innerText = err.message || "Erro de comunicação."; errorMsg.style.display = "block";
-            } finally { loader.style.display = "none"; btn.disabled = false; btn.style.opacity = "1"; }
+                loader.style.display = "none"; btn.disabled = false; btn.style.opacity = "1";
+            }
         });
 
+        // ==========================================
+        // FLUXO DE LOGIN PADRÃO
+        // ==========================================
         document.getElementById("formLogin").addEventListener("submit", async (e) => {
             e.preventDefault();
             const btn = document.getElementById("btnLoginBtn");

@@ -1,14 +1,17 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [
+  "redirects": [
     {
       "source": "/documento/:id",
-      "destination": "/documento.html?id=:id"
-    },
+      "destination": "/documento?id=:id",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
     {
       "source": "/canvas/:id",
-      "destination": "/canvas.html?id=:id"
+      "destination": "/canvas.html"
     }
   ]
 }

@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="/assets/css/style.css">
+    
+    <script src="/assets/js/admin_layout.js"></script>
 </head>
 <body class="admin-body">
 
@@ -25,22 +27,7 @@
                 </div>
             </div>
 
-            <nav class="admin-nav">
-                <span class="nav-label">Principal</span>
-                <a href="/admin/index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
-                
-                <span class="nav-label">Portal Público</span>
-                <a href="/admin/publicacoes.html"><i class="fa-solid fa-newspaper"></i> Publicações</a>
-                <a href="/admin/dojup.html"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
-                <a href="/admin/aparencia.html"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
-                
-                <span class="nav-label">Intranet & Sistemas</span>
-                <a href="/admin/documentos.html"><i class="fa-solid fa-file-signature"></i> Gestão de Documentos</a>
-                <a href="/admin/canvas.html" class="active"><i class="fa-solid fa-object-group"></i> Gestão de Canvas</a>
-                <a href="/admin/membros.html"><i class="fa-solid fa-users-gear"></i> Controle da Bancada</a>
-                <a href="/admin/comunicacao.html"><i class="fa-solid fa-tower-broadcast"></i> Comunicação Interna</a>
-                <a href="/admin/configuracoes.html"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
-            </nav>
+            <nav class="admin-nav"></nav>
         </aside>
 
         <main class="admin-main">
@@ -58,7 +45,7 @@
                     <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
                         <a href="/intranet/index.html" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
                         <a href="/index.html" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
-                        <a href="#" onclick="logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
+                        <a href="#" onclick="window.logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
                     </div>
                 </div>
             </header>
@@ -145,24 +132,13 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-        // SESSÃO E SEGURANÇA
-        const sessionData = localStorage.getItem("juspanel_session");
-        if (!sessionData) { window.location.href = "/login.html"; } 
-        else {
-            const user = JSON.parse(sessionData);
-            if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
-                alert("Acesso Negado. Área restrita."); window.location.href = "/login.html";
-            }
-            document.getElementById("userNickDisplay").innerText = user.nick;
-            document.getElementById("userCargoDisplay").innerText = user.cargo;
-            document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
-        }
-
-        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login.html"; };
         window.showToast = (msg) => { const t = document.getElementById("toast"); document.getElementById("toastMessage").innerText = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 4000); };
 
         const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
         const db = getFirestore(app);
+
+        const sessionData = localStorage.getItem("juspanel_session");
+        const user = sessionData ? JSON.parse(sessionData) : null;
 
         // LÓGICA DO CRUD DE CANVAS
         let editIdAtivo = null;
@@ -213,7 +189,7 @@
                 url: document.getElementById("canUrl").value.trim(),
                 permissao: document.getElementById("canPermissao").value,
                 status: document.getElementById("canStatus").value,
-                atualizadoPor: JSON.parse(sessionData).nick,
+                atualizadoPor: user ? user.nick : "Sistema",
                 dataAtualizacao: serverTimestamp()
             };
 

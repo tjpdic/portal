@@ -13,6 +13,8 @@
     
     <script src="https://cdn.ckeditor.com/4.22.1/full-all/ckeditor.js"></script>
 
+    <script src="/assets/js/admin_layout.js"></script>
+
     <style>
         .dojup-card-admin {
             background: #fff; border: 1px solid var(--stroke); border-radius: 8px; padding: 20px;
@@ -41,21 +43,25 @@
                 <img src="/assets/img/logo-tjp.png" alt="Logo TJP" style="height: 40px; width: auto;">
                 <div><h2>JusPanel</h2><span>Administração Geral</span></div>
             </div>
-            <nav class="admin-nav">
-                <span class="nav-label">Principal</span>
-                <a href="/admin/index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
-                <span class="nav-label">Portal Público</span>
-                <a href="/admin/publicacoes.html"><i class="fa-solid fa-newspaper"></i> Publicações</a>
-                <a href="/admin/dojup.html" class="active"><i class="fa-solid fa-file-contract"></i> Publicar no DOJUP</a>
-                <a href="/admin/configuracoes.html"><i class="fa-solid fa-sliders"></i> Configurações</a>
-            </nav>
+
+            <nav class="admin-nav"></nav>
         </aside>
 
         <main class="admin-main">
             <header class="admin-header">
+                <div class="header-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Buscar documento do DOJUP...">
+                </div>
+                
                 <div class="header-user">
                     <div class="user-info"><strong id="userNickDisplay">...</strong><span id="userCargoDisplay">...</span></div>
                     <img src="" id="userAvatarDisplay" class="user-avatar">
+                    <div style="display: flex; gap: 5px; margin-left: 10px; border-left: 1px solid var(--stroke); padding-left: 15px;">
+                        <a href="/intranet/index.html" class="btn-site" style="background: #e0f2fe; color: #0284c7;" title="Ir para a Intranet"><i class="fa-solid fa-network-wired"></i></a>
+                        <a href="/index.html" class="btn-site" title="Ver Portal Público"><i class="fa-solid fa-house"></i></a>
+                        <a href="#" onclick="logoutUser()" class="btn-logout" title="Sair"><i class="fa-solid fa-power-off"></i></a>
+                    </div>
                 </div>
             </header>
 
@@ -153,10 +159,9 @@
         let ultimoDocumentoAdmin = null;
         const itensPorPaginaAdmin = 20;
 
-        const sessionData = JSON.parse(localStorage.getItem("juspanel_session"));
-        document.getElementById("userNickDisplay").innerText = sessionData.nick;
-        document.getElementById("userCargoDisplay").innerText = sessionData.cargo;
-        document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${sessionData.nick}&size=m`;
+        // O Admin_layout.js cuida de barrar acessos, mas precisamos do nick para salvar o autor.
+        const sessionData = localStorage.getItem("juspanel_session");
+        const userJson = sessionData ? JSON.parse(sessionData) : {nick: 'Sistema'};
 
         window.abrirModalPublicar = () => {
             editIdAtivo = null;
@@ -218,7 +223,7 @@
                 conteudo: CKEDITOR.instances['dojupConteudo'].getData(),
                 dataIso: dataInput, 
                 timestampDate: timestampData,
-                autor: sessionData.nick
+                autor: userJson.nick
             };
 
             try {

@@ -20,6 +20,27 @@
         .btn-tab.active { color: var(--primary); border-bottom-color: var(--accent); background: #eff6f0; }
         .btn-tab:hover:not(.active) { color: var(--primary); background: #f8fafc; }
         .escondido { display: none !important; }
+
+        /* CAIXA DE NOTIFICAÇÕES */
+        .notif-wrapper { position: relative; display: flex; align-items: center; margin-right: 15px; cursor: pointer; }
+        .notif-icon { font-size: 22px; color: var(--text-muted); transition: 0.3s; }
+        .notif-wrapper:hover .notif-icon { color: var(--primary); }
+        .notif-badge { position: absolute; top: -5px; right: -8px; background: #ef4444; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; border: 2px solid #fff; }
+        
+        .notif-dropdown { position: absolute; top: 45px; right: -10px; width: 340px; background: white; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid var(--stroke); z-index: 1000; overflow: hidden; display: none; cursor: default; }
+        .notif-dropdown.active { display: block; animation: slideDown 0.2s ease-out; }
+        .notif-header { padding: 15px; border-bottom: 1px solid var(--stroke); background: #f8fafc; font-weight: 700; display: flex; justify-content: space-between; align-items: center; color: var(--primary); }
+        .notif-body { max-height: 380px; overflow-y: auto; }
+        .notif-item { padding: 15px; border-bottom: 1px solid var(--stroke); display: flex; gap: 15px; align-items: flex-start; transition: 0.2s; text-decoration: none; color: var(--text-main); }
+        .notif-item:hover { background: #f1f5f9; }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-icon-circle { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; font-size: 14px; }
+        .notif-icon-circle.aviso { background: #f59e0b; }
+        .notif-icon-circle.sistema { background: #0284c7; }
+        .notif-icon-circle.urgente { background: #ef4444; }
+        .notif-icon-circle.noticia { background: var(--accent); }
+        .notif-text { font-size: 12px; line-height: 1.4; }
+        .notif-time { font-size: 10px; color: var(--text-muted); margin-top: 5px; display: block; }
     </style>
 </head>
 <body class="admin-body">
@@ -33,7 +54,7 @@
                 <div>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <h2 style="margin:0;">Intranet TJP</h2>
-                        <a href="/admin" id="btnAdminDash" class="escondido" title="Acessar Administração do Sistema" style="color: var(--primary); font-size: 14px; transition: 0.3s;"><i class="fa-solid fa-gauge-high"></i></a>
+                        <a href="/admin/index.html" id="btnAdminDash" class="escondido" title="Acessar Administração do Sistema" style="color: var(--primary); font-size: 14px; transition: 0.3s;"><i class="fa-solid fa-gauge-high"></i></a>
                     </div>
                     <span>Gestão Judiciária</span>
                 </div>
@@ -41,9 +62,9 @@
 
             <nav class="admin-nav">
                 <span class="nav-label">Meus Sistemas</span>
-                <a href="/intranet/"><i class="fa-solid fa-house-user"></i> Início</a>
+                <a href="/intranet/index.html"><i class="fa-solid fa-house-user"></i> Início</a>
                 <a href="/intranet/processos" class="active"><i class="fa-solid fa-scale-balanced"></i> Sistema Processual</a>
-                <a href="/intranet/monitores"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
+                <a href="/intranet/monitores" id="navMonitores" class="escondido"><i class="fa-solid fa-chalkboard-user"></i> Painel dos Monitores</a>
             </nav>
         </aside>
 
@@ -55,12 +76,27 @@
                 </div>
                 
                 <div class="header-user">
+                    <div class="notif-wrapper" onclick="toggleNotificacoes()">
+                        <i class="fa-solid fa-bell notif-icon"></i>
+                        <span class="notif-badge" id="badgeNotifCount">0</span>
+                        
+                        <div id="dropdownNotificacoes" class="notif-dropdown" onclick="event.stopPropagation()">
+                            <div class="notif-header">
+                                <span>Notificações</span>
+                                <button class="btn-icon" style="font-size:12px; width:24px; height:24px;" title="Marcar todas como lidas" onclick="marcarTudoLido()"><i class="fa-solid fa-check-double"></i></button>
+                            </div>
+                            <div class="notif-body" id="listaNotificacoes">
+                                <div style="padding:20px; text-align:center; color:var(--text-muted); font-size:12px;">Buscando avisos...</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="user-info">
                         <strong id="userNickDisplay">Carregando...</strong>
                         <span id="userCargoDisplay">Aguarde...</span>
                     </div>
                     <img src="" id="userAvatarDisplay" alt="Avatar" class="user-avatar">
-                    <a href="/" class="btn-site" title="Voltar ao Portal Público"><i class="fa-solid fa-house"></i></a>
+                    <a href="/index.html" class="btn-site" title="Voltar ao Portal Público"><i class="fa-solid fa-house"></i></a>
                     <a href="#" onclick="window.logoutUser()" class="btn-logout" title="Sair do Sistema"><i class="fa-solid fa-power-off"></i></a>
                 </div>
             </header>
@@ -116,22 +152,38 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, setDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
         // Funções Globais
-        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
+        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login.html"; };
         window.showToast = (msg) => { const t = document.getElementById("toast"); document.getElementById("toastMessage").innerText = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 4000); };
         window.modelosCache = {};
+
+        window.toggleNotificacoes = function() { document.getElementById('dropdownNotificacoes').classList.toggle('active'); };
+        window.marcarTudoLido = function() { document.getElementById('badgeNotifCount').innerText = "0"; document.getElementById('badgeNotifCount').style.display = "none"; };
+
+        document.addEventListener('click', (e) => {
+            const wrapper = document.querySelector('.notif-wrapper');
+            if(wrapper && !wrapper.contains(e.target)) {
+                document.getElementById('dropdownNotificacoes').classList.remove('active');
+            }
+        });
 
         try {
             // SESSÃO E SEGURANÇA
             const sessionData = localStorage.getItem("juspanel_session");
             if (!sessionData) throw new Error("Usuário não autenticado");
             const user = JSON.parse(sessionData);
-            if(!user.nivel_acesso) user.nivel_acesso = user.cargo || "Comum";
+            
+            const nivelAtivo = (user.nivel_acesso || "").trim().toLowerCase();
+            const cargoAtivo = (user.cargo || "").trim().toLowerCase();
+
+            if (nivelAtivo === "aprendiz" || cargoAtivo === "aprendiz") window.location.href = "/intranet/aprendiz.html"; 
+            
+            const isAdmin = ["presidente", "admin", "csj"].includes(nivelAtivo) || ["presidente", "admin", "csj"].includes(cargoAtivo) || cargoAtivo.includes("presidente");
             
             // Trava exclusiva da Denúncia (Promotores, Admin, Presidência, CSJ)
-            if (user.nivel_acesso !== "Promotor" && user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
+            if (nivelAtivo !== "promotor" && !isAdmin) {
                 window.location.href = "/intranet/processos"; 
             }
 
@@ -139,27 +191,59 @@
             document.getElementById("userCargoDisplay").innerText = user.cargo;
             document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
 
-            // PERMISSÕES DA UI (Exibição de abas na barra de navegação)
-            if (user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+            // CONTROLE DE ACESSO AO SISAP (MONITORES) COM TAGS ESPECÍFICAS
+            const userFuncoes = Array.isArray(user.funcoes) ? user.funcoes.join(",").toLowerCase() : (user.funcoes || "").toLowerCase();
+            const temSisap = userFuncoes.includes("monitor") || userFuncoes.includes("monitor-chefe") || userFuncoes.includes("monitor chefe") || userFuncoes.includes("coordenador");
+            
+            if (isAdmin) {
                 document.getElementById('btnAdminDash').classList.remove('escondido');
+            }
+
+            if (isAdmin || temSisap) {
+                document.getElementById('navMonitores').classList.remove('escondido');
+            }
+
+            // PERMISSÕES DA UI
+            if (isAdmin) {
                 document.getElementById('abaCartorio').classList.remove('escondido');
                 document.getElementById('abaAcervo').classList.remove('escondido');
             }
-            if (user.nivel_acesso === "Promotor" || user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+            if (nivelAtivo === "promotor" || isAdmin) {
                 document.getElementById('abaDenuncia').classList.remove('escondido');
                 document.getElementById('abaPeticionar').classList.remove('escondido');
             }
-            if (user.nivel_acesso === "Defensor" || user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+            if (nivelAtivo === "defensor" || isAdmin) {
                 document.getElementById('abaApelacao').classList.remove('escondido');
                 document.getElementById('abaPeticionar').classList.remove('escondido');
             }
-            if (user.nivel_acesso === "Juiz" || user.nivel_acesso === "Presidente" || user.nivel_acesso === "Admin" || user.nivel_acesso === "CSJ") {
+            if (nivelAtivo === "juiz" || isAdmin) {
                 document.getElementById('abaPronunciamento').classList.remove('escondido');
             }
 
             // FIREBASE INICIALIZAÇÃO
             const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
             const db = getFirestore(app);
+
+            // CARREGAR NOTIFICAÇÕES (SININHO)
+            onSnapshot(query(collection(db, "tjp_notificacoes"), orderBy("timestamp", "desc")), (snap) => {
+                let htmlNotifs = "";
+                let countNaoLidas = 0;
+                snap.forEach(d => {
+                    const n = d.data();
+                    if(n.destinatario === 'todos' || n.destinatario.toLowerCase() === user.nick.toLowerCase() || n.destinatario.toLowerCase() === user.cargo.toLowerCase()) {
+                        let iconClass = "fa-solid fa-bell";
+                        let circleClass = "sistema";
+                        if(n.tipo === 'urgente') { iconClass = "fa-solid fa-triangle-exclamation"; circleClass = "urgente"; }
+                        if(n.tipo === 'aviso') { iconClass = "fa-solid fa-bullhorn"; circleClass = "aviso"; }
+                        if(n.tipo === 'noticia') { iconClass = "fa-solid fa-newspaper"; circleClass = "noticia"; }
+                        countNaoLidas++; 
+                        htmlNotifs += `<a href="${n.link || '#'}" class="notif-item"><div class="notif-icon-circle ${circleClass}"><i class="${iconClass}"></i></div><div><div class="notif-text"><strong>${n.remetente}:</strong> ${n.mensagem}</div><span class="notif-time">${n.dataStr}</span></div></a>`;
+                    }
+                });
+                document.getElementById('listaNotificacoes').innerHTML = htmlNotifs || `<div style="padding:20px; text-align:center; color:var(--text-muted); font-size:12px;">Você não tem novas notificações.</div>`;
+                const badge = document.getElementById('badgeNotifCount');
+                if(countNaoLidas > 0) { badge.innerText = countNaoLidas; badge.style.display = "block"; } else { badge.style.display = "none"; }
+            });
 
             // INICIALIZAÇÃO DO QUILL EDITOR
             const toolbarOptions = [ ['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], [{ 'align': [] }], ['clean'] ];
@@ -244,7 +328,7 @@
 
         } catch (errorGeral) {
             console.error("Falha na Inicialização: ", errorGeral);
-            if(errorGeral.message === "Usuário não autenticado") window.location.href = "/login";
+            if(errorGeral.message === "Usuário não autenticado") window.location.href = "/login.html";
         }
     </script>
 </body>

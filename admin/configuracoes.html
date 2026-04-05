@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="/assets/css/style.css">
+
+    <script src="/assets/js/admin_layout.js"></script>
 </head>
 <body class="admin-body">
 
@@ -25,19 +27,7 @@
                 </div>
             </div>
 
-            <nav class="admin-nav">
-                <span class="nav-label">Principal</span>
-                <a href="/admin"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
-                
-                <span class="nav-label">Portal Público</span>
-                <a href="/admin/publicacoes"><i class="fa-solid fa-newspaper"></i> Publicações</a>
-                <a href="/admin/dojup"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
-                <a href="/admin/aparencia"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
-                
-                <span class="nav-label">Intranet & Sistemas</span>
-                <a href="/admin/membros"><i class="fa-solid fa-users-gear"></i> Controle da Bancada do TJP</a>
-                <a href="/admin/configuracoes" class="active"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
-            </nav>
+            <nav class="admin-nav"></nav>
         </aside>
 
         <main class="admin-main">
@@ -180,20 +170,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-        // VERIFICAÇÃO DE SESSÃO
-        const sessionData = localStorage.getItem("juspanel_session");
-        if (!sessionData) window.location.href = "/login";
-        const user = JSON.parse(sessionData);
-        
-        if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
-            alert("Acesso Negado. Esta área é restrita à Administração Geral."); window.location.href = "/login";
-        }
-
-        document.getElementById("userNickDisplay").innerText = user.nick;
-        document.getElementById("userCargoDisplay").innerText = user.cargo;
-        document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
-
-        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
+        // VERIFICAÇÃO DE SESSÃO ESTÁ NO JS GLOBAL
         window.showToast = (msg) => { const t = document.getElementById("toast"); document.getElementById("toastMessage").innerText = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 4000); };
 
         const firebaseConfig = {

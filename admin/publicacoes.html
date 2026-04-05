@@ -14,6 +14,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/style.css">
     
+    <script src="/assets/js/admin_layout.js"></script>
+
     <style>
         .ql-destaque i { font-size: 14px; color: var(--text-main); }
         .ql-destaque:hover i { color: var(--accent); }
@@ -35,20 +37,7 @@
                 </div>
             </div>
 
-            <nav class="admin-nav">
-                <span class="nav-label">Principal</span>
-                <a href="/admin"><i class="fa-solid fa-gauge-high"></i> Dashboard Geral</a>
-                
-                <span class="nav-label">Portal Público</span>
-                <a href="/admin/publicacoes" class="active"><i class="fa-solid fa-newspaper"></i> Publicações</a>
-                <a href="/admin/dojup"><i class="fa-solid fa-file-contract"></i> Diário Oficial (DOJUP)</a>
-                <a href="/admin/aparencia"><i class="fa-solid fa-palette"></i> Gerir Portal</a>
-                
-                <span class="nav-label">Intranet & Sistemas</span>
-                <a href="/admin/membros"><i class="fa-solid fa-users-gear"></i> Gestão de Membros</a>
-                <a href="/admin/comunicacao"><i class="fa-solid fa-tower-broadcast"></i> Comunicação Interna</a>
-                <a href="/admin/configuracoes"><i class="fa-solid fa-sliders"></i> Configurações Internas</a>
-            </nav>
+            <nav class="admin-nav"></nav>
         </aside>
 
         <main class="admin-main">
@@ -359,20 +348,10 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-        // VERIFICAÇÃO DE SESSÃO (Proteção CMS)
+        // A Trava global de sessão do Admin_layout.js já cuida de não deixar entrar caso não seja logado e não tenha acesso
+        // Aqui apenas pegamos o nick para preencher o Autor da postagem
         const sessionData = localStorage.getItem("juspanel_session");
-        if (!sessionData) window.location.href = "/login";
-        const user = JSON.parse(sessionData);
-        
-        if (user.nivel_acesso !== "Presidente" && user.nivel_acesso !== "Admin" && user.nivel_acesso !== "CSJ") {
-            alert("Acesso Negado. Área restrita."); window.location.href = "/login";
-        }
-
-        document.getElementById("userNickDisplay").innerText = user.nick;
-        document.getElementById("userCargoDisplay").innerText = user.cargo;
-        document.getElementById("userAvatarDisplay").src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${user.nick}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
-
-        window.logoutUser = function() { localStorage.removeItem("juspanel_session"); window.location.href = "/login"; };
+        const user = sessionData ? JSON.parse(sessionData) : {nick: "Sistema"};
 
         const firebaseConfig = {
             apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs",
@@ -400,7 +379,7 @@
             quill.root.innerHTML = "";
             document.getElementById("cropperContainer").style.display = "none";
             if (cropper) cropper.destroy();
-            const user = JSON.parse(localStorage.getItem("juspanel_session"));
+            
             document.getElementById("pubAutor").value = user.nick;
             modal.classList.add("active");
         };

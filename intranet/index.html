@@ -78,7 +78,7 @@
 
         /* MENU LATERAL DIREITO DINÂMICO */
         .right-menu-box { background: #fff; border: 1px solid var(--stroke); border-radius: 8px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .right-menu-header { background: linear-gradient(to bottom, #c80000, #a90000); color: white; padding: 12px 15px; font-weight: 700; font-size: 14px; text-transform: uppercase; }
+        .right-menu-header { background: var(--primary); color: white; padding: 12px 15px; font-weight: 700; font-size: 14px; text-transform: uppercase; }
         .right-menu-item { display: block; padding: 12px 15px; color: var(--text-main); font-size: 13px; text-decoration: none; border-bottom: 1px solid var(--stroke); transition: 0.2s; cursor: pointer; font-weight: 500; }
         .right-menu-item:last-child { border-bottom: none; }
         .right-menu-item:hover { background: #f8fafc; color: var(--primary); }
@@ -192,8 +192,11 @@
             document.getElementById('btnAdminDash').classList.remove('escondido');
         }
 
-        const monitores = ["coordenador", "monitor-chefe", "monitor chefe", "monitor"];
-        if(monitores.includes(nivelAtivo) || monitores.includes(cargoAtivo) || admins.includes(nivelAtivo)) {
+        // Lógica de Permissão do SISAP
+        const userFuncoes = Array.isArray(user.funcoes) ? user.funcoes.join(",").toLowerCase() : (user.funcoes || "").toLowerCase();
+        const temSisap = userFuncoes.includes("monitor") || userFuncoes.includes("monitor-chefe") || userFuncoes.includes("monitor chefe") || userFuncoes.includes("coordenador");
+        
+        if (admins.includes(nivelAtivo) || admins.includes(cargoAtivo) || cargoAtivo.includes("presidente") || temSisap) {
             document.getElementById('btnMenuMonitores').classList.remove('escondido');
         }
 
@@ -254,26 +257,35 @@
             const categorias = snap.data().lista;
             let htmlMenu = "";
 
-            categorias.sort((a,b) => a.prioridade - b.prioridade).forEach(cat => {
+            categorias.sort((a,b) => (a.prioridade || 0) - (b.prioridade || 0)).forEach(cat => {
                 htmlMenu += `<div class="right-menu-box"><div class="right-menu-header">${cat.nome}</div>`;
                 
-                if(cat.links) {
-                    cat.links.forEach(lk => {
-                        if(lk.submenus && lk.submenus.length > 0) {
+                // Lógica reforçada para aceitar qualquer padrão de salvamento do JusPanel (links, sub, itens)
+                const items = cat.links || cat.sub || cat.itens || [];
+                
+                if(items.length > 0) {
+                    items.forEach(lk => {
+                        const subs = lk.submenus || lk.sub || [];
+                        const url = lk.url || lk.link || '#';
+                        const icone = lk.icone ? lk.icone : 'fa-solid fa-angle-right';
+
+                        if(subs.length > 0) {
                             htmlMenu += `
                                 <a class="right-menu-item" onclick="window.toggleSubmenu(this)">
-                                    <i class="${lk.icone} main-icon"></i> ${lk.nome} 
+                                    <i class="${icone} main-icon"></i> ${lk.nome} 
                                     <i class="fa-solid fa-chevron-down" style="float:right; margin-top:3px; font-size:11px; opacity:0.5;"></i>
                                 </a>
                                 <div class="right-submenu">`;
-                                
-                            lk.submenus.forEach(sub => {
-                                htmlMenu += `<a href="${sub.url || '#'}" target="_blank" class="right-submenu-item"><i class="${sub.icone}"></i> ${sub.nome}</a>`;
+                            
+                            subs.forEach(sub => {
+                                const subUrl = sub.url || sub.link || '#';
+                                const subIco = sub.icone || 'fa-solid fa-minus';
+                                htmlMenu += `<a href="${subUrl}" target="_blank" class="right-submenu-item"><i class="${subIco}"></i> ${sub.nome}</a>`;
                             });
                             
                             htmlMenu += `</div>`;
                         } else {
-                            htmlMenu += `<a href="${lk.url || '#'}" target="_blank" class="right-menu-item"><i class="${lk.icone} main-icon"></i> ${lk.nome}</a>`;
+                            htmlMenu += `<a href="${url}" target="_blank" class="right-menu-item"><i class="${icone} main-icon"></i> ${lk.nome}</a>`;
                         }
                     });
                 }
