@@ -72,7 +72,9 @@ export const db = getFirestore(app);
 onSnapshot(doc(db, "tjp_config", "toplinks"), (snap) => {
     const container = document.getElementById("dynamicTopLinks");
     if(!container) return;
-    container.innerHTML = `<a href="#">Ouvidoria TJP</a>`; 
+    
+    container.innerHTML = ""; // Limpa para renderizar apenas os links oficiais do banco
+    
     if(snap.exists() && snap.data().lista) {
         snap.data().lista.forEach(lk => {
             const icn = lk.icone.includes('http') || lk.icone.includes('assets') ? `<img src="${lk.icone}" style="height: 16px;">` : `<i class="${lk.icone}"></i>`;

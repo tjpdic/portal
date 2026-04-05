@@ -59,6 +59,22 @@
                 </div>
 
                 <div class="panel-section">
+                    <div class="panel-header"><h3><i class="fa-solid fa-link"></i> Links do Topo (Barra Superior)</h3></div>
+                    <div class="panel-body">
+                        <form id="formTopLink" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                            <input type="text" id="topIco" placeholder="Ícone (fa-solid fa-...) ou URL" required style="flex:1;">
+                            <input type="text" id="topTit" placeholder="Título (ex: Ouvidoria TJP)" style="flex:1;">
+                            <input type="url" id="topUrl" placeholder="Link de destino (https://...)" required style="flex:1;">
+                            <button type="submit" class="btn-solid"><i class="fa-solid fa-plus"></i></button>
+                        </form>
+                        <table class="admin-table">
+                            <thead><tr><th>Ícone</th><th>Título</th><th>Link</th><th>Ação</th></tr></thead>
+                            <tbody id="listaTopLinks"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel-section">
                     <div class="panel-header"><h3><i class="fa-solid fa-images"></i> Banners (Carrossel Portal Público)</h3></div>
                     <div class="panel-body">
                         <form id="formBanner" style="display: flex; gap: 10px; margin-bottom: 20px;">
@@ -109,6 +125,33 @@
 
         const app = initializeApp({ apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs", authDomain: "monitores-sisap.firebaseapp.com", projectId: "monitores-sisap", storageBucket: "monitores-sisap.firebasestorage.app", messagingSenderId: "489679893157", appId: "1:489679893157:web:b1bbfaf4c0c5937d44534c" });
         const db = getFirestore(app);
+
+        // TOP LINKS
+        let topLinksArr = [];
+        onSnapshot(doc(db, "tjp_config", "toplinks"), (snap) => {
+            topLinksArr = snap.exists() ? snap.data().lista || [] : [];
+            const tb = document.getElementById("listaTopLinks"); tb.innerHTML = "";
+            topLinksArr.forEach((lk, i) => {
+                const icn = lk.icone.includes('http') || lk.icone.includes('assets') ? `<img src="${lk.icone}" style="height:16px;">` : `<i class="${lk.icone}"></i>`;
+                tb.innerHTML += `<tr>
+                <td>${icn}</td>
+                <td>${lk.titulo || '-'}</td>
+                <td><a href="${lk.url}" target="_blank" style="color:var(--primary);">${lk.url}</a></td>
+                <td><button type="button" class="btn-icon delete" onclick="window.delTopLink(${i})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+            });
+        });
+        document.getElementById("formTopLink").onsubmit = async (e) => {
+            e.preventDefault(); 
+            topLinksArr.push({
+                icone: document.getElementById("topIco").value.trim(),
+                titulo: document.getElementById("topTit").value.trim(),
+                url: document.getElementById("topUrl").value.trim()
+            });
+            await setDoc(doc(db, "tjp_config", "toplinks"), { lista: topLinksArr });
+            document.getElementById("formTopLink").reset(); showToast("Top Link adicionado!");
+        };
+        window.delTopLink = async (i) => { topLinksArr.splice(i, 1); await setDoc(doc(db, "tjp_config", "toplinks"), { lista: topLinksArr }); showToast("Removido!"); };
+
 
         // BANNERS
         let bannersArr = [];
