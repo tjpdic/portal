@@ -160,6 +160,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        // Importando Firebase Authentication
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBrez1ecIuGbmv5Q_NC1kTpIJhAT2kcnxs",
@@ -172,6 +174,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app); // Inicializando o Auth
 
         const HABBO_GROUP_BADGE = "b18044s02114s42014s43114s40014320ccd1d639cd4181fc0ee8c8666d7fc";
         const PROXY_URL = "https://proxydicgroups.alvesedu-br.workers.dev/?url=";
@@ -234,7 +237,7 @@
         }
 
         // ==========================================
-        // FLUXO DE REDEFINIÇÃO DE SENHA COM LOGIN AUTOMÁTICO
+        // FLUXO DE REDEFINIÇÃO DE SENHA
         // ==========================================
         document.getElementById("btnGerarCodigo").addEventListener("click", () => {
             const nick = document.getElementById("resNick").value.trim();
@@ -253,7 +256,6 @@
             }
 
             err.style.display = "none";
-            // Gera um código de 6 caracteres aleatórios
             codConfirmacao = "TJP-" + Math.random().toString(36).substring(2, 8).toUpperCase();
             
             document.getElementById("codigoGerado").innerText = codConfirmacao;
@@ -274,11 +276,9 @@
             btn.disabled = true; btn.style.opacity = "0.5"; loader.style.display = "block";
 
             try {
-                // Verifica se conta existe
                 const userDoc = await getDoc(doc(db, "tjp_usuarios", docId));
-                if (!userDoc.exists()) throw new Error("Conta não encontrada. Você precisa se cadastrar primeiro.");
+                if (!userDoc.exists()) throw new Error("Conta não encontrada no sistema.");
 
-                // Checa a missão pública
                 const userData = await fetchHabboAPI(`https://www.habbo.com.br/api/public/users?name=${nick}`);
                 if (!userData || !userData.motto) throw new Error("Perfil offline, bloqueado ou sem missão visível.");
                 
@@ -286,39 +286,29 @@
                     throw new Error("O código não está na sua missão! Coloque no Habbo e tente novamente.");
                 }
 
-                // Identidade validada! Altera a senha.
+                // Identidade validada! Altera a senha criptografada no banco.
                 const senhaHash = await hashPassword(novaSenha);
                 await updateDoc(doc(db, "tjp_usuarios", docId), { senha: senhaHash });
 
-                // Login Automático
-                const dbData = userDoc.data();
-                let nivelFinal = dbData.nivel_acesso || dbData.cargo;
-
-                localStorage.setItem("juspanel_session", JSON.stringify({ 
-                    nick: dbData.nick, 
-                    cargo: dbData.cargo,
-                    nivel_acesso: nivelFinal 
-                }));
-
-                window.showToast("Senha alterada! Acessando sistema...");
+                // Alerta ao usuário no Front-End para realizar login manual devido à trava do Firebase Auth
+                window.showToast("Senha redefinida com sucesso!");
+                alert("Sua senha foi alterada no sistema! Como medida de segurança, o painel exige que você faça login manualmente com a nova senha.");
                 
-                setTimeout(() => { 
-                    if(nivelFinal === 'Aprendiz' || dbData.cargo === 'Aprendiz') {
-                        window.location.href = "/intranet/aprendiz";
-                    } else {
-                        window.location.href = "/intranet/";
-                    }
-                }, 1500);
+                window.toggleAuth('login');
+                document.getElementById('loginNick').value = nick;
+                document.getElementById('loginSenha').value = "";
+                document.getElementById('loginSenha').focus();
 
             } catch(e) {
                 err.innerText = e.message || "Erro durante a verificação.";
                 err.style.display = "block";
+            } finally {
                 loader.style.display = "none"; btn.disabled = false; btn.style.opacity = "1";
             }
         });
 
         // ==========================================
-        // FLUXO DE CADASTRO COM LOGIN AUTOMÁTICO
+        // FLUXO DE CADASTRO (Com Firebase Auth)
         // ==========================================
         document.getElementById("formRegister").addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -328,6 +318,7 @@
             const nick = document.getElementById("regNick").value.trim();
             const senha = document.getElementById("regSenha").value;
             const docId = nick.toLowerCase();
+            const emailFantasma = `${docId}@tjp.intranet`; // E-mail gerado automaticamente
 
             errorMsg.style.display = "none"; btn.disabled = true; btn.style.opacity = "0.5"; loader.style.display = "block";
 
@@ -359,9 +350,12 @@
                         await setDoc(doc(db, "tjp_membros", docId), { nick: userData.name, cargo: "Presidente", nivel_acesso: "Presidente", status: "Ativo" });
                         await setDoc(doc(db, "tjp_cargos", "Presidente"), { nome: "Presidente", nivel: "Presidente" });
                     } else {
-                        throw new Error("Acesso Negado. Você não está na lista oficial de membros. Procure a Presidência.");
+                        throw new Error("Acesso Negado. Você não está na lista oficial de membros.");
                     }
                 }
+
+                // Criação do usuário na camada nativa do Firebase Authentication
+                await createUserWithEmailAndPassword(auth, emailFantasma, senha);
 
                 const senhaHash = await hashPassword(senha);
 
@@ -373,7 +367,6 @@
                     dataCadastro: new Date().toISOString() 
                 });
 
-                // Login Automático
                 localStorage.setItem("juspanel_session", JSON.stringify({ 
                     nick: userData.name, 
                     cargo: cargoFinal,
@@ -391,31 +384,34 @@
                 }, 1500);
 
             } catch (err) {
-                errorMsg.innerText = err.message || "Erro de comunicação."; errorMsg.style.display = "block";
+                errorMsg.innerText = err.message || "Erro de comunicação com Firebase Auth."; errorMsg.style.display = "block";
                 loader.style.display = "none"; btn.disabled = false; btn.style.opacity = "1";
             }
         });
 
         // ==========================================
-        // FLUXO DE LOGIN PADRÃO
+        // FLUXO DE LOGIN (Com Firebase Auth)
         // ==========================================
         document.getElementById("formLogin").addEventListener("submit", async (e) => {
             e.preventDefault();
             const btn = document.getElementById("btnLoginBtn");
             const errorMsg = document.getElementById("loginError");
-            const nick = document.getElementById("loginNick").value.trim().toLowerCase();
+            const nick = document.getElementById("loginNick").value.trim();
+            const docId = nick.toLowerCase();
             const senha = document.getElementById("loginSenha").value;
+            const emailFantasma = `${docId}@tjp.intranet`; // E-mail mascarado
 
             errorMsg.style.display = "none"; btn.innerText = "Autenticando...";
 
             try {
-                const userDoc = await getDoc(doc(db, "tjp_usuarios", nick));
-                if (!userDoc.exists()) throw new Error("Usuário não encontrado na Intranet.");
+                // Autentica via Firebase Authentication nativamente
+                await signInWithEmailAndPassword(auth, emailFantasma, senha);
+
+                // Busca dados no Firestore para injetar a sessão (Cargo e Nível)
+                const userDoc = await getDoc(doc(db, "tjp_usuarios", docId));
+                if (!userDoc.exists()) throw new Error("Documento de usuário ausente no banco.");
 
                 const userData = userDoc.data();
-                const senhaHash = await hashPassword(senha);
-                if (userData.senha !== senhaHash) throw new Error("Senha incorreta.");
-
                 let nivelFinal = userData.nivel_acesso || userData.cargo;
 
                 localStorage.setItem("juspanel_session", JSON.stringify({ 
@@ -435,7 +431,16 @@
                 }, 1500);
 
             } catch (err) {
-                errorMsg.innerText = err.message || "Falha na autenticação."; errorMsg.style.display = "block";
+                // Tratamento especial para erro do Auth (caso ele tenha redefinido a senha no banco, mas não no Auth)
+                if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+                    errorMsg.innerText = "Credenciais inválidas. (Se você redefiniu sua senha pelo painel recentemente, avise à Diretoria para sincronizar com o Firebase).";
+                } else if (err.code === 'auth/user-not-found') {
+                    errorMsg.innerText = "Conta não encontrada. Você precisa se cadastrar.";
+                } else {
+                    errorMsg.innerText = err.message || "Falha na autenticação.";
+                }
+                
+                errorMsg.style.display = "block";
                 btn.innerHTML = `<i class="fa-solid fa-fingerprint"></i> Autenticar Credenciais`;
             }
         });
